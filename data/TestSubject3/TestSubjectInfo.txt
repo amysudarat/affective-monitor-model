@@ -1,0 +1,11 @@
+Date 10/10/2018 10:56 PM
+TestSubjectID 003
+Age 
+Gender 
+Ethnicitys 
+FAPU (Facial Action Parameter Unit)
+ES 6.577019E-05
+ENS 4.288556E-05
+IRISD 6.539762E-06
+MNS 2.105742E-05
+MW 4.80904E-05
