@@ -10,32 +10,33 @@ import numpy as np
 import torch
 import torch.utils.data.dataset as Dataset
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 
-class AffectiveMonitorDataset(Dataset):
-    """ Affective Monitor Dataset """
-    def __init__(self,filepath,transform=None):
-        """
-        Args:
-            filepath (string): Path to data input textfile
-            transform (callable,optional): optional transform to be applied on a sample.
-        """
-        self.face_frame = self.load_dataframe(filepath)
-        self.transform = transform
-
-
-    def load_dataframe(self,path):
-        path = "C:\\Users\\DSPLab\\Research\\affective-monitor-model\\data\\test\\FacialPoints.txt"    
-        face_df = pd.read_csv(path,header=3,delimiter=",",quotechar=";",index_col="PicIndex",skipinitialspace=True)
-        # convert string to tuple
-        for i in range(3,7):
-            face_df.iloc[:,i] = pd.Series([ast.literal_eval(x) for x in face_df.iloc[:,i]])         
-        return face_df
-    
-    def __len__(self):
-        return len(self.face_frame)
-    
-    def __getitem__(self,idx):
+#class AffectiveMonitorDataset(Dataset):
+#    """ Affective Monitor Dataset """
+#    def __init__(self,filepath,transform=None):
+#        """
+#        Args:
+#            filepath (string): Path to data input textfile
+#            transform (callable,optional): optional transform to be applied on a sample.
+#        """
+#        self.face_frame = self.load_dataframe(filepath)
+#        self.transform = transform
+#
+#
+#    def load_dataframe(self,path):
+#        path = "C:\\Users\\DSPLab\\Research\\affective-monitor-model\\data\\test\\FacialPoints.txt"    
+#        face_df = pd.read_csv(path,header=3,delimiter=",",quotechar=";",index_col="PicIndex",skipinitialspace=True)
+#        # convert string to tuple
+#        for i in range(3,7):
+#            face_df.iloc[:,i] = pd.Series([ast.literal_eval(x) for x in face_df.iloc[:,i]])         
+#        return face_df
+#    
+#    def __len__(self):
+#        return len(self.face_frame)
+#    
+#    def __getitem__(self,idx):
         
 
 
@@ -51,17 +52,32 @@ def load_facial_graph():
             input_samples = input_samples.append(face,ignore_index=True)
     
 def load_facial_graph_test():
-    path = "C:\\Users\\DSPLab\\Research\\affective-monitor-model\\data\\test\\FacialPoints.txt"    
-    face_df = pd.read_csv(path,header=3,delimiter=",",quotechar=";",index_col="PicIndex",skipinitialspace=True)
+    path = "C:\\Users\\DSPLab\\Research\\affective-monitor-model\\data\\TestSubject2\\Data.txt"    
+    face_df = pd.read_csv(path,header=2,delimiter=",",quotechar=";",index_col="PicIndex",skipinitialspace=True)
     # convert string to tuple
-    for i in range(3,7):
+#    face_df.shape[1]-1
+    for i in range(0,1347):
         face_df.iloc[:,i] = pd.Series([ast.literal_eval(x) for x in face_df.iloc[:,i]]) 
     
     return face_df
+
+def plot_face(face):
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    face = list(face.iloc[0:1347])
+    
+    ax.scatter(*zip(*face),c='r')   
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+    ax.set_zlabel('Z')
+   
+    plt.show()
+    
 
 
 if __name__ == "__main__":
 #    testpath = "
 #    load_facial_graph()
     face = load_facial_graph_test()
+    plot_face(face.iloc[0])
     

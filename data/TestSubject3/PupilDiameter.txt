@@ -1,2 +1,0 @@
-Format (See below)
-DateTime,PictureIndex,PupilDiameter(L),PupilDiameter(R)
