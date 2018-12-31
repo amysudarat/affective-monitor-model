@@ -63,10 +63,13 @@ def plot_face(face):
        
         plt.show()
 
+#def update_plot(i,data,scat)
+
 if __name__ == "__main__":
 #    testpath = "
 #    load_facial_graph()
     
     face_dataset = AffectiveMonitorDataset("C:\\Users\\DSPLab\\Research\\affective-monitor-model\\data\\TestSubject2\\Data.txt")
+    data = face_dataset.face_frame
     plot_face(face_dataset.face_frame.iloc[0])
     
