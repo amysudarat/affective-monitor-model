@@ -1,0 +1,11 @@
+Date 12/25/18 17:47:54.710
+TestSubjectID 2
+Age 31
+Gender Male
+Ethnicitys Hispanic
+FAPU (Facial Action Parameter Unit)
+ES 6.600031E-05
+ENS 4.546474E-05
+IRISD 7.675844E-06
+MNS 1.971611E-05
+MW 4.894773E-05
