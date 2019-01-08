@@ -7,7 +7,13 @@ from torch.utils.data import Dataset
 
 
 class AffectiveMonitorDataset(Dataset):
-    """ Affective Monitor Dataset """
+    """ Affective Monitor Dataset:
+         Args:
+            filepath (string): Path to data directory
+            mode (string):  'FAC' is default mode to load vector of FAC unit 
+                            'RAW' load raw data which are 1347 points of facial points cloud
+            transform (callable,optional): optional transform to be applied on a sample
+    """
     
     def __init__(self,filepath,mode='FAC',transform=None):
         """
