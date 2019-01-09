@@ -1,0 +1,8 @@
+Date 01/09/19 14:29:28.606
+TestSubjectID 2
+Age 25
+Gender Female
+Ethnicitys Asian
+FAPU (Facial Action Parameter Unit)
+ES,ENS,IRISD,MNS,MW
+6.594551E-05,4.635409E-05,7.561583E-06,2.043479E-05,4.704242E-05

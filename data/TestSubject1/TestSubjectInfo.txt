@@ -1,0 +1,8 @@
+Date 01/09/19 14:27:17.183
+TestSubjectID 1
+Age 33
+Gender Male
+Ethnicitys White
+FAPU (Facial Action Parameter Unit)
+ES,ENS,IRISD,MNS,MW
+6.60113E-05,4.500872E-05,7.445764E-06,2.056916E-05,4.44738E-05
