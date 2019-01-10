@@ -57,20 +57,20 @@ def plot_face(face):
        
         plt.show()
         
-def test(face):
-    for item in zip(face):
-        print(str(1)+str(item))
-
-#def update_plot(i,data,scat)
-
-if __name__ == "__main__":
-#    testpath = "
-#    load_facial_graph()
-    
+def show_face(face):
     face_dataset = AffectiveMonitorDataset("C:\\Users\\DSPLab\\Research\\affective-monitor-model\\data",'RAW')
 #    face_dataset = AffectiveMonitorDataset("E:\\Research\\affective-monitor-model\\data")
     data = face_dataset[0]
     face = data["facepoints"]
     plot_face(face[0])
-#    test(face[0])
+
+#def update_plot(i,data,scat)
+
+if __name__ == "__main__":
+    # FAP is loaded by default
+    face_dataset = AffectiveMonitorDataset("C:\\Users\\DSPLab\\Research\\affective-monitor-model\\data")
+#    face_dataset = AffectiveMonitorDataset("E:\\Research\\affective-monitor-model\\data")
+    data = face_dataset[0]
+    faceFAC = data["faceFAP"]
+
 
