@@ -38,19 +38,17 @@ class AffectiveMonitorDataset(Dataset):
         Read CSV file and convert it FAC unit
         """
         # create file path 
-        filepaths = [os.path.join(path, "TestSubject"+str(i)+"\\FAP.txt") for i in range(6,7)]
+        filepaths = [os.path.join(path, "TestSubject"+str(i)+"\\FAP.txt") for i in range(1,3)]
         
         # initialize Total dataframe
         total = pd.DataFrame()
         # Loop through each Testsubject folder
         for filepath in filepaths:
             face_df = pd.read_csv(filepath,header=2,delimiter=",",
+                                  quotechar=";",
                                   index_col="PicIndex",
                                   skipinitialspace=True)
                                   
-            # convert string to tuple
-            for i in range(0,3):
-                face_df.iloc[:,i] = pd.Series([ast.literal_eval(x) for x in face_df.iloc[:,i]]) 
             # create face sample loop through each picture index
             for i in range(1,4):
                 # group sequence of face point
@@ -78,13 +76,17 @@ class AffectiveMonitorDataset(Dataset):
         Read CSV file and convert it to all points obtained
         """
         # create file path 
-        filepaths = [os.path.join(path, "TestSubject"+str(i)+"\\Data.txt") for i in range(2,4)]
+        filepaths = [os.path.join(path, "TestSubject"+str(i)+"\\Data.txt") for i in range(1,3)]
         
         # initialize Total dataframe
         total = pd.DataFrame()
         # Loop through each Testsubject folder
         for filepath in filepaths:
-            face_df = pd.read_csv(filepath,header=2,delimiter=",",quotechar=";",index_col="PicIndex",skipinitialspace=True)
+            face_df = pd.read_csv(filepath,header=2,
+                                  delimiter=",",
+                                  quotechar=";",
+                                  index_col="PicIndex",
+                                  skipinitialspace=True)
             # convert string to tuple
             for i in range(0,1347):
                 face_df.iloc[:,i] = pd.Series([ast.literal_eval(x) for x in face_df.iloc[:,i]]) 
