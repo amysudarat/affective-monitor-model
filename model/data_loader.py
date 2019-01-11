@@ -25,7 +25,7 @@ def annotate3D(ax, s, *args, **kwargs):
     tag = Annotation3D(s, *args, **kwargs)
     ax.add_artist(tag)
     
-def plot_face(face):
+def plot_face(face,annotate=False):
         """
         Args:
         face: list of face points cloud
@@ -45,10 +45,11 @@ def plot_face(face):
         
         ax.scatter(X,Y,Z,c='r')
         # annotate each point
-        xyzn = zip(X,Y,Z)
-        for j, xyz_ in enumerate(xyzn): 
-            annotate3D(ax, s=str(j-1), xyz=xyz_, fontsize=10, xytext=(-3,3),
-            textcoords='offset points', ha='right',va='bottom')   
+        if annotate:
+            xyzn = zip(X,Y,Z)
+            for j, xyz_ in enumerate(xyzn): 
+                annotate3D(ax, s=str(j-1), xyz=xyz_, fontsize=10, xytext=(-3,3),
+                textcoords='offset points', ha='right',va='bottom')   
         
         # label axis
         ax.set_xlabel('X')
@@ -57,7 +58,7 @@ def plot_face(face):
        
         plt.show()
         
-def show_face(face):
+def show_face():
     face_dataset = AffectiveMonitorDataset("C:\\Users\\DSPLab\\Research\\affective-monitor-model\\data",'RAW')
 #    face_dataset = AffectiveMonitorDataset("E:\\Research\\affective-monitor-model\\data")
     data = face_dataset[0]
@@ -72,5 +73,6 @@ if __name__ == "__main__":
 #    face_dataset = AffectiveMonitorDataset("E:\\Research\\affective-monitor-model\\data")
     data = face_dataset[:]
     faceFAC = data["faceFAP"]
+#    show_face()
 
 
