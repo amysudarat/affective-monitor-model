@@ -154,30 +154,27 @@ class AffectiveMonitorDataset(Dataset):
             for i in range(face_df.shape[0]):
                 # adjust fapu based on distance
                 fapu_per_frame = face_df.iloc[i,21:26]
+                depth = face_df.iloc[i,26]
                  # convert data to fap unit using global fapu
-                 
-                face_df.iloc[i]['31'] = face_df['31']/fapu_per_frame['ENS']
-                face_df['32'] = face_df['32']/fapu_per_frame['ENS']
-                face_df['35'] = face_df['35']/fapu_per_frame['ENS']
-                face_df['36'] = face_df['36']/fapu_per_frame['ENS']
-                face_df['37'] = face_df['37']/fapu_per_frame['ES']
-                face_df['38'] = face_df['38']/fapu_per_frame['ES']
-                face_df['19'] = face_df['19']/fapu_per_frame['IRSD']
-                face_df['20'] = face_df['20']/fapu_per_frame['IRSD']
-                face_df['41'] = face_df['41']/fapu_per_frame['ENS']
-                face_df['42'] = face_df['42']/fapu_per_frame['ENS']
-                face_df['61'] = face_df['61']/fapu_per_frame['ENS']
-                face_df['62'] = face_df['62']/fapu_per_frame['ENS']
-                face_df['59'] = face_df['59']/fapu_per_frame['MNS']
-                face_df['60'] = face_df['60']/fapu_per_frame['MNS']
-                face_df['53'] = face_df['53']/fapu_per_frame['MW']
-                face_df['54'] = face_df['54']/fapu_per_frame['MW']
-                face_df['5'] = face_df['5']/fapu_per_frame['MNS']
-                face_df['4'] = face_df['4']/fapu_per_frame['MNS']
-                face_df['3'] = face_df['3']/fapu_per_frame['MNS']
-                
-                
-            
+                face_df.iloc[i,face_df.columns.get_loc("31")] = face_df.iloc[i,face_df.columns.get_loc("31")]/fapu_per_frame['ENS']
+                face_df.iloc[i,face_df.columns.get_loc("32")] = face_df.iloc[i,face_df.columns.get_loc("32")]/fapu_per_frame['ENS']
+                face_df.iloc[i,face_df.columns.get_loc("35")] = face_df.iloc[i,face_df.columns.get_loc("35")]/fapu_per_frame['ENS']
+                face_df.iloc[i,face_df.columns.get_loc("36")] = face_df.iloc[i,face_df.columns.get_loc("36")]/fapu_per_frame['ENS']
+                face_df.iloc[i,face_df.columns.get_loc("37")] = face_df.iloc[i,face_df.columns.get_loc("37")]/fapu_per_frame['ES']
+                face_df.iloc[i,face_df.columns.get_loc("38")] = face_df.iloc[i,face_df.columns.get_loc("38")]/fapu_per_frame['ES']
+                face_df.iloc[i,face_df.columns.get_loc("19")] = face_df.iloc[i,face_df.columns.get_loc("19")]/fapu_per_frame['IRSD']
+                face_df.iloc[i,face_df.columns.get_loc("20")] = face_df.iloc[i,face_df.columns.get_loc("20")]/fapu_per_frame['IRSD']
+                face_df.iloc[i,face_df.columns.get_loc("41")] = face_df.iloc[i,face_df.columns.get_loc("41")]/fapu_per_frame['ENS']
+                face_df.iloc[i,face_df.columns.get_loc("42")] = face_df.iloc[i,face_df.columns.get_loc("42")]/fapu_per_frame['ENS']
+                face_df.iloc[i,face_df.columns.get_loc("61")] = face_df.iloc[i,face_df.columns.get_loc("61")]/fapu_per_frame['ENS']
+                face_df.iloc[i,face_df.columns.get_loc("62")] = face_df.iloc[i,face_df.columns.get_loc("62")]/fapu_per_frame['ENS']
+                face_df.iloc[i,face_df.columns.get_loc("59")] = face_df.iloc[i,face_df.columns.get_loc("59")]/fapu_per_frame['MNS']
+                face_df.iloc[i,face_df.columns.get_loc("60")] = face_df.iloc[i,face_df.columns.get_loc("60")]/fapu_per_frame['MNS']
+                face_df.iloc[i,face_df.columns.get_loc("53")] = face_df.iloc[i,face_df.columns.get_loc("53")]/fapu_per_frame['MW']
+                face_df.iloc[i,face_df.columns.get_loc("54")] = face_df.iloc[i,face_df.columns.get_loc("54")]/fapu_per_frame['MW']
+                face_df.iloc[i,face_df.columns.get_loc("5")]  = face_df.iloc[i,face_df.columns.get_loc("5")]/fapu_per_frame['MNS']
+                face_df.iloc[i,face_df.columns.get_loc("4")]  = face_df.iloc[i,face_df.columns.get_loc("4")]/fapu_per_frame['MNS']
+                face_df.iloc[i,face_df.columns.get_loc("3")]  = face_df.iloc[i,face_df.columns.get_loc("3")]/fapu_per_frame['MNS']          
         else:           
             # convert data to fap unit using global fapu
             face_df['31'] = face_df['31']/fapu['ENS']
