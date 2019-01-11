@@ -61,14 +61,11 @@ class AffectiveMonitorDataset(Dataset):
             except:   
                 print("Pupil is off")
             # adjust FAPU if fix_distance is True, otherwise just go ahead and divide by the global FAPU
-            if self.fix_distance:
-                # fix FAPU parameter
-                adjusted_fapu = self.global_fapu[i]
-                # convert FAP in FAPU using adjusted fapu
-                self.FAPUlize(adjusted_fapu[i])
+            if self.fix_distance:  
+                self.FAPUlize(face_df,self.global_fapu[i],adjust=True)
             else:
                 # convert FAP in FAPU using global fapu
-                self.FAPUlize(self.global_fapu)
+                self.FAPUlize(face_df,fapu=self.global_fapu[i],adjust=False)
             # create face sample loop through each picture index
             for i in range(1,max(face_df.index.values)+1):
                 # group sequence of face point
@@ -151,8 +148,57 @@ class AffectiveMonitorDataset(Dataset):
             total = total.append(FAPU_df,ignore_index=True)
         return total
     
-    def FAPUlize(self,fapu):
-        
+    def FAPUlize(self,face_df,fapu,adjust=False):
+        if adjust:            
+            # convert data to fap unit for each frame
+            for i in range(face_df.shape[0]):
+                # adjust fapu based on distance
+                fapu_per_frame = face_df.iloc[i,21:26]
+                 # convert data to fap unit using global fapu
+                 
+                face_df.iloc[i]['31'] = face_df['31']/fapu_per_frame['ENS']
+                face_df['32'] = face_df['32']/fapu_per_frame['ENS']
+                face_df['35'] = face_df['35']/fapu_per_frame['ENS']
+                face_df['36'] = face_df['36']/fapu_per_frame['ENS']
+                face_df['37'] = face_df['37']/fapu_per_frame['ES']
+                face_df['38'] = face_df['38']/fapu_per_frame['ES']
+                face_df['19'] = face_df['19']/fapu_per_frame['IRSD']
+                face_df['20'] = face_df['20']/fapu_per_frame['IRSD']
+                face_df['41'] = face_df['41']/fapu_per_frame['ENS']
+                face_df['42'] = face_df['42']/fapu_per_frame['ENS']
+                face_df['61'] = face_df['61']/fapu_per_frame['ENS']
+                face_df['62'] = face_df['62']/fapu_per_frame['ENS']
+                face_df['59'] = face_df['59']/fapu_per_frame['MNS']
+                face_df['60'] = face_df['60']/fapu_per_frame['MNS']
+                face_df['53'] = face_df['53']/fapu_per_frame['MW']
+                face_df['54'] = face_df['54']/fapu_per_frame['MW']
+                face_df['5'] = face_df['5']/fapu_per_frame['MNS']
+                face_df['4'] = face_df['4']/fapu_per_frame['MNS']
+                face_df['3'] = face_df['3']/fapu_per_frame['MNS']
+                
+                
+            
+        else:           
+            # convert data to fap unit using global fapu
+            face_df['31'] = face_df['31']/fapu['ENS']
+            face_df['32'] = face_df['32']/fapu['ENS']
+            face_df['35'] = face_df['35']/fapu['ENS']
+            face_df['36'] = face_df['36']/fapu['ENS']
+            face_df['37'] = face_df['37']/fapu['ES']
+            face_df['38'] = face_df['38']/fapu['ES']
+            face_df['19'] = face_df['19']/fapu['IRSD']
+            face_df['20'] = face_df['20']/fapu['IRSD']
+            face_df['41'] = face_df['41']/fapu['ENS']
+            face_df['42'] = face_df['42']/fapu['ENS']
+            face_df['61'] = face_df['61']/fapu['ENS']
+            face_df['62'] = face_df['62']/fapu['ENS']
+            face_df['59'] = face_df['59']/fapu['MNS']
+            face_df['60'] = face_df['60']/fapu['MNS']
+            face_df['53'] = face_df['53']/fapu['MW']
+            face_df['54'] = face_df['54']/fapu['MW']
+            face_df['5'] = face_df['5']/fapu['MNS']
+            face_df['4'] = face_df['4']/fapu['MNS']
+            face_df['3'] = face_df['3']/fapu['MNS']
         
 
     def preprocess_pupil(self):
