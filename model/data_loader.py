@@ -68,9 +68,9 @@ def show_face(face):
 
 if __name__ == "__main__":
     # FAP is loaded by default
-    face_dataset = AffectiveMonitorDataset("C:\\Users\\DSPLab\\Research\\affective-monitor-model\\data")
-#    face_dataset = AffectiveMonitorDataset("E:\\Research\\affective-monitor-model\\data")
-    data = face_dataset[0]
+#    face_dataset = AffectiveMonitorDataset("C:\\Users\\DSPLab\\Research\\affective-monitor-model\\data")
+    face_dataset = AffectiveMonitorDataset("E:\\Research\\affective-monitor-model\\data")
+    data = face_dataset[:]
     faceFAC = data["faceFAP"]
 
 

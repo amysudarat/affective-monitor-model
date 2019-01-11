@@ -47,8 +47,9 @@ class AffectiveMonitorDataset(Dataset):
         # initialize Total dataframe
         total = pd.DataFrame()
         # Loop through each Testsubject folder
-        for filepath in filepaths:
-            face_df = pd.read_csv(filepath,header=1,delimiter=",",
+        for i in range(len(filepaths)):
+            
+            face_df = pd.read_csv(filepaths[i],header=1,delimiter=",",
                                   quotechar=";",
 #                                  index_col="PicIndex",
                                   skipinitialspace=True)   
@@ -62,14 +63,14 @@ class AffectiveMonitorDataset(Dataset):
             # adjust FAPU if fix_distance is True, otherwise just go ahead and divide by the global FAPU
             if self.fix_distance:
                 # fix FAPU parameter
-                
-                # convert FAP in FAPU 
-                self.FAPUlize()
+                adjusted_fapu = self.global_fapu[i]
+                # convert FAP in FAPU using adjusted fapu
+                self.FAPUlize(adjusted_fapu[i])
             else:
-                # convert FAP in FAPU 
-                self.FAPUlize()
+                # convert FAP in FAPU using global fapu
+                self.FAPUlize(self.global_fapu)
             # create face sample loop through each picture index
-            for i in range(1,max(face_df.index.values)):
+            for i in range(1,max(face_df.index.values)+1):
                 # group sequence of face point
                 face_per_picture = face_df.loc[i]
                 face_FAP_per_picture = face_per_picture.iloc[:,0:19]
@@ -147,6 +148,11 @@ class AffectiveMonitorDataset(Dataset):
         for filepath in filepaths_fapu:
             subject_number += 1
             FAPU_df = pd.read_csv(filepath,header=6)
+            total = total.append(FAPU_df,ignore_index=True)
+        return total
+    
+    def FAPUlize(self,fapu):
+        
         
 
     def preprocess_pupil(self):
