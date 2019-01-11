@@ -4,5 +4,5 @@ Age 18
 Gender Female
 Ethnicitys Hispanic
 FAPU (Facial Action Parameter Unit)
-ES,ENS,IRISD,MNS,MW
+ES,ENS,IRSD,MNS,MW
 6.599337E-05,4.588411E-05,7.475188E-06,2.054241E-05,4.802338E-05

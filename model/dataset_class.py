@@ -62,10 +62,10 @@ class AffectiveMonitorDataset(Dataset):
                 print("Pupil is off")
             # adjust FAPU if fix_distance is True, otherwise just go ahead and divide by the global FAPU
             if self.fix_distance:  
-                self.FAPUlize(face_df,self.global_fapu[i],adjust=True)
+                self.FAPUlize(face_df,self.global_fapu.iloc[i],adjust=True)
             else:
                 # convert FAP in FAPU using global fapu
-                self.FAPUlize(face_df,fapu=self.global_fapu[i],adjust=False)
+                self.FAPUlize(face_df,fapu=self.global_fapu.iloc[i],adjust=False)
             # create face sample loop through each picture index
             for i in range(1,max(face_df.index.values)+1):
                 # group sequence of face point
