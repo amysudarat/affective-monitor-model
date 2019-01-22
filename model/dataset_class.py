@@ -10,19 +10,30 @@ class AffectiveMonitorDataset(Dataset):
     """ Affective Monitor Dataset:
          Args:
             filepath (string): Path to data directory
+            
             mode (string):  'FAC' is default mode to load vector of FAC unit 
                             'RAW' load raw data which are 1347 points of facial points cloud
+                            
             transform (callable,optional): optional transform to be applied on a sample
+            
+            fix_distance (bool): will FAPU get adjusted by distance or not. Default is 'False' 
+            
+            subjects (list): list of test subject number specified to be loaded
     """
     
-    def __init__(self,filepath,mode='FAC',transform=None,fix_distance=False):
+    def __init__(self,filepath,mode='FAC',transform=None,fix_distance=False,subjects=None):
         """
         Args:
             filepath (string): Path to data directory
             mode (string):  'FAC' is default mode to load vector of FAC unit 
                             'RAW' load raw data which are 1347 points of facial points cloud
-            transform (callable,optional): optional transform to be applied on a sample
+            transform (callable,optional): optional transform to be applied on a sample            
         """
+        # determine how many test subjects data will be loaded
+        if subjects:
+            self.subjects = subjects
+        else:
+            self.subjects = [i for i in range(1,2)]
         # map pic index with arousal level and valence level
         self.label_lookup = self.load_label(filepath)
         self.fix_distance = fix_distance
@@ -36,13 +47,14 @@ class AffectiveMonitorDataset(Dataset):
         # option for data augmentation
         self.transform = transform
         
+        
     
     def load_dataframe_FAC(self,path):
         """
         Read CSV file and convert it FAC unit
         """
         # create file path 
-        filepaths = [os.path.join(path, "TestSubject"+str(i)+"\\FAP.txt") for i in range(1,3)]
+        filepaths = [os.path.join(path, "TestSubject"+str(i)+"\\FAP.txt") for i in self.subjects]
         
         # initialize Total dataframe
         total = pd.DataFrame()
@@ -52,14 +64,18 @@ class AffectiveMonitorDataset(Dataset):
             face_df = pd.read_csv(filepaths[i],header=1,delimiter=",",
                                   quotechar=";",
 #                                  index_col="PicIndex",
-                                  skipinitialspace=True)   
+                                  skipinitialspace=True) 
+            
             # set index column
             face_df = face_df.set_index("PicIndex")
+            # fill pupil diameter of the first row by the second row
+            face_df.iloc[0,face_df.columns.get_loc("PupilDiameter")] = face_df.iloc[1,face_df.columns.get_loc("PupilDiameter")]
+            self.face_df = face_df
             # convert string to tuple on pupil diameter column 
             try:
                 face_df["PupilDiameter"] = pd.Series([ast.literal_eval(x) for x in face_df["PupilDiameter"]]) 
-            except:   
-                print("Pupil is off")
+            except Exception as e:   
+                print(e)
             # adjust FAPU if fix_distance is True, otherwise just go ahead and divide by the global FAPU
             if self.fix_distance:  
                 self.FAPUlize(face_df,self.global_fapu.iloc[i],adjust=True)
@@ -93,7 +109,7 @@ class AffectiveMonitorDataset(Dataset):
         Read CSV file and convert it to all points obtained
         """
         # create file path 
-        filepaths = [os.path.join(path, "TestSubject"+str(i)+"\\Data.txt") for i in range(1,3)]
+        filepaths = [os.path.join(path, "TestSubject"+str(i)+"\\Data.txt") for i in self.subjects]
         
         # initialize Total dataframe
         total = pd.DataFrame()
@@ -136,7 +152,7 @@ class AffectiveMonitorDataset(Dataset):
     
     def load_FAPU(self,path):
         # create file path 
-        filepaths_fapu = [os.path.join(path, "TestSubject"+str(i)+"\\TestSubjectInfo.txt") for i in range(1,3)]
+        filepaths_fapu = [os.path.join(path, "TestSubject"+str(i)+"\\TestSubjectInfo.txt") for i in self.subjects]
         
         # loop through each test subject
         subject_number = 0
