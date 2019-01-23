@@ -59,8 +59,8 @@ def pupil_to_tuple():
 
 def test_pupil():
     # FAP is loaded by default
-#    face_dataset = AffectiveMonitorDataset("C:\\Users\\DSPLab\\Research\\ExperimentData",subjects=[1])
-    face_dataset = AffectiveMonitorDataset("E:\\Research\\ExperimentData",subjects=[1])
+    face_dataset = AffectiveMonitorDataset("C:\\Users\\DSPLab\\Research\\ExperimentData",subjects=[1])
+#    face_dataset = AffectiveMonitorDataset("E:\\Research\\ExperimentData",subjects=[1])
     samples = face_dataset[:]
     dataframe = face_dataset.face_df
     return samples, dataframe

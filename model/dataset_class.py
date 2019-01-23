@@ -74,20 +74,31 @@ class AffectiveMonitorDataset(Dataset):
             
             # convert string to tuple on pupil diameter column 
             # right now the way we handle sample is to replace the invalid value to (0,0)
-            for i in range(1,max(face_df.index.values)+1):
-                pupil_per_sample = face_df.loc[i,'PupilDiameter']
+            for i in range(face_df.shape[0]):
                 try:
-                    face_df.loc[i,'PupilDiameter'] = pd.Series([ast.literal_eval(x) for x in pupil_per_sample])
-                except Exception as e:
-#                    print(i)
-                    converted = []
-                    for j in range(len(pupil_per_sample)):               
-                        try:
-                            converted.append(ast.literal_eval(pupil_per_sample.iloc[j])) 
-                        except:
-                            a = (0,0)
-                            converted.append(a)
-                    face_df.loc[i,'PupilDiameter'] = pd.Series(converted)
+                    a = ast.literal_eval(face_df.iloc[i,face_df.columns.get_loc("PupilDiameter")])
+                    face_df.iat[i,face_df.columns.get_loc("PupilDiameter")] = a
+                except:
+                    a = (0,0)
+                    face_df.iat[i,face_df.columns.get_loc("PupilDiameter")] = a            
+            
+#            converted = []
+#            for j in face_df['PupilDiameter']:    
+##                print(j)
+#                try:
+##                    tup = ast.literal_eval(j)
+##                    print(tup)
+##                    converted.append(tup) 
+#                    converted.append(ast.literal_eval(j)) 
+#                except:
+#                    a = (0,0)
+#                    converted.append(a)
+##            face_df['PupilDiameter'] = pd.Series(converted)
+#            update_vals = pd.Series(converted)
+#            face_df = face_df.drop('PupilDiameter',axis=1)
+#            face_df['PupilDiameter'] = update_vals
+                    
+
             # adjust FAPU if fix_distance is True, otherwise just go ahead and divide by the global FAPU
             if self.fix_distance:  
                 self.FAPUlize(face_df,self.global_fapu.iloc[0],adjust=True)
