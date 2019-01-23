@@ -68,21 +68,34 @@ class AffectiveMonitorDataset(Dataset):
             
             # set index column
             face_df = face_df.set_index("PicIndex")
+            self.face_df = face_df
             # fill pupil diameter of the first row by the second row
             face_df.iloc[0,face_df.columns.get_loc("PupilDiameter")] = face_df.iloc[1,face_df.columns.get_loc("PupilDiameter")]
-            self.face_df = face_df
+            
             # convert string to tuple on pupil diameter column 
-            try:
-                face_df["PupilDiameter"] = pd.Series([ast.literal_eval(x) for x in face_df["PupilDiameter"]]) 
-            except Exception as e:   
-                print(e)
+            # right now the way we handle sample is to replace the invalid value to (0,0)
+            for i in range(1,max(face_df.index.values)+1):
+                pupil_per_sample = face_df.loc[i,'PupilDiameter']
+                try:
+                    face_df.loc[i,'PupilDiameter'] = pd.Series([ast.literal_eval(x) for x in pupil_per_sample])
+                except Exception as e:
+#                    print(i)
+                    converted = []
+                    for j in range(len(pupil_per_sample)):               
+                        try:
+                            converted.append(ast.literal_eval(pupil_per_sample.iloc[j])) 
+                        except:
+                            a = (0,0)
+                            converted.append(a)
+                    face_df.loc[i,'PupilDiameter'] = pd.Series(converted)
             # adjust FAPU if fix_distance is True, otherwise just go ahead and divide by the global FAPU
             if self.fix_distance:  
-                self.FAPUlize(face_df,self.global_fapu.iloc[i],adjust=True)
+                self.FAPUlize(face_df,self.global_fapu.iloc[0],adjust=True)
             else:
                 # convert FAP in FAPU using global fapu
-                self.FAPUlize(face_df,fapu=self.global_fapu.iloc[i],adjust=False)
+                self.FAPUlize(face_df,fapu=self.global_fapu.iloc[0],adjust=False)
             # create face sample loop through each picture index
+#            self.face_df = face_df
             for i in range(1,max(face_df.index.values)+1):
                 # group sequence of face point
                 face_per_picture = face_df.loc[i]

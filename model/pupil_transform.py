@@ -38,17 +38,8 @@ def plot_pupil(data):
         ax.set_zlabel('Z')
        
         plt.show()
-
-
-def test_pupil():
-    # FAP is loaded by default
-    face_dataset = AffectiveMonitorDataset("C:\\Users\\DSPLab\\Research\\ExperimentData",subjects=[1])
-#    face_dataset = AffectiveMonitorDataset("E:\\Research\\affective-monitor-model\\data",subjects=[1])
-    data = face_dataset.face_df   
-    return data
-
-
-if __name__ == "__main__":
+        
+def pupil_to_tuple():    
     data = test_pupil()
     for i in range(1,71):
         test = data.loc[i,'PupilDiameter']
@@ -56,7 +47,6 @@ if __name__ == "__main__":
             data.loc[i,'PupilDiameter'] = pd.Series([ast.literal_eval(x) for x in test])
         except Exception as e:
             print(i)
-#            print(e)
             converted = []
             for j in range(len(test)):               
                 try:
@@ -65,6 +55,20 @@ if __name__ == "__main__":
                     a = (0,0)
                     converted.append(a)
             data.loc[i,'PupilDiameter'] = pd.Series(converted)
+
+
+def test_pupil():
+    # FAP is loaded by default
+#    face_dataset = AffectiveMonitorDataset("C:\\Users\\DSPLab\\Research\\ExperimentData",subjects=[1])
+    face_dataset = AffectiveMonitorDataset("E:\\Research\\ExperimentData",subjects=[1])
+    samples = face_dataset[:]
+    dataframe = face_dataset.face_df
+    return samples, dataframe
+
+
+if __name__ == "__main__":
+    samples , dataframe = test_pupil()
+   
                     
     
     
