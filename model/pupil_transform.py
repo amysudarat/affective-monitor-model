@@ -3,41 +3,37 @@
 import ast
 import pandas as pd
 from dataset_class import AffectiveMonitorDataset
+import matplotlib.pyplot as plt
 
 #import matplotlib.pyplot as plt
 
 def plot_pupil(data):
-        """
-        Args:
-        data: list of pupil diameter (left,right)
-        """
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
-#        face = list(face.iloc[0:1347])
-        
-#        ax.scatter(*zip(*face),c='r')   
-        X = []
-        Y=[]
-        Z=[]
-        for item in face:
-            X.append(item[0])
-            Y.append(item[1])
-            Z.append(item[2])
-        
-        ax.scatter(X,Y,Z,c='r')
-        # annotate each point
-        if annotate:
-            xyzn = zip(X,Y,Z)
-            for j, xyz_ in enumerate(xyzn): 
-                annotate3D(ax, s=str(j-1), xyz=xyz_, fontsize=10, xytext=(-3,3),
-                textcoords='offset points', ha='right',va='bottom')   
-        
-        # label axis
-        ax.set_xlabel('X')
-        ax.set_ylabel('Y')
-        ax.set_zlabel('Z')
-       
-        plt.show()
+    """
+    Args:
+    data: list of pupil diameter (left,right)
+    """
+    fig = plt.figure()
+    ax1 = fig.add_subplot(211)
+    ax2 = fig.add_subplot(212) 
+    # Unpack tuple to two lists
+    L = []
+    R=[]       
+    for item in data:
+        L.append(item[0])
+        R.append(item[1])
+    # create time series
+    t = [i for i in range(len(L))]
+    
+    # plot PD
+    ax1.plot(t,L,'.-')
+    ax1.set(xlabel='samples', ylabel='PD (Left)', title='Pupil Diameter')
+    ax1.grid()
+    ax2.plot(t,R,'.-')
+    ax2.set(xlabel='samples', ylabel='PD (Right)')
+    ax2.grid()
+                      
+#    plt.suptitle('Pupil Diameter')
+    plt.show()
         
 def pupil_to_tuple():    
     data = test_pupil()
@@ -68,6 +64,7 @@ def test_pupil():
 
 if __name__ == "__main__":
     samples , dataframe = test_pupil()
+    plot_pupil(dataframe['PupilDiameter'])
    
                     
     

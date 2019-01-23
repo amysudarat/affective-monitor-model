@@ -77,9 +77,11 @@ class AffectiveMonitorDataset(Dataset):
             for i in range(face_df.shape[0]):
                 try:
                     a = ast.literal_eval(face_df.iloc[i,face_df.columns.get_loc("PupilDiameter")])
-                    face_df.iat[i,face_df.columns.get_loc("PupilDiameter")] = a
+                    # handling missing value 
+                    if a[0] > 2:
+                        face_df.iat[i,face_df.columns.get_loc("PupilDiameter")] = a
                 except:
-                    a = (0,0)
+                    a = face_df.iat[i-1,face_df.columns.get_loc("PupilDiameter")]
                     face_df.iat[i,face_df.columns.get_loc("PupilDiameter")] = a            
             
 #            converted = []
