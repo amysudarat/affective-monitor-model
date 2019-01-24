@@ -13,8 +13,10 @@ def plot_pupil(PD,IL):
     data: list of pupil diameter (left,right)
     """
     fig = plt.figure()
-    ax1 = fig.add_subplot(211)
-    ax2 = fig.add_subplot(212) 
+    ax1 = fig.add_subplot(311)
+    ax2 = fig.add_subplot(312) 
+    ax3 = fig.add_subplot(313) 
+    
     # Unpack tuple to two lists
     L = []
     R=[]       
@@ -25,12 +27,15 @@ def plot_pupil(PD,IL):
     t = [i for i in range(len(L))]
     
     # plot PD
-    ax1.plot(t,L,'.-')
-    ax1.set(xlabel='samples', ylabel='PD (Left)', title='Pupil Diameter')
+    ax1.plot(t,L,'.-r')
+    ax1.set(ylabel='PD (Left)', title='Pupil Diameter (Left)')
     ax1.grid()
-    ax2.plot(t,R,'.-')
-    ax2.set(xlabel='samples', ylabel='PD (Right)')
+    ax2.plot(t,R,'.-r')
+    ax2.set(ylabel='PD (Right)', title='Pupil Diameter (Right)')
     ax2.grid()
+    ax3.plot(t,IL,'.-')
+    ax3.set(ylabel='Illum', title='Illuminance')
+    ax3.grid()
                       
 #    plt.suptitle('Pupil Diameter')
     plt.show()
@@ -64,7 +69,7 @@ def test_pupil():
 
 if __name__ == "__main__":
     samples , dataframe = test_pupil()
-    plot_pupil(dataframe['PupilDiameter'],dataframe['Illumination'])
+    plot_pupil(dataframe['PupilDiameter'],dataframe['Illuminance'])
    
                     
     
