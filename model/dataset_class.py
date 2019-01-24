@@ -74,33 +74,44 @@ class AffectiveMonitorDataset(Dataset):
             
             # convert string to tuple on pupil diameter column 
             # right now the way we handle sample is to replace the invalid value to (0,0)
+            a_prev = (0,0)
             for i in range(face_df.shape[0]):
                 try:
                     a = ast.literal_eval(face_df.iloc[i,face_df.columns.get_loc("PupilDiameter")])
                     # handling missing value 
-                    if a[0] > 2:
-                        face_df.iat[i,face_df.columns.get_loc("PupilDiameter")] = a
+                    if a[0] < 2:
+                        a[0] = a_prev[0]
+                    if a[1] < 2:
+                        a[1] = a_prev[1]
+                    face_df.iat[i,face_df.columns.get_loc("PupilDiameter")] = a  
+#                    a_prev = a                        
                 except:
-                    a = face_df.iat[i-1,face_df.columns.get_loc("PupilDiameter")]
-                    face_df.iat[i,face_df.columns.get_loc("PupilDiameter")] = a            
+                    a = a_prev
+                    face_df.iat[i,face_df.columns.get_loc("PupilDiameter")] = a   
+            # find average (discarding missing value)
+            pd_sum = [0,0]
+            count_left = 0
+            count_right = 0
+            for i in range(face_df.shape[0]):
+                a = face_df.iloc[i]['PupilDiameter']
+                if a[0] != 0:
+                    pd_sum[0] = pd_sum[0]+a[0]
+                    count_left += 1
+                if a[1] != 0:
+                    pd_sum[1] = pd_sum[1]+a[1]
+                    count_right += 1
+            pd_avg = (pd_sum[0]/count_left,pd_sum[1]/count_right)
             
-#            converted = []
-#            for j in face_df['PupilDiameter']:    
-##                print(j)
-#                try:
-##                    tup = ast.literal_eval(j)
-##                    print(tup)
-##                    converted.append(tup) 
-#                    converted.append(ast.literal_eval(j)) 
-#                except:
-#                    a = (0,0)
-#                    converted.append(a)
-##            face_df['PupilDiameter'] = pd.Series(converted)
-#            update_vals = pd.Series(converted)
-#            face_df = face_df.drop('PupilDiameter',axis=1)
-#            face_df['PupilDiameter'] = update_vals
-                    
-
+            # Pad (0,0) with average value
+            for i in range(face_df.shape[0]):
+                a = face_df.iloc[i]['PupilDiameter']
+                b = list(a)
+                if b[0] == 0:
+                    b[0] = pd_avg[0]
+                if b[1] == 0:
+                    b[1] = pd_avg[1]
+                face_df.iat[i,face_df.columns.get_loc('PupilDiameter')] = b
+            
             # adjust FAPU if fix_distance is True, otherwise just go ahead and divide by the global FAPU
             if self.fix_distance:  
                 self.FAPUlize(face_df,self.global_fapu.iloc[0],adjust=True)

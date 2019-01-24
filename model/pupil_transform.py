@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 #import matplotlib.pyplot as plt
 
-def plot_pupil(data):
+def plot_pupil(PD,IL):
     """
     Args:
     data: list of pupil diameter (left,right)
@@ -18,7 +18,7 @@ def plot_pupil(data):
     # Unpack tuple to two lists
     L = []
     R=[]       
-    for item in data:
+    for item in PD:
         L.append(item[0])
         R.append(item[1])
     # create time series
@@ -64,7 +64,7 @@ def test_pupil():
 
 if __name__ == "__main__":
     samples , dataframe = test_pupil()
-    plot_pupil(dataframe['PupilDiameter'])
+    plot_pupil(dataframe['PupilDiameter'],dataframe['Illumination'])
    
                     
     
