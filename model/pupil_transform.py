@@ -2,8 +2,12 @@
 
 import ast
 import pandas as pd
+import numpy as np
+import padasip as pa
 from dataset_class import AffectiveMonitorDataset
 import matplotlib.pyplot as plt
+
+np.random.seed(52102)
 
 #import matplotlib.pyplot as plt
 
@@ -56,12 +60,61 @@ def pupil_to_tuple():
                     a = (0,0)
                     converted.append(a)
             data.loc[i,'PupilDiameter'] = pd.Series(converted)
+            
+def tuple_to_list(pd_tuple):
+    # Unpack tuple to two lists
+    L = []
+    R=[]       
+    for item in pd_tuple:
+        L.append(item[0])
+        R.append(item[1])
+    return L,R
+            
+def remove_PLR(pd,illum,n,mu):    
+    d = np.array(pd)
+    d_norm = d / np.linalg.norm(d)
+    illum_norm = illum / np.linalg.norm(illum)
+    x_norm = pa.input_from_history(illum_norm,n)[:-1]
+    f = pa.filters.FilterLMS(n,mu=mu,w='zeros')
+#    d = d[n:]
+    d_norm = d_norm[n:]
+    y, e, w = f.run(d_norm, x_norm)
+    
+    # results
+    plt.figure(figsize=(12.5,6))    
+    plt.plot(d_norm, "y", label="recorded signal")
+    plt.plot(illum_norm, "m", label="reference signal")
+    plt.plot(y, "k", label="filtered signal")
+    plt.plot(e, "c", label="error")
+    plt.grid()
+    plt.title("mu = "+str(mu))
+    plt.legend()
+    plt.show()
+    
+    fig = plt.figure()
+    ax1 = fig.add_subplot(411)
+    ax2 = fig.add_subplot(412) 
+    ax3 = fig.add_subplot(413)
+    ax4 = fig.add_subplot(414)
+    ax1.plot(d_norm,'k')
+    ax1.set(title='Primary Input')
+    ax2.plot(illum_norm,'k')
+    ax2.set(title='Reference Input')
+    ax3.plot(y,'k')
+    ax3.set(title='Output Filtered Signal')
+    ax4.plot(e,'k')
+    ax4.set(title='Error')
+    plt.tight_layout()
+    
+    plt.show()
+   
+    return y, e, w
 
 
-def test_pupil():
+def test_pupil():    
     # FAP is loaded by default
-    face_dataset = AffectiveMonitorDataset("C:\\Users\\DSPLab\\Research\\ExperimentData",subjects=[1])
-#    face_dataset = AffectiveMonitorDataset("E:\\Research\\ExperimentData",subjects=[1])
+#    face_dataset = AffectiveMonitorDataset("C:\\Users\\DSPLab\\Research\\ExperimentData",subjects=[1])
+    face_dataset = AffectiveMonitorDataset("E:\\Research\\ExperimentData",subjects=[1])
     samples = face_dataset[:]
     dataframe = face_dataset.face_df
     return samples, dataframe
@@ -69,8 +122,15 @@ def test_pupil():
 
 if __name__ == "__main__":
     samples , dataframe = test_pupil()
-    plot_pupil(dataframe['PupilDiameter'],dataframe['Illuminance'])
-   
+#    plot_pupil(dataframe['PupilDiameter'],dataframe['Illuminance'])
+    pd_left, pd_right = tuple_to_list(dataframe['PupilDiameter'])
+#    plt.figure()
+#    plt.plot(pd_left,'b',label="pd_left")
+#    plt.plot(pd_right,'g',label="pd_right")
+#    plt.legend()
+#    plt.show()
+    illum = dataframe['Illuminance'].values
+    filtered_pupil_left, error, weight = remove_PLR(pd_left,illum,100,0.95)
                     
     
     
