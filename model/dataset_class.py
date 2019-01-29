@@ -79,9 +79,9 @@ class AffectiveMonitorDataset(Dataset):
                 try:
                     a = ast.literal_eval(face_df.iloc[i,face_df.columns.get_loc("PupilDiameter")])
                     # handling missing value 
-                    if a[0] < 2:
+                    if a[0] < 2.5:
                         a[0] = a_prev[0]
-                    if a[1] < 2:
+                    if a[1] < 2.5:
                         a[1] = a_prev[1]
                     face_df.iat[i,face_df.columns.get_loc("PupilDiameter")] = a  
 #                    a_prev = a                        
