@@ -3,7 +3,7 @@
 import ast
 import pandas as pd
 import numpy as np
-import padasip as pa
+#import padasip as pa
 from dataset_class import AffectiveMonitorDataset
 import matplotlib.pyplot as plt
 
@@ -141,29 +141,29 @@ def remove_PLR(pd,illum,n,mu):
     
     
             
-def remove_PLR_padasip(pd,illum,n,mu,mu_start,mu_end,steps,epochs):    
-    d = np.array(pd)
-    d_norm = d / np.linalg.norm(d)
-    illum_norm = illum / np.linalg.norm(illum)
-    x_norm = pa.input_from_history(illum_norm,n)[:-1]
-    f = pa.filters.AdaptiveFilter(model="NLMS",n=n,mu=mu,w='zeros')
-#    f = pa.filters.FilterLMS(n,mu=mu,w='zeros')
-#    d = d[n:]
-    d_norm = d_norm[n:]
-    y, e, w = f.run(d_norm, x_norm)
-    
-    # results
-    plt.figure(figsize=(12.5,6))    
-    
-    plt.plot(illum_norm, "c", label="reference signal")
-    plt.plot(d_norm, "k", label="recorded signal")
-    plt.plot(y, "--r", label="modified reference signal")
-    plt.plot(e, "k", label="filtered signal")
-    plt.grid()
-    plt.title("mu = "+str(mu)+", n = "+str(n))
-    plt.legend()
-    plt.show()
-    
+#def remove_PLR_padasip(pd,illum,n,mu,mu_start,mu_end,steps,epochs):    
+#    d = np.array(pd)
+#    d_norm = d / np.linalg.norm(d)
+#    illum_norm = illum / np.linalg.norm(illum)
+#    x_norm = pa.input_from_history(illum_norm,n)[:-1]
+#    f = pa.filters.AdaptiveFilter(model="NLMS",n=n,mu=mu,w='zeros')
+##    f = pa.filters.FilterLMS(n,mu=mu,w='zeros')
+##    d = d[n:]
+#    d_norm = d_norm[n:]
+#    y, e, w = f.run(d_norm, x_norm)
+#    
+#    # results
+#    plt.figure(figsize=(12.5,6))    
+#    
+#    plt.plot(illum_norm, "c", label="reference signal")
+#    plt.plot(d_norm, "k", label="recorded signal")
+#    plt.plot(y, "--r", label="modified reference signal")
+#    plt.plot(e, "k", label="filtered signal")
+#    plt.grid()
+#    plt.title("mu = "+str(mu)+", n = "+str(n))
+#    plt.legend()
+#    plt.show()
+#    
     #    fig = plt.figure()
 #    ax1 = fig.add_subplot(411)
 #    ax2 = fig.add_subplot(412) 
@@ -194,12 +194,13 @@ def remove_PLR_padasip(pd,illum,n,mu,mu_start,mu_end,steps,epochs):
 #    plt.title("Error VS Learning rate")
 #    plt.show()
 #   
-    return e, y, w
+#    return e, y, w
 
 
 def test_pupil():    
     # FAP is loaded by default
-    face_dataset = AffectiveMonitorDataset("C:\\Users\\DSPLab\\Research\\ExperimentData",subjects=[5])
+    face_dataset = AffectiveMonitorDataset("C:\\Users\\dspcrew\\affective-monitor-model\\data",subjects=[1])
+#    face_dataset = AffectiveMonitorDataset("C:\\Users\\DSPLab\\Research\\ExperimentData",subjects=[5])
 #    face_dataset = AffectiveMonitorDataset("E:\\Research\\ExperimentData",subjects=[1])
     samples = face_dataset[:]
     dataframe = face_dataset.face_df

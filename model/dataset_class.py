@@ -22,7 +22,7 @@ class AffectiveMonitorDataset(Dataset):
             subjects (list): list of test subject number specified to be loaded
     """
     
-    def __init__(self,filepath,mode='FAC',transform=None,fix_distance=False,subjects=None):
+    def __init__(self,filepath,mode='FAC',transform=None,fix_distance=False,subjects=None,removePLR=True):
         """
         Args:
             filepath (string): Path to data directory
@@ -35,6 +35,8 @@ class AffectiveMonitorDataset(Dataset):
             self.subjects = subjects
         else:
             self.subjects = [i for i in range(1,2)]
+        # removePLR or not
+        self.removePLR = removePLR
         # map pic index with arousal level and valence level
         self.label_lookup = self.load_label(filepath)
         self.fix_distance = fix_distance
@@ -114,12 +116,12 @@ class AffectiveMonitorDataset(Dataset):
                 face_df.iat[i,face_df.columns.get_loc('PupilDiameter')] = b
                 
             # Remove PLR
-            if removePLR == True:
+            if self.removePLR == True:
                 illum = face_df['Illuminance'].values
                 pd_left, pd_right = self.tuple_to_list(face_df['PupilDiameter'])
                 filtered_pupil_left = self.remove_PLR(pd_left,illum,10,15)
                 filtered_pupil_right = self.remove_PLR(pd_right,illum,10,15)
-                pupil_left_to_merge = face_df
+                pupil_left_to_merge = face_df['PupilDiameter'].loc[1]
                            
             # adjust FAPU if fix_distance is True, otherwise just go ahead and divide by the global FAPU
             if self.fix_distance:  
@@ -283,13 +285,13 @@ class AffectiveMonitorDataset(Dataset):
         return e
     
     def tuple_to_list(self,pd_tuple):
-    # Unpack tuple to two lists
-    L = []
-    R=[]       
-    for item in pd_tuple:
-        L.append(item[0])
-        R.append(item[1])
-    return L,R
+        # Unpack tuple to two lists
+        L = []
+        R=[]       
+        for item in pd_tuple:
+            L.append(item[0])
+            R.append(item[1])
+        return L,R
     
     def preprocess_pupil(self):
         pass
