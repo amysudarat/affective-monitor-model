@@ -125,6 +125,7 @@ class AffectiveMonitorDataset(Dataset):
             pupil_left_to_merge[:101] = pd_left[:101]
             pupil_right_to_merge = filtered_pupil_right
             pupil_right_to_merge[:101] = pd_right[:101]
+            pupil_avg_to_merge = [x+y for x,y in zip(pupil_left_to_merge,pupil_right_to_merge)]
                 
                            
             # adjust FAPU if fix_distance is True, otherwise just go ahead and divide by the global FAPU
@@ -136,6 +137,9 @@ class AffectiveMonitorDataset(Dataset):
             # create face sample loop through each picture index
 #            self.face_df = face_df
             for i in range(1,max(face_df.index.values)+1):
+                # number of rows per sample
+                start = (i*100)-100# 0,100,200,...
+                end = (i*100)-1  # 99,199,299,...
                 # group sequence of face point
                 face_per_picture = face_df.loc[i]
                 face_FAP_per_picture = face_per_picture.iloc[:,0:19]
@@ -149,7 +153,9 @@ class AffectiveMonitorDataset(Dataset):
                 # create one sample
                 sample = {'faceFAP': face_FAP_in_sequence,
                           'PD': pupils,
-                          'PD_left_filtered':
+                          'PD_left_filtered': pupil_left_to_merge[start:end],
+                          'PD_right_filtered': pupil_right_to_merge[start:end],
+                          'PD_avg_filtered': pupil_avg_to_merge[start:end],
                           'illuminance': illuminance,
                           'arousal': self.label_lookup.loc[i,'Arousal_mean(IAPS)'],
                           'valence': self.label_lookup.loc[i,'Valence_mean(IAPS)'] }
