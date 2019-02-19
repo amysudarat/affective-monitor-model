@@ -116,12 +116,16 @@ class AffectiveMonitorDataset(Dataset):
                 face_df.iat[i,face_df.columns.get_loc('PupilDiameter')] = b
                 
             # Remove PLR
-            if self.removePLR == True:
-                illum = face_df['Illuminance'].values
-                pd_left, pd_right = self.tuple_to_list(face_df['PupilDiameter'])
-                filtered_pupil_left = self.remove_PLR(pd_left,illum,10,15)
-                filtered_pupil_right = self.remove_PLR(pd_right,illum,10,15)
-                pupil_left_to_merge = face_df['PupilDiameter'].loc[1]
+            
+            illum = face_df['Illuminance'].values
+            pd_left, pd_right = self.tuple_to_list(face_df['PupilDiameter'])
+            filtered_pupil_left = self.remove_PLR(pd_left,illum,10,15)
+            filtered_pupil_right = self.remove_PLR(pd_right,illum,10,15)
+            pupil_left_to_merge = filtered_pupil_left
+            pupil_left_to_merge[:101] = pd_left[:101]
+            pupil_right_to_merge = filtered_pupil_right
+            pupil_right_to_merge[:101] = pd_right[:101]
+                
                            
             # adjust FAPU if fix_distance is True, otherwise just go ahead and divide by the global FAPU
             if self.fix_distance:  
@@ -145,6 +149,7 @@ class AffectiveMonitorDataset(Dataset):
                 # create one sample
                 sample = {'faceFAP': face_FAP_in_sequence,
                           'PD': pupils,
+                          'PD_left_filtered':
                           'illuminance': illuminance,
                           'arousal': self.label_lookup.loc[i,'Arousal_mean(IAPS)'],
                           'valence': self.label_lookup.loc[i,'Valence_mean(IAPS)'] }
