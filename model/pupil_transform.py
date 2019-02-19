@@ -75,7 +75,7 @@ def my_lms(d,r,L,mu):
     y = np.zeros(r.shape)
     w = np.zeros(L)
     
-    for k in range(L,len(illum)):
+    for k in range(L,len(r)):
         x = r[k-L:k]
         y[k] = np.dot(x,w)
         e[k] = d[k]-y[k]
@@ -199,7 +199,7 @@ def remove_PLR_padasip(pd,illum,n,mu,mu_start,mu_end,steps,epochs):
 
 def test_pupil():    
     # FAP is loaded by default
-    face_dataset = AffectiveMonitorDataset("C:\\Users\\DSPLab\\Research\\ExperimentData",subjects=[1])
+    face_dataset = AffectiveMonitorDataset("C:\\Users\\DSPLab\\Research\\ExperimentData",subjects=[5])
 #    face_dataset = AffectiveMonitorDataset("E:\\Research\\ExperimentData",subjects=[1])
     samples = face_dataset[:]
     dataframe = face_dataset.face_df
@@ -210,14 +210,14 @@ if __name__ == "__main__":
     samples , dataframe = test_pupil()
 #    plot_pupil(dataframe['PupilDiameter'],dataframe['Illuminance'])
     pd_left, pd_right = tuple_to_list(dataframe['PupilDiameter'])
-#    plt.figure()
-#    plt.plot(pd_left,'b',label="pd_left")
-#    plt.plot(pd_right,'g',label="pd_right")
-#    plt.legend()
-#    plt.show()
+    plt.figure()
+    plt.plot(pd_left,'k',label="pd_left")
+    plt.plot(pd_right,'r--',label="pd_right")
+    plt.legend()
+    plt.show()
     illum = dataframe['Illuminance'].values
 #    filtered_pupil_left, error, weight = remove_PLR_padasip(pd_left,illum,30,50,1,50,100,1)
-    PAR, PLR, weight = remove_PLR(pd_left,illum,10,10)
+    PAR, PLR, weight = remove_PLR(pd_left,illum,10,15)
     
     
     

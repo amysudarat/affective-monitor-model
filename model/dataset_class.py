@@ -3,6 +3,7 @@
 import os
 import ast
 import pandas as pd
+import numpy as np
 from torch.utils.data import Dataset
 
 
@@ -250,7 +251,28 @@ class AffectiveMonitorDataset(Dataset):
             face_df['4'] = face_df['4']/fapu['MNS']
             face_df['3'] = face_df['3']/fapu['MNS']
         
-
+        
+    def my_lms(self,d,r,L,mu):
+        e = np.zeros(d.shape)
+        y = np.zeros(r.shape)
+        w = np.zeros(L)
+        
+        for k in range(L,len(r)):
+            x = r[k-L:k]
+            y[k] = np.dot(x,w)
+            e[k] = d[k]-y[k]
+            w_next = w + (2*mu*e[k])*x
+            w = w_next   
+        return y, e, w
+    
+    def remove_PLR(self,pd,illum,n,mu):
+        d = np.array(pd)
+        d_norm = d / np.linalg.norm(d)
+        illum_norm = illum / np.linalg.norm(illum)
+        illum_norm = 1.2*illum_norm
+        illum_norm = illum_norm - np.mean(illum_norm) + np.mean(d_norm)
+        y, e, w = self.my_lms(d_norm,illum_norm,n,mu)
+    
     def preprocess_pupil(self):
         pass
    

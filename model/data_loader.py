@@ -59,8 +59,8 @@ def plot_face(face,annotate=False):
         plt.show()
         
 def show_face():
-    face_dataset = AffectiveMonitorDataset("C:\\Users\\DSPLab\\Research\\affective-monitor-model\\data",'RAW')
-#    face_dataset = AffectiveMonitorDataset("E:\\Research\\affective-monitor-model\\data")
+    face_dataset = AffectiveMonitorDataset("C:\\Users\\DSPLab\\Research\\ExperimentData",mode='RAW',subjects=[1])
+#    face_dataset = AffectiveMonitorDataset("E:\\Research\\ExperimentData",mode='RAW',subjects=[1])
     data = face_dataset[0]
     face = data["facepoints"]
     plot_face(face[0])
@@ -69,10 +69,45 @@ def show_face():
 
 if __name__ == "__main__":
     # FAP is loaded by default
-    face_dataset = AffectiveMonitorDataset("C:\\Users\\DSPLab\\Research\\affective-monitor-model\\data")
+    # how many subjects to load
+    n = 4
+    subjects = [i for i in range(1,n+1)]
+    face_dataset = AffectiveMonitorDataset("C:\\Users\\DSPLab\\Research\\ExperimentData",subjects=subjects)
 #    face_dataset = AffectiveMonitorDataset("E:\\Research\\affective-monitor-model\\data")
     data = face_dataset[:]
-    faceFAC = data["faceFAP"]
-#    show_face()
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
 
 
