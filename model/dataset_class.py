@@ -112,7 +112,15 @@ class AffectiveMonitorDataset(Dataset):
                 if b[1] == 0:
                     b[1] = pd_avg[1]
                 face_df.iat[i,face_df.columns.get_loc('PupilDiameter')] = b
-            
+                
+            # Remove PLR
+            if removePLR == True:
+                illum = face_df['Illuminance'].values
+                pd_left, pd_right = self.tuple_to_list(face_df['PupilDiameter'])
+                filtered_pupil_left = self.remove_PLR(pd_left,illum,10,15)
+                filtered_pupil_right = self.remove_PLR(pd_right,illum,10,15)
+                pupil_left_to_merge = face_df
+                           
             # adjust FAPU if fix_distance is True, otherwise just go ahead and divide by the global FAPU
             if self.fix_distance:  
                 self.FAPUlize(face_df,self.global_fapu.iloc[0],adjust=True)
@@ -272,6 +280,16 @@ class AffectiveMonitorDataset(Dataset):
         illum_norm = 1.2*illum_norm
         illum_norm = illum_norm - np.mean(illum_norm) + np.mean(d_norm)
         y, e, w = self.my_lms(d_norm,illum_norm,n,mu)
+        return e
+    
+    def tuple_to_list(self,pd_tuple):
+    # Unpack tuple to two lists
+    L = []
+    R=[]       
+    for item in pd_tuple:
+        L.append(item[0])
+        R.append(item[1])
+    return L,R
     
     def preprocess_pupil(self):
         pass
