@@ -125,8 +125,13 @@ class AffectiveMonitorDataset(Dataset):
             pupil_left_to_merge[:101] = pd_left[:101]
             pupil_right_to_merge = filtered_pupil_right
             pupil_right_to_merge[:101] = pd_right[:101]
-            pupil_avg_to_merge = [x+y for x,y in zip(pupil_left_to_merge,pupil_right_to_merge)]
-                
+#            pupil_avg_to_merge = [x+y for x,y in zip(pupil_left_to_merge,pupil_right_to_merge)]
+            pupil_comb_to_merge = []
+            for x,y in zip(pupil_left_to_merge,pupil_right_to_merge):
+                if x > y:
+                    pupil_comb_to_merge.append(x)
+                else:
+                    pupil_comb_to_merge.append(y)               
                            
             # adjust FAPU if fix_distance is True, otherwise just go ahead and divide by the global FAPU
             if self.fix_distance:  
@@ -155,7 +160,7 @@ class AffectiveMonitorDataset(Dataset):
                           'PD': pupils,
                           'PD_left_filtered': pupil_left_to_merge[start:end],
                           'PD_right_filtered': pupil_right_to_merge[start:end],
-                          'PD_avg_filtered': pupil_avg_to_merge[start:end],
+                          'PD_avg_filtered': pupil_comb_to_merge[start:end],
                           'illuminance': illuminance,
                           'arousal': self.label_lookup.loc[i,'Arousal_mean(IAPS)'],
                           'valence': self.label_lookup.loc[i,'Valence_mean(IAPS)'] }

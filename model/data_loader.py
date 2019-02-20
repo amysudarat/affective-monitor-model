@@ -64,6 +64,23 @@ def show_face():
     data = face_dataset[0]
     face = data["facepoints"]
     plot_face(face[0])
+    
+def plot_signal(data,title):
+    plt.figure()
+    plt.plot(data,'k',label=title)
+    plt.legend()
+    plt.show()
+    
+def check_pupil(data):
+    pupil_left = data['PD_left_filtered']
+    pupil_right = data['PD_right_filtered']
+    pupil_avg = data['PD_avg_filtered']
+    plt.figure()
+    plt.plot(pupil_left,'y--',label='left')
+    plt.plot(pupil_right,'b--',label='right')
+    plt.plot(pupil_avg,'k',label='average')
+    plt.legend()
+    plt.show()
 
 #def update_plot(i,data,scat)
 
@@ -72,9 +89,11 @@ if __name__ == "__main__":
     # how many subjects to load
     n = 4
     subjects = [i for i in range(1,n+1)]
-    face_dataset = AffectiveMonitorDataset("C:\\Users\\DSPLab\\Research\\ExperimentData",subjects=subjects)
-#    face_dataset = AffectiveMonitorDataset("E:\\Research\\affective-monitor-model\\data")
+    face_dataset = AffectiveMonitorDataset("C:\\Users\\DSPLab\\Research\\ExperimentData",subjects=[1])
+#    face_dataset = AffectiveMonitorDataset("E:\\Research\\affective-monitor-model\\data",subjects=[1])
     data = face_dataset[:]
+    check_pupil(face_dataset[50])
+    
     
     
     
