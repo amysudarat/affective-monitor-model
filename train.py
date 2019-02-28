@@ -5,6 +5,7 @@ contains main loop for training
 """
 
 import torch
+import utils
 import numpy as np
 import torch.nn as nn
 from torch.utils.data.sampler import SubsetRandomSampler
@@ -12,11 +13,16 @@ from model.dataset_class import AffectiveMonitorDataset
 from model.net_valence import myLSTM_valence
 
 
-def train_valence():
+def train_valence(pickle_file="data_testsub1_4.pkl"):
     
     # Load Dataset
+#    n = 2
+#    subjects = [i for i in range(1,n+1)]
+#    face_dataset = AffectiveMonitorDataset("C:\\Users\\dspcrew\\affective-monitor-model\\data",subjects=subjects)
 #    face_dataset = AffectiveMonitorDataset("C:\\Users\\DSPLab\\Research\\affective-monitor-model\\data")
-    face_dataset = AffectiveMonitorDataset("E:\\Research\\affective-monitor-model\\data")
+#    face_dataset = AffectiveMonitorDataset("E:\\Research\\affective-monitor-model\\data")
+    face_dataset = utils.load_object(pickle_file)
+    
     
     # split train and test dataset
     validation_split = 0.2
@@ -49,7 +55,7 @@ def train_valence():
     layer_dim = 1
     output_dim = 4
     seq_dim = 100
-    num_epochs = n_iters/ (len(train_sampler)/batch_size)
+    num_epochs = int(n_iters/ (len(train_sampler)/batch_size))
     
     # Instantiate Model class
     model = myLSTM_valence(input_dim,hidden_dim,layer_dim,output_dim)
@@ -58,31 +64,31 @@ def train_valence():
     criterion = nn.CrossEntropyLoss()
     
     # Instantiate Optimizer Class
-    learning_rate = 0.05
+    learning_rate = 0.01
     optimizer = torch.optim.SGD(model.parameters(),lr = learning_rate)
     
     # training loop
     iteration = 0
     for epoch in range(num_epochs):
-        for i, (FACunit,labels) in enumerate(train_loader):
-            # Load input vector as tensors with gradient accumulation abilities
-            FACunit = FACunit.view(-1,seq_dim,input_dim).requires_grad() 
-            
-            # Clear gradients w.r.t. parameters
-            optimizer.zero_grad()
-            
-            # Forward pass to get output/logits
-            # output.size() --> 100,4
-            outputs = model(FACunit)
-            
-            # Calculate Loss: softmax --> cross entropy loss
-            loss = criterion(outputs,labels)
-            
-            # Getting gradients w.r.t. parameters
-            loss.backward()
-            
-            # Updating parameters
-            optimizer.step()
+        for i, data in enumerate(train_loader):
+#            # Load input vector as tensors with gradient accumulation abilities
+#            FACunit = FACunit.view(-1,seq_dim,input_dim).requires_grad() 
+#            
+#            # Clear gradients w.r.t. parameters
+#            optimizer.zero_grad()
+#            
+#            # Forward pass to get output/logits
+#            # output.size() --> 100,4
+#            outputs = model(FACunit)
+#            
+#            # Calculate Loss: softmax --> cross entropy loss
+#            loss = criterion(outputs,labels)
+#            
+#            # Getting gradients w.r.t. parameters
+#            loss.backward()
+#            
+#            # Updating parameters
+#            optimizer.step()
             
             iteration = iteration+1
             

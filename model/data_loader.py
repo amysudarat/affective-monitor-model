@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 
+try:
+    import cPickle as pickle
+except ModuleNotFoundError:
+    import pickle
+
 from dataset_class import AffectiveMonitorDataset
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
@@ -81,6 +86,15 @@ def check_pupil(data):
     plt.plot(pupil_avg,'k',label='average')
     plt.legend()
     plt.show()
+    
+def save_object(obj, filename):
+    with open(filename, 'wb') as output:  # Overwrites any existing file.
+        pickle.dump(obj, output, pickle.HIGHEST_PROTOCOL)
+        
+def load_object(filename):
+    with open(filename, 'rb') as input:
+        data = pickle.load(input)
+        return data
 
 #def update_plot(i,data,scat)
 
@@ -89,9 +103,15 @@ if __name__ == "__main__":
     # how many subjects to load
     n = 4
     subjects = [i for i in range(1,n+1)]
-    face_dataset = AffectiveMonitorDataset("C:\\Users\\DSPLab\\Research\\ExperimentData",subjects=[1])
+    face_dataset = AffectiveMonitorDataset("C:\\Users\\dspcrew\\affective-monitor-model\\data",subjects=subjects)
+#    face_dataset = AffectiveMonitorDataset("C:\\Users\\DSPLab\\Research\\ExperimentData",subjects=[1])
 #    face_dataset = AffectiveMonitorDataset("E:\\Research\\affective-monitor-model\\data",subjects=[1])
-    data = face_dataset[:]
+#    data = face_dataset[:]
+    # save face_dataset to pikle file
+    save_object(face_dataset, "data_testsub1_4.pkl")
+    del face_dataset
+    
+    face_dataset = load_object("data_testsub1_4.pkl")
     check_pupil(face_dataset[50])
     
     
