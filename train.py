@@ -13,7 +13,7 @@ from model.dataset_class import AffectiveMonitorDataset
 from model.net_valence import myLSTM_valence
 
 
-def train_valence(pickle_file="data_testsub1_4.pkl"):
+def train_valence(pickle_file="data_1_4_toTensor.pkl"):
     
     # Load Dataset
 #    n = 2
@@ -40,8 +40,8 @@ def train_valence(pickle_file="data_testsub1_4.pkl"):
     test_sampler = SubsetRandomSampler(val_indices)
     
     # Make Dataset Iterable
-    batch_size = 100
-    n_iters = 3000
+    batch_size = 10
+    n_iters = 100
     train_loader = torch.utils.data.DataLoader(face_dataset,
                                                 batch_size=batch_size,
                                                 sampler=train_sampler)

@@ -7,6 +7,7 @@ except ModuleNotFoundError:
 import numpy as np
 import model.dataset_class
 from model.dataset_class import AffectiveMonitorDataset
+from model.dataset_class import ToTensor
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.proj3d import proj_transform
@@ -112,6 +113,7 @@ if __name__ == "__main__":
 #    n = 4
 #    subjects = [i for i in range(1,n+1)]
 #    face_dataset = AffectiveMonitorDataset("C:\\Users\\dspcrew\\affective-monitor-model\\data",subjects=subjects)
+#    face_dataset = AffectiveMonitorDataset("C:\\Users\\dspcrew\\affective-monitor-model\\data",subjects=subjects,transform=ToTensor())
 ##    face_dataset = AffectiveMonitorDataset("C:\\Users\\DSPLab\\Research\\ExperimentData",subjects=[1])
 ##    face_dataset = AffectiveMonitorDataset("E:\\Research\\affective-monitor-model\\data",subjects=[1])
 ##    data = face_dataset[:]
@@ -119,8 +121,8 @@ if __name__ == "__main__":
 #    save_object(face_dataset, "data_testsub1_4.pkl")
 #    del face_dataset
     
-    face_dataset = load_object("data_testsub1_4.pkl")
-    check_pupil(face_dataset[50])
+    face_dataset = load_object("data_1_4_toTensor.pkl")
+    
     
     
     
