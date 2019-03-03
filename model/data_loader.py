@@ -105,7 +105,7 @@ if __name__ == "__main__":
     subjects = [i for i in range(1,n+1)]
     face_dataset = AffectiveMonitorDataset("C:\\Users\\dspcrew\\affective-monitor-model\\data",subjects=subjects)
 #    face_dataset = AffectiveMonitorDataset("C:\\Users\\DSPLab\\Research\\ExperimentData",subjects=[1])
-#    face_dataset = AffectiveMonitorDataset("E:\\Research\\affective-monitor-model\\data",subjects=[1])
+#    face_dataset = AffectiveMonitorDataset("E:\\Research\\ExperimentData",subjects=[1])
 #    data = face_dataset[:]
     # save face_dataset to pikle file
     save_object(face_dataset, "data_testsub1_4.pkl")

@@ -4,6 +4,7 @@ import os
 import ast
 import pandas as pd
 import numpy as np
+import torch
 from torch.utils.data import Dataset
 
 
@@ -321,4 +322,23 @@ class AffectiveMonitorDataset(Dataset):
             sample= self.transform(sample)
         return sample
 
-
+class ToTensor(object):
+    """
+        convert to tensor object
+    """
+    def __call__(self,sample):
+        transformed_sample = {'FAP': torch.from_numpy(np.array(sample['faceFAP'])),
+                              'PD': torch.from_numpy(np.array(sample['PD_avg_filtered'])),
+                              'Arousal': torch.from_numpy(np.array(sample['arousal'])),
+                              'Valence': torch.from_numpy(np.array(sample['valence'])) }
+        return transformed_sample
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    

@@ -4,7 +4,7 @@ try:
     import cPickle as pickle
 except ModuleNotFoundError:
     import pickle
-
+import numpy as np
 import model.dataset_class
 from model.dataset_class import AffectiveMonitorDataset
 import matplotlib.pyplot as plt
@@ -96,6 +96,13 @@ def load_object(filename):
     with open(filename, 'rb') as input:
         data = pickle.load(input)
         return data
+
+def dataset_info(df):
+    for i in df.columns:
+        x = np.array(df.loc[0][i])
+        print("%s : %s , %s"%(i,str(x.shape),type(x)))
+        
+
 
 #def update_plot(i,data,scat)
 
