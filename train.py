@@ -62,7 +62,8 @@ def train_valence(pickle_file="data_1_4_toTensor.pkl"):
     # Number of steps to unroll
     seq_dim = 100 
     
-    num_epochs = int(n_iters/ (len(train_sampler)/batch_size))
+#    num_epochs = int(n_iters/ (len(train_sampler)/batch_size))
+    num_epochs = 1
     
     # Instantiate Model class
     model = myLSTM_valence(input_dim,hidden_dim,layer_dim,output_dim)
@@ -80,21 +81,19 @@ def train_valence(pickle_file="data_1_4_toTensor.pkl"):
         for i, data in enumerate(train_loader):
             FAPs = data['FAP']
             labels = data['Valence']
-#            if i == 4:
-#                print(data)
-#                FAP = data['FAP']
-#                PD = data['PD']
-#                arousal = data['Arousal']
-#                valence = data['Valence']
-##                FAP, PD, arousal, valence = data.values()
-#                print("at %d\n"% i)
-#                print(FAP.size())
-#                print(PD.size())
-#                print(arousal.size())
-#                print(valence.size())
-            # Load input vector as tensors with gradient accumulation abilities
-            FAPs = FAPs.view(-1,seq_dim,input_dim).requires_grad() 
-#            
+            
+            # Cast labels to float 
+            labels = labels.long()
+            
+            # Load input vector as tensors 
+            FAPs = FAPs.view(-1,seq_dim,input_dim)
+            
+            # Cast input to Float (Model weight is set to Float by Default)
+            FAPs = FAPs.float()
+   
+            # Set existing torch with gradient accumation abilities
+            FAPs.requires_grad = True                          
+   
             # Clear gradients w.r.t. parameters
             optimizer.zero_grad()
             
@@ -118,12 +117,24 @@ def train_valence(pickle_file="data_1_4_toTensor.pkl"):
                 correct = 0
                 total = 0
                 # Iterate through test dataset
-                for FACunit, labels in test_loader:
+                for i, data in enumerate(test_loader):
+                    FAPs = data['FAP']
+                    labels = data['Valence']
+                    
+                    # Cast labels to float 
+                    labels = labels.long()
+                    
                     # Load FACunit to a tensor with grad_require=True
-                    FACunit = FACunit.view(-1,seq_dim,input_dim).requires_grad()
+                    FAPs = FAPs.view(-1,seq_dim,input_dim)
+                    
+                    # Cast input to Float
+                    FAPs = FAPs.float()
+                    
+                    # Set existing torch 
+                    FAPs.requires_grad = True
                     
                     # Forward pass only to get logits/output
-                    outputs = model(FACunit)
+                    outputs = model(FAPs)
                     
                     # Get predictions from the maximum value
                     _, predicted = torch.max(outputs.data,1)
