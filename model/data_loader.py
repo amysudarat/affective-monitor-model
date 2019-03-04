@@ -101,18 +101,18 @@ def load_object(filename):
 if __name__ == "__main__":
     # FAP is loaded by default
     # how many subjects to load
-    n = 4
-    subjects = [i for i in range(1,n+1)]
-    face_dataset = AffectiveMonitorDataset("C:\\Users\\dspcrew\\affective-monitor-model\\data",subjects=subjects)
-#    face_dataset = AffectiveMonitorDataset("C:\\Users\\DSPLab\\Research\\ExperimentData",subjects=[1])
+#    n = 4
+#    subjects = [i for i in range(1,n+1)]
+#    face_dataset = AffectiveMonitorDataset("C:\\Users\\dspcrew\\affective-monitor-model\\data",subjects=subjects)
+##    face_dataset = AffectiveMonitorDataset("C:\\Users\\DSPLab\\Research\\ExperimentData",subjects=[1])
 #    face_dataset = AffectiveMonitorDataset("E:\\Research\\ExperimentData",subjects=[1])
-#    data = face_dataset[:]
-    # save face_dataset to pikle file
-    save_object(face_dataset, "data_testsub1_4.pkl")
-    del face_dataset
+##    data = face_dataset[:]
+#    # save face_dataset to pikle file
+#    save_object(face_dataset, "data_testsub1_4.pkl")
+#    del face_dataset
     
-    face_dataset = load_object("data_testsub1_4.pkl")
-    check_pupil(face_dataset[50])
+#    face_dataset = load_object("./../data_testsub1_4.pkl")
+#    check_pupil(face_dataset[50])
     
     
     

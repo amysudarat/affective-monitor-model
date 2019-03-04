@@ -41,7 +41,7 @@ def train_valence(pickle_file="data_1_4_toTensor.pkl"):
     
     # Make Dataset Iterable
     batch_size = 10
-    n_iters = 100
+    n_iters = 84
     train_loader = torch.utils.data.DataLoader(face_dataset,
                                                 batch_size=batch_size,
                                                 sampler=train_sampler)
@@ -50,11 +50,18 @@ def train_valence(pickle_file="data_1_4_toTensor.pkl"):
                                                 sampler=test_sampler)
     
     # Instatiate dimension parameters
-    input_dim = 24
+#    100 time steps
+#    Each time step: input dimension = 19
+#    how many hidden layer: 1 hidden layer
+#    output dimension = 4
+
+    input_dim = 19
     hidden_dim = 100
     layer_dim = 1
     output_dim = 4
-    seq_dim = 100
+    # Number of steps to unroll
+    seq_dim = 100 
+    
     num_epochs = int(n_iters/ (len(train_sampler)/batch_size))
     
     # Instantiate Model class
@@ -71,24 +78,38 @@ def train_valence(pickle_file="data_1_4_toTensor.pkl"):
     iteration = 0
     for epoch in range(num_epochs):
         for i, data in enumerate(train_loader):
-#            # Load input vector as tensors with gradient accumulation abilities
-#            FACunit = FACunit.view(-1,seq_dim,input_dim).requires_grad() 
+            FAPs = data['FAP']
+            labels = data['Valence']
+#            if i == 4:
+#                print(data)
+#                FAP = data['FAP']
+#                PD = data['PD']
+#                arousal = data['Arousal']
+#                valence = data['Valence']
+##                FAP, PD, arousal, valence = data.values()
+#                print("at %d\n"% i)
+#                print(FAP.size())
+#                print(PD.size())
+#                print(arousal.size())
+#                print(valence.size())
+            # Load input vector as tensors with gradient accumulation abilities
+            FAPs = FAPs.view(-1,seq_dim,input_dim).requires_grad() 
 #            
-#            # Clear gradients w.r.t. parameters
-#            optimizer.zero_grad()
-#            
-#            # Forward pass to get output/logits
-#            # output.size() --> 100,4
-#            outputs = model(FACunit)
-#            
-#            # Calculate Loss: softmax --> cross entropy loss
-#            loss = criterion(outputs,labels)
-#            
-#            # Getting gradients w.r.t. parameters
-#            loss.backward()
-#            
-#            # Updating parameters
-#            optimizer.step()
+            # Clear gradients w.r.t. parameters
+            optimizer.zero_grad()
+            
+            # Forward pass to get output/logits
+            # output.size() --> 100,4
+            outputs = model(FAPs)
+            
+            # Calculate Loss: softmax --> cross entropy loss
+            loss = criterion(outputs,labels)
+            
+            # Getting gradients w.r.t. parameters
+            loss.backward()
+            
+            # Updating parameters
+            optimizer.step()
             
             iteration = iteration+1
             
