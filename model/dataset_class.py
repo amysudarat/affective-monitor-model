@@ -163,8 +163,8 @@ class AffectiveMonitorDataset(Dataset):
                           'PD_right_filtered': pupil_right_to_merge[start:end],
                           'PD_avg_filtered': pupil_comb_to_merge[start:end],
                           'illuminance': illuminance,
-                          'arousal': self.label_lookup.loc[i,'Arousal_mean(IAPS)'],
-                          'valence': self.label_lookup.loc[i,'Valence_mean(IAPS)'] }
+                          'arousal': self.label_lookup.loc[i,'Arousal_target'],
+                          'valence': self.label_lookup.loc[i,'Valence_target'] }
                 # append prepared sample to total dataframe
                 total = total.append(sample, ignore_index=True)
         return total
@@ -204,8 +204,8 @@ class AffectiveMonitorDataset(Dataset):
                 sample = {'facepoints': face_points_in_sequence,
                           'PD': pupils,
                           'illuminance': illuminance,
-                          'arousal': self.label_lookup.loc[i,'Arousal_mean(IAPS)'],
-                          'valence': self.label_lookup.loc[i,'Valence_mean(IAPS)'] }
+                          'arousal': self.label_lookup.loc[i,'Arousal_target'],
+                          'valence': self.label_lookup.loc[i,'Valence_target'] }
                 # append prepared sample to total dataframe
                 total = total.append(sample, ignore_index=True)
         return total
@@ -213,6 +213,28 @@ class AffectiveMonitorDataset(Dataset):
     def load_label(self,path):
         filepath_label = os.path.join(path, "TestSubject1\\SAMrating.txt") 
         SAM_df = pd.read_csv(filepath_label,header=1,index_col="PictureIndex")
+        
+        # define function to convert the raw SAM to our 5 labels
+        def convert_to_label(SAM):
+            scale = 1
+            target_scale = scale*((SAM-5)/4)
+            
+            if -1.0 <= target_scale < -0.6:
+                target_scale = -0.8
+            elif -0.6 <= target_scale < -0.2:
+                target_scale = -0.4
+            elif -0.2 <= target_scale < 0.2:
+                target_scale = 0
+            elif 0.2 <= target_scale < 0.6:
+                target_scale = 0.4
+            elif 0.6 <= target_scale <= 1:
+                target_scale = 0.8
+            return target_scale
+        
+        # Apply function convert_to_label to Arousal and Valence Columns
+        SAM_df['Arousal_target'] = SAM_df['Arousal_mean(IAPS)'].apply(convert_to_label)
+        SAM_df['Valence_target'] = SAM_df['Valence_mean(IAPS)'].apply(convert_to_label)        
+        
         return SAM_df
     
     def load_FAPU(self,path):

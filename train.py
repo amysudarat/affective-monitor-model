@@ -62,8 +62,8 @@ def train_valence(pickle_file="data_1_4_toTensor.pkl"):
     # Number of steps to unroll
     seq_dim = 100 
     
-#    num_epochs = int(n_iters/ (len(train_sampler)/batch_size))
-    num_epochs = 1
+    num_epochs = int(n_iters/ (len(train_sampler)/batch_size))
+#    num_epochs = 1
     
     # Instantiate Model class
     model = myLSTM_valence(input_dim,hidden_dim,layer_dim,output_dim)
@@ -113,7 +113,7 @@ def train_valence(pickle_file="data_1_4_toTensor.pkl"):
             iteration = iteration+1
             
             # Calculate accuracy every 1000 step
-            if iteration%1000 == 0:
+            if iteration%10 == 0:
                 correct = 0
                 total = 0
                 # Iterate through test dataset
