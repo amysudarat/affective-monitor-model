@@ -191,8 +191,8 @@ def train_arousal(pickle_file="data_1_4_toTensor.pkl",learning_rate=0.01):
     test_sampler = SubsetRandomSampler(val_indices)
     
     # Make Dataset Iterable
-    batch_size = 10
-    n_iters = 84
+    batch_size = 100
+    n_iters = 2500
     train_loader = torch.utils.data.DataLoader(face_dataset,
                                                 batch_size=batch_size,
                                                 sampler=train_sampler)
@@ -266,7 +266,7 @@ def train_arousal(pickle_file="data_1_4_toTensor.pkl",learning_rate=0.01):
             iteration = iteration+1
             
             # Calculate accuracy every 1000 step
-            if iteration%10 == 0:
+            if iteration%100 == 0:
                 correct = 0
                 total = 0
                 
@@ -316,6 +316,6 @@ def train_arousal(pickle_file="data_1_4_toTensor.pkl",learning_rate=0.01):
 
 if __name__ == "__main__":
 #    train_valence(learning_rate=0.01)
-    train_arousal(learning_rate=0.05)
+    train_arousal(pickle_file="data_1_35_toTensor.pkl",learning_rate=0.05)
 
 

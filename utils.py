@@ -110,17 +110,21 @@ def dataset_info(df):
 if __name__ == "__main__":
 #    # FAP is loaded by default
 #    # how many subjects to load
-    n = 4
+    n = 35
     subjects = [i for i in range(1,n+1)]
 #    face_dataset = AffectiveMonitorDataset("C:\\Users\\dspcrew\\affective-monitor-model\\data",subjects=subjects)
 #    face_dataset = AffectiveMonitorDataset("C:\\Users\\dspcrew\\affective-monitor-model\\data",subjects=subjects,transform=ToTensor())
-##    face_dataset = AffectiveMonitorDataset("C:\\Users\\DSPLab\\Research\\ExperimentData",subjects=[1])
-    face_dataset = AffectiveMonitorDataset("E:\\Research\\ExperimentData",
+    
+    face_dataset = AffectiveMonitorDataset("C:\\Users\\DSPLab\\Research\\ExperimentData",
                                            subjects=subjects,
                                            transform=ToTensor())
+    
+#    face_dataset = AffectiveMonitorDataset("E:\\Research\\ExperimentData",
+#                                           subjects=subjects,
+#                                           transform=ToTensor())
 ##    data = face_dataset[:]
     # save face_dataset to pikle file
-    save_object(face_dataset, "data_1_4_toTensor.pkl")
+    save_object(face_dataset, "data_1_35_toTensor.pkl")
 #    del face_dataset
     
 #    face_dataset = load_object("data_1_4_toTensor.pkl")
