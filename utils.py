@@ -110,42 +110,56 @@ def common_member(a, b):
         return True
     return False
 
-def plot_pupil(pickle_file="data_1_35_toTensor.pkl"):
-    face_dataset = load_object(pickle_file)
+def plot_FAP(sample):
+    FAP = sample["FAP"]
     
-def plot_random():
+    plt.figure()
+    plt.imshow(FAP.numpy())
+    plt.title("FAP sample")
+    plt.show()
+
+def plot_sample(sample):
+    
+    # extract data from sample
+    pupil = sample['PD']
+    FAP = sample['FAP']
+    
+    # plot 1 row 2 column (pupil on left and FAP on right)
+    plt.subplot(121)
+    plt.plot(pupil.numpy())
+    plt.subplot(122)
+    plt.imshow(FAP.numpy())
+    plt.show()
+    
+    
+def plot_multi_FAP(sample_index,):
+    pass
     
 
 
 #def update_plot(i,data,scat)
 
-if __name__ == "__main__":
-#    # FAP is loaded by default
-#    # how many subjects to load
-    n = 35
-    subjects = [i for i in range(1,n+1)]
-#    face_dataset = AffectiveMonitorDataset("C:\\Users\\dspcrew\\affective-monitor-model\\data",subjects=subjects)
-#    face_dataset = AffectiveMonitorDataset("C:\\Users\\dspcrew\\affective-monitor-model\\data",subjects=subjects,transform=ToTensor())
-    
-    face_dataset = AffectiveMonitorDataset("C:\\Users\\DSPLab\\Research\\ExperimentData",
-                                           subjects=subjects,
-                                           transform=ToTensor())
-    
-#    face_dataset = AffectiveMonitorDataset("E:\\Research\\ExperimentData",
+#if __name__ == "__main__":
+##    # FAP is loaded by default
+##    # how many subjects to load
+#    n = 35
+#    subjects = [i for i in range(1,n+1)]
+##    face_dataset = AffectiveMonitorDataset("C:\\Users\\dspcrew\\affective-monitor-model\\data",subjects=subjects)
+##    face_dataset = AffectiveMonitorDataset("C:\\Users\\dspcrew\\affective-monitor-model\\data",subjects=subjects,transform=ToTensor())
+#    
+#    face_dataset = AffectiveMonitorDataset("C:\\Users\\DSPLab\\Research\\ExperimentData",
 #                                           subjects=subjects,
 #                                           transform=ToTensor())
-##    data = face_dataset[:]
-    # save face_dataset to pikle file
-    save_object(face_dataset, "data_1_35_toTensor.pkl")
-#    del face_dataset
-    
-#    face_dataset = load_object("data_1_4_toTensor.pkl")
-    
-    
-    
-    
-    
-    
+#    
+##    face_dataset = AffectiveMonitorDataset("E:\\Research\\ExperimentData",
+##                                           subjects=subjects,
+##                                           transform=ToTensor())
+###    data = face_dataset[:]
+#    # save face_dataset to pikle file
+#    save_object(face_dataset, "data_1_35_toTensor.pkl")
+##    del face_dataset
+#    
+##    face_dataset = load_object("data_1_4_toTensor.pkl")
     
     
     
@@ -154,27 +168,3 @@ if __name__ == "__main__":
     
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
-
-
