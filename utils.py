@@ -103,6 +103,18 @@ def dataset_info(df):
         x = np.array(df.loc[0][i])
         print("%s : %s , %s"%(i,str(x.shape),type(x)))
         
+def common_member(a, b): 
+    a_set = set(a) 
+    b_set = set(b) 
+    if len(a_set.intersection(b_set)) > 0: 
+        return True
+    return False
+
+def plot_pupil(pickle_file="data_1_35_toTensor.pkl"):
+    face_dataset = load_object(pickle_file)
+    
+def plot_random():
+    
 
 
 #def update_plot(i,data,scat)
