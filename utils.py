@@ -120,7 +120,7 @@ def generate_array_samples(start_idx, stop_idx, pickle_file="data_1_35_toTensor.
 
 
 def plot_FAP(sample,ax=None):
-    
+    """plot FAP of one sample"""
     if ax is None:
         
         plt.figure()
