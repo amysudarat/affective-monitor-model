@@ -110,15 +110,53 @@ def common_member(a, b):
         return True
     return False
 
-def plot_FAP(sample):
+
+def generate_array_samples(start_idx, stop_idx, pickle_file="data_1_35_toTensor.pkl"):
+    face_dataset = load_object(pickle_file)
+    array_samples = []
+    for i in range(start_idx,stop_idx+1):
+        array_samples.append(face_dataset[i])
+    return array_samples
+
+
+def plot_FAP(sample,ax=None):
+    
+    if ax is None:
+        
+        plt.figure()
+        ax = plt.axes()
+    
     FAP = sample["FAP"]
     
-    plt.figure()
-    plt.imshow(FAP.numpy())
-    plt.title("FAP sample")
-    plt.show()
+    ax.imshow(FAP.numpy())
+    # Turn off tick labels
+    ax.xaxis.set_visible(False)
+    ax.yaxis.set_visible(False)
+    
+    if ax is None:       
+        plt.show()
+    return
 
-def plot_sample(sample):
+def plot_PD(sample,ax=None):
+    
+    if ax is None:        
+#        plt.figure()
+        ax = plt.axes()
+    
+    PD = sample["PD"]
+    
+    ax.plot(PD.numpy())
+    
+    # Turn off tick labels
+    ax.xaxis.set_visible(False)
+    ax.yaxis.set_visible(False)
+
+    
+    if ax is None:       
+        plt.show()
+    return
+
+def plot_sample(sample,ax=None):
     
     # extract data from sample
     pupil = sample['PD']
@@ -130,11 +168,35 @@ def plot_sample(sample):
     plt.subplot(122)
     plt.imshow(FAP.numpy())
     plt.show()
+    return 
     
+def plot_multi_samples(start_idx,stop_idx,plot='PD'):
     
-def plot_multi_FAP(sample_index,):
-    pass
+    # get array of samples
+    samples = generate_array_samples(start_idx,stop_idx)
     
+    # ploting
+#    plt.figure()
+    fig, axes = plt.subplots(nrows=7,ncols=10)
+    
+    if len(samples) == 70:
+        for i,ax in enumerate(axes.flatten()):
+            if plot == 'FAP':
+                plot_FAP(samples[i],ax) 
+            elif plot == 'PD':
+                plot_PD(samples[i],ax)
+            else:
+                print("plot parameter is not valid")
+                return
+    else:
+        print("The length of sample array has to be 70")
+        return
+#    plt.gca().axes.get_yaxis().set_visible(False)
+#    plt.gca().axes.get_xaxis().set_visible(False)
+    plt.show()
+    return
+
+
 
 
 #def update_plot(i,data,scat)
