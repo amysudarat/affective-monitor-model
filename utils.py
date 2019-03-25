@@ -118,6 +118,16 @@ def generate_array_samples(start_idx, stop_idx, pickle_file="data_1_35_toTensor.
         array_samples.append(face_dataset[i])
     return array_samples
 
+def check_Q_color(arousal,valence):
+    if arousal >= 0 and valence >= 0:
+        color = 'red'
+    elif arousal >= 0 and valence < 0:
+        color = 'green'
+    elif arousal < 0 and valence < 0:
+        color = 'blue'
+    else:
+        color = 'black'
+    return color
 
 def plot_FAP(sample,ax=None):
     """plot FAP of one sample"""
@@ -126,16 +136,22 @@ def plot_FAP(sample,ax=None):
         plt.figure()
         ax = plt.axes()
     
-    FAP = sample["FAP"]
+    FAP = sample["FAP"].numpy()
+    arousal = sample["Arousal"].numpy()
+    valence = sample["Valence"].numpy()
     
-    ax.imshow(FAP.numpy())
+    color = check_Q_color(arousal,valence)
+    
+    cm = ax.imshow(FAP)
+    ax.set_title("color",color=color)
     # Turn off tick labels
     ax.xaxis.set_visible(False)
     ax.yaxis.set_visible(False)
     
     if ax is None:       
+        plt.colorbar(cm)
         plt.show()
-    return
+    return cm
 
 def plot_PD(sample,ax=None):
     
@@ -144,8 +160,11 @@ def plot_PD(sample,ax=None):
         ax = plt.axes()
     
     PD = sample["PD"]
+    arousal = sample["Arousal"].numpy()
+    valence = sample["Valence"].numpy()
+    color = check_Q_color(arousal,valence)
     
-    ax.plot(PD.numpy())
+    ax.plot(PD.numpy(),color=color)
     
     # Turn off tick labels
     ax.xaxis.set_visible(False)
@@ -156,17 +175,27 @@ def plot_PD(sample,ax=None):
         plt.show()
     return
 
-def plot_sample(sample,ax=None):
+def plot_sample(sample):
     
     # extract data from sample
-    pupil = sample['PD']
-    FAP = sample['FAP']
+    pupil = sample['PD'].numpy()
+    FAPs = sample['FAP'].numpy()
+    
+    arousal = sample["Arousal"].numpy()
+    valence = sample["Valence"].numpy()
+    color = check_Q_color(arousal,valence)
     
     # plot 1 row 2 column (pupil on left and FAP on right)
+    plt.figure()
     plt.subplot(121)
-    plt.plot(pupil.numpy())
+    plt.plot(pupil,color=color)
+    plt.text(0.5, 0.5, "Q1: red, Q2: green, Q3: blue, Q4: black", 
+             horizontalalignment='center', verticalalignment='center')
+    plt.title("PD")
     plt.subplot(122)
-    plt.imshow(FAP.numpy())
+    for fap in FAPs:
+        plt.plot(fap,marker='o')
+    plt.title("FAP")
     plt.show()
     return 
     
@@ -177,27 +206,39 @@ def plot_multi_samples(start_idx,stop_idx,plot='PD'):
     
     # ploting
 #    plt.figure()
-    fig, axes = plt.subplots(nrows=7,ncols=10)
+    fig, axes = plt.subplots(ncols=10,nrows=round(((stop_idx-start_idx)+1)/10))
     
-    if len(samples) == 70:
-        for i,ax in enumerate(axes.flatten()):
-            if plot == 'FAP':
-                plot_FAP(samples[i],ax) 
-            elif plot == 'PD':
-                plot_PD(samples[i],ax)
-            else:
-                print("plot parameter is not valid")
-                return
-    else:
-        print("The length of sample array has to be 70")
-        return
-#    plt.gca().axes.get_yaxis().set_visible(False)
-#    plt.gca().axes.get_xaxis().set_visible(False)
+    for i,ax in enumerate(axes.flatten()):
+        if plot == 'FAP':
+            cm = plot_FAP(samples[i],ax) 
+        elif plot == 'PD':
+            plot_PD(samples[i],ax)
+        else:
+            print("plot parameter is not valid")
+            return
+    
+    if plot == 'FAP':
+        fig.colorbar(cm)
     plt.show()
     return
 
+def plot_subjects(subjects=[1,2],plot='PD'):
+    """ subjects is the array of testsubject id"""
+    for subject_idx in subjects:
+        # [1,71,141,...]
+        start_idx = ((subject_idx*70)-70)+1
+        # [70,140,210,...]
+        stop_idx = subject_idx*70
+        plot_multi_samples(start_idx,stop_idx,plot=plot)
+    return
 
-
+def plot_FAP_linear(sample):
+    FAPs = sample['FAP'].numpy()
+    
+    plt.figure()
+    for fap in FAPs:
+        plt.plot(fap)
+    return
 
 #def update_plot(i,data,scat)
 

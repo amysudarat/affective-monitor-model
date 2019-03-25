@@ -1,26 +1,30 @@
 # -*- coding: utf-8 -*-
-
-import torch
 import utils
-import matplotlib.pyplot as plt
-import numpy as np
-import torch.nn as nn
-from torch.utils.data.sampler import SubsetRandomSampler
-from model.dataset_class import AffectiveMonitorDataset
-
 
 
 pickle_file = "data_1_35_toTensor.pkl"
 
 face_dataset = utils.load_object(pickle_file)
 
-utils.plot_multi_samples(1,70,plot="PD")
-utils.plot_multi_samples(1,70,plot="FAP")
+utils.plot_sample(face_dataset[19])
 
-utils.plot_multi_samples(71,140,plot="PD")
-utils.plot_multi_samples(71,140,plot="FAP")
+#utils.plot_FAP(face_dataset[3])
 
-utils.plot_FAP(face_dataset[90])
+#subject_ids = [i for i in range(1,21)]
+#
+#utils.plot_subjects(subject_ids,plot='PD')
+
+#utils.plot_multi_samples(1,70,plot="PD")
+#utils.plot_multi_samples(71,140,plot="PD")
+#utils.plot_multi_samples(141,210,plot="PD")
+
+
+#utils.plot_multi_samples(1,70,plot="FAP")
+#
+#utils.plot_multi_samples(71,140,plot="PD")
+#utils.plot_multi_samples(71,140,plot="FAP")
+#
+#utils.plot_FAP(face_dataset[90])
     
 ## split train and test dataset
 #validation_split = 0.2
