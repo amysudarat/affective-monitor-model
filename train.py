@@ -42,8 +42,8 @@ def train_valence(pickle_file="data_1_4_toTensor.pkl",learning_rate=0.01):
     test_sampler = SubsetRandomSampler(val_indices)
     
     # Make Dataset Iterable
-    batch_size = 10
-    n_iters = 84
+    batch_size = 100
+    n_iters = 2500
     train_loader = torch.utils.data.DataLoader(face_dataset,
                                                 batch_size=batch_size,
                                                 sampler=train_sampler)
@@ -192,7 +192,7 @@ def train_arousal(pickle_file="data_1_4_toTensor.pkl",learning_rate=0.01):
     
     # Make Dataset Iterable
     batch_size = 100
-    n_iters = 2500
+    n_iters = 1000
     train_loader = torch.utils.data.DataLoader(face_dataset,
                                                 batch_size=batch_size,
                                                 sampler=train_sampler)
@@ -234,6 +234,7 @@ def train_arousal(pickle_file="data_1_4_toTensor.pkl",learning_rate=0.01):
         for i, data in enumerate(train_loader):
             PDs = data['PD']
             labels = data['Arousal']
+            labels = labels*10
             
             # Cast labels to float 
             labels = labels.long()
@@ -244,7 +245,7 @@ def train_arousal(pickle_file="data_1_4_toTensor.pkl",learning_rate=0.01):
             # Cast input to Float (Model weight is set to Float by Default)
             PDs = PDs.float()
    
-            # Set existing torch with gradient accumation abilities
+            # Set existing torch with gradient accumulation abilities
             PDs.requires_grad = True                          
    
             # Clear gradients w.r.t. parameters
