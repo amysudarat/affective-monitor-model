@@ -118,7 +118,17 @@ if __name__ == "__main__":
     
     
     
-    
+#face_dataset = AffectiveMonitorDataset("C:\\Users\\dspcrew\\affective-monitor-model\\data",
+#                                           subjects=subjects,
+#                                           transform=ToTensor())
+#    
+#    face_dataset = AffectiveMonitorDataset("C:\\Users\\DSPLab\\Research\\ExperimentData",
+#                                           subjects=subjects,
+#                                           transform=ToTensor())
+#    
+#    face_dataset = AffectiveMonitorDataset("E:\\Research\\ExperimentData",
+#                                           subjects=subjects,
+#                                           transform=ToTensor())
     
     
     

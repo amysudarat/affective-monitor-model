@@ -92,16 +92,27 @@ def check_pupil(data):
 def save_object(obj, filename):
     with open(filename, 'wb') as output:  # Overwrites any existing file.
         pickle.dump(obj, output, pickle.HIGHEST_PROTOCOL)
+    return
         
 def load_object(filename):
     with open(filename, 'rb') as input:
         data = pickle.load(input)
         return data
 
+def create_pickle(pickle_name,n,path="C:\\Users\\DSPLab\\Research\\ExperimentData"):
+    subjects = [i for i in range(1,n+1)]    
+    face_dataset = AffectiveMonitorDataset(path,
+                                           subjects=subjects,
+                                           transform=ToTensor())        
+    # save face_dataset to pikle file
+    save_object(face_dataset, pickle_name)
+    return
+
 def dataset_info(df):
     for i in df.columns:
         x = np.array(df.loc[0][i])
         print("%s : %s , %s"%(i,str(x.shape),type(x)))
+    return
         
 def common_member(a, b): 
     a_set = set(a) 
@@ -111,7 +122,7 @@ def common_member(a, b):
     return False
 
 
-def generate_array_samples(start_idx, stop_idx, pickle_file="data_1_35_toTensor.pkl"):
+def generate_array_samples(start_idx, stop_idx, pickle_file="data_1_50_toTensor.pkl"):
     face_dataset = load_object(pickle_file)
     array_samples = []
     for i in range(start_idx,stop_idx+1):
@@ -239,6 +250,8 @@ def plot_FAP_linear(sample):
     for fap in FAPs:
         plt.plot(fap)
     return
+
+
 
 #def update_plot(i,data,scat)
 
