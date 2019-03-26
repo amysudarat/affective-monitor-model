@@ -55,12 +55,12 @@ def train_valence(pickle_file="data_1_4_toTensor.pkl",learning_rate=0.01):
 #    100 time steps
 #    Each time step: input dimension = 19
 #    how many hidden layer: 1 hidden layer
-#    output dimension = 4
+#    output dimension = 5
 
     input_dim = 19
     hidden_dim = 100
     layer_dim = 1
-    output_dim = 4
+    output_dim = 5
     # Number of steps to unroll
     seq_dim = 100 
     
@@ -317,6 +317,6 @@ def train_arousal(pickle_file="data_1_4_toTensor.pkl",learning_rate=0.01):
 
 if __name__ == "__main__":
 #    train_valence(learning_rate=0.01)
-    train_arousal(pickle_file="data_1_35_toTensor.pkl",learning_rate=0.05)
+    train_arousal(pickle_file="data_1_50_toTensor.pkl",learning_rate=0.05)
 
 

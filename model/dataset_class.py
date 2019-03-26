@@ -220,15 +220,15 @@ class AffectiveMonitorDataset(Dataset):
             target_scale = scale*((SAM-5)/4)
             
             if -1.0 <= target_scale < -0.6:
-                target_scale = -8
+                target_scale = 1
             elif -0.6 <= target_scale < -0.2:
-                target_scale = -4
+                target_scale = 2
             elif -0.2 <= target_scale < 0.2:
-                target_scale = 0
+                target_scale = 3
             elif 0.2 <= target_scale < 0.6:
                 target_scale = 4
             elif 0.6 <= target_scale <= 1:
-                target_scale = 8
+                target_scale = 5
             return target_scale
         
         # Apply function convert_to_label to Arousal and Valence Columns
