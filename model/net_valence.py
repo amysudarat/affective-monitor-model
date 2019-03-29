@@ -36,10 +36,16 @@ class myLSTM_valence(nn.Module):
     
     def forward(self,x):
         # Initialize hidden state with zeros
-        h0 = torch.zeros(self.layer_dim, x.size(0), self.hidden_dim, requires_grad = True)
+        if torch.cuda.is_available():
+            h0 = torch.zeros(self.layer_dim, x.size(0), self.hidden_dim, requires_grad = True).cuda()
+        else:
+            h0 = torch.zeros(self.layer_dim, x.size(0), self.hidden_dim, requires_grad = True)
         
         # Initialize cell state
-        c0 = torch.zeros(self.layer_dim, x.size(0), self.hidden_dim, requires_grad = True)
+        if torch.cuda.is_available():
+            c0 = torch.zeros(self.layer_dim, x.size(0), self.hidden_dim, requires_grad = True).cuda()
+        else:
+            c0 = torch.zeros(self.layer_dim, x.size(0), self.hidden_dim, requires_grad = True)
 
         # call one time will do 100 time steps
         out, (hn,cn) = self.lstm(x,(h0,c0))

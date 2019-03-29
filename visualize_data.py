@@ -19,9 +19,9 @@ utils.plot_sample(face_dataset[19])
 #utils.plot_multi_samples(141,210,plot="PD")
 
 
-#utils.plot_multi_samples(1,70,plot="FAP")
+utils.plot_multi_samples(1,70,plot="FAP")
 #
-#utils.plot_multi_samples(71,140,plot="PD")
+utils.plot_multi_samples(71,140,plot="PD")
 #utils.plot_multi_samples(71,140,plot="FAP")
 #
 #utils.plot_FAP(face_dataset[90])

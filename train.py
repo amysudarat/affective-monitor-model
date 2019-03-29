@@ -15,7 +15,7 @@ from model.net_valence import myLSTM_valence
 from model.net_arousal import myLSTM_arousal
 
 
-def train_valence(pickle_file="data_1_4_toTensor.pkl",learning_rate=0.01):
+def train_valence(pickle_file="data_1_50_toTensor.pkl",learning_rate=0.03):
     
     # Load Dataset
 #    n = 2
@@ -43,7 +43,7 @@ def train_valence(pickle_file="data_1_4_toTensor.pkl",learning_rate=0.01):
     
     # Make Dataset Iterable
     batch_size = 100
-    n_iters = 2500
+    n_iters = 1000
     train_loader = torch.utils.data.DataLoader(face_dataset,
                                                 batch_size=batch_size,
                                                 sampler=train_sampler)
@@ -69,6 +69,8 @@ def train_valence(pickle_file="data_1_4_toTensor.pkl",learning_rate=0.01):
     
     # Instantiate Model class
     model = myLSTM_valence(input_dim,hidden_dim,layer_dim,output_dim)
+    if torch.cuda.is_available():
+        model = model.cuda()
     
     # Instantiate Loss class
     criterion = nn.CrossEntropyLoss()
@@ -88,13 +90,16 @@ def train_valence(pickle_file="data_1_4_toTensor.pkl",learning_rate=0.01):
             
             # Cast labels to float 
             labels = labels.long()
-            
-            # Load input vector as tensors 
-            FAPs = FAPs.view(-1,seq_dim,input_dim)
-            
             # Cast input to Float (Model weight is set to Float by Default)
             FAPs = FAPs.float()
-   
+            
+            # Load input vector as tensors 
+            if torch.cuda.is_available():
+                FAPs = FAPs.view(-1,seq_dim,input_dim).cuda()
+                labels = labels.cuda()
+            else:
+                FAPs = FAPs.view(-1,seq_dim,input_dim)
+  
             # Set existing torch with gradient accumation abilities
             FAPs.requires_grad = True                          
    
@@ -117,7 +122,7 @@ def train_valence(pickle_file="data_1_4_toTensor.pkl",learning_rate=0.01):
             iteration = iteration+1
             
             # Calculate accuracy every 1000 step
-            if iteration%10 == 0:
+            if iteration%100 == 0:
                 correct = 0
                 total = 0
                 
@@ -128,13 +133,16 @@ def train_valence(pickle_file="data_1_4_toTensor.pkl",learning_rate=0.01):
                     
                     # Cast labels to float 
                     labels = labels.long()
-                    
-                    # Load FACunit to a tensor with grad_require=True
-                    FAPs = FAPs.view(-1,seq_dim,input_dim)
-                    
                     # Cast input to Float
                     FAPs = FAPs.float()
                     
+                    # Load input vector as tensors 
+                    if torch.cuda.is_available():
+                        FAPs = FAPs.view(-1,seq_dim,input_dim).cuda()
+                        labels = labels.cuda()
+                    else:
+                        FAPs = FAPs.view(-1,seq_dim,input_dim)                  
+                   
                     # Set existing torch 
                     FAPs.requires_grad = True
                     
@@ -219,6 +227,10 @@ def train_arousal(pickle_file="data_1_4_toTensor.pkl",learning_rate=0.01):
     # Instantiate Model class
     model = myLSTM_arousal(input_dim,hidden_dim,layer_dim,output_dim)
     
+    # GPU configuration
+    if torch.cuda.is_available():
+        model.cuda()
+    
     # Instantiate Loss class
     criterion = nn.CrossEntropyLoss()
     
@@ -236,15 +248,18 @@ def train_arousal(pickle_file="data_1_4_toTensor.pkl",learning_rate=0.01):
             labels = data['Arousal']
 #            labels = labels*10
             
-            # Cast labels to float 
-            labels = labels.long()
-            
-            # Load input vector as tensors 
-            PDs = PDs.view(-1,seq_dim,input_dim)
-            
             # Cast input to Float (Model weight is set to Float by Default)
             PDs = PDs.float()
-   
+            # Cast labels to float 
+            labels = labels.long()           
+            
+            # Load input vector as tensors 
+            if torch.cuda.is_available():
+                PDs = PDs.view(-1,seq_dim,input_dim).cuda()
+                labels = labels.cuda()
+            else:
+                PDs = PDs.view(-1,seq_dim,input_dim)
+  
             # Set existing torch with gradient accumulation abilities
             PDs.requires_grad = True                          
    
@@ -276,14 +291,17 @@ def train_arousal(pickle_file="data_1_4_toTensor.pkl",learning_rate=0.01):
                     PDs = data['PD']
                     labels = data['Arousal']
                     
-                    # Cast labels to float 
-                    labels = labels.long()
-                    
-                    # Load FACunit to a tensor with grad_require=True
-                    PDs = PDs.view(-1,seq_dim,input_dim)
-                    
                     # Cast input to Float
                     PDs = PDs.float()
+                    # Cast labels to float 
+                    labels = labels.long()
+                                       
+                    # Load input vector as tensors 
+                    if torch.cuda.is_available():
+                        PDs = PDs.view(-1,seq_dim,input_dim).cuda()
+                        labels = labels.cuda()
+                    else:
+                        PDs = PDs.view(-1,seq_dim,input_dim)                   
                     
                     # Set existing torch 
                     PDs.requires_grad = True
@@ -316,7 +334,7 @@ def train_arousal(pickle_file="data_1_4_toTensor.pkl",learning_rate=0.01):
 
 
 if __name__ == "__main__":
-#    train_valence(learning_rate=0.01)
-    train_arousal(pickle_file="data_1_50_toTensor.pkl",learning_rate=0.1)
+    train_valence(pickle_file="data_1_50_toTensor.pkl",learning_rate=0.05)
+#    train_arousal(pickle_file="data_1_50_toTensor.pkl",learning_rate=0.05)
 
 
