@@ -155,7 +155,8 @@ def plot_FAP(sample,ax=None):
     
     color = check_Q_color(valence)
     
-    cm = ax.imshow(FAP)
+    for fap in FAP:
+        plt.plot(fap,marker='o')
 #    ax.set_title("color",color='black')
     ax.text(0, 0, str(valence), bbox=dict(facecolor=color, alpha=0.5))
     # Turn off tick labels
@@ -163,9 +164,8 @@ def plot_FAP(sample,ax=None):
     ax.yaxis.set_visible(False)
     
     if ax is None:       
-        plt.colorbar(cm)
         plt.show()
-    return cm
+    return
 
 def plot_PD(sample,ax=None):
     
@@ -214,26 +214,25 @@ def plot_sample(sample):
     plt.show()
     return 
     
-def plot_multi_samples(start_idx,stop_idx,plot='PD'):
+def plot_multi_samples(start_idx,stop_idx,plot='PD',subject_idx=None):
     
     # get array of samples
     samples = generate_array_samples(start_idx,stop_idx)
     
     # ploting
 #    plt.figure()
-    fig, axes = plt.subplots(ncols=10,nrows=round(((stop_idx-start_idx)+1)/10))
+    fig, axes = plt.subplots(ncols=10,nrows=round(((stop_idx-start_idx)+1)/10),figsize=(14, 12))
     
     for i,ax in enumerate(axes.flatten()):
         if plot == 'FAP':
-            cm = plot_FAP(samples[i],ax) 
+            plot_FAP(samples[i],ax) 
         elif plot == 'PD':
             plot_PD(samples[i],ax)
         else:
             print("plot parameter is not valid")
             return
-    
-    if plot == 'FAP':
-        fig.colorbar(cm)
+    # plot title of the figure
+    fig.suptitle("Testsubject: "+str(subject_idx), fontsize=16)
     plt.show()
     return
 
@@ -244,7 +243,7 @@ def plot_subjects(subjects=[1,2],plot='PD'):
         start_idx = ((subject_idx*70)-70)+1
         # [70,140,210,...]
         stop_idx = subject_idx*70
-        plot_multi_samples(start_idx,stop_idx,plot=plot)
+        plot_multi_samples(start_idx,stop_idx,plot=plot,subject_idx=subject_idx)
     return
 
 def plot_FAP_linear(sample):
