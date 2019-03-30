@@ -125,7 +125,7 @@ def common_member(a, b):
 def generate_array_samples(start_idx, stop_idx, pickle_file="data_1_50_toTensor.pkl"):
     face_dataset = load_object(pickle_file)
     array_samples = []
-    for i in range(start_idx,stop_idx+1):
+    for i in range(start_idx-1,stop_idx):
         array_samples.append(face_dataset[i])
     return array_samples
 
@@ -145,8 +145,7 @@ def check_Q_color(label):
 
 def plot_FAP(sample,ax=None):
     """plot FAP of one sample"""
-    if ax is None:
-        
+    if ax is None:        
         plt.figure()
         ax = plt.axes()
     
@@ -156,7 +155,7 @@ def plot_FAP(sample,ax=None):
     color = check_Q_color(valence)
     
     for fap in FAP:
-        plt.plot(fap,marker='o')
+        ax.plot(fap,marker='o')
 #    ax.set_title("color",color='black')
     ax.text(0, 0, str(valence), bbox=dict(facecolor=color, alpha=0.5))
     # Turn off tick labels
