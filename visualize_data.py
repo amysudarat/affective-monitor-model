@@ -2,26 +2,28 @@
 import utils
 
 
-pickle_file = "data_1_35_toTensor.pkl"
+pickle_file = "data_1_50_toTensor.pkl"
 
 face_dataset = utils.load_object(pickle_file)
 
-utils.plot_sample(face_dataset[19])
+#utils.plot_subjects([5,8,15],plot='PD')
+
+#utils.plot_sample(face_dataset[19])
 
 #utils.plot_FAP(face_dataset[3])
 
-#subject_ids = [i for i in range(1,21)]
-#
+#subject_ids = [i for i in range(1,31)]
+##
 #utils.plot_subjects(subject_ids,plot='PD')
 
-#utils.plot_multi_samples(1,70,plot="PD")
+utils.plot_multi_samples(1,70,plot="PD")
 #utils.plot_multi_samples(71,140,plot="PD")
 #utils.plot_multi_samples(141,210,plot="PD")
 
 
 utils.plot_multi_samples(1,70,plot="FAP")
 #
-utils.plot_multi_samples(71,140,plot="PD")
+#utils.plot_multi_samples(71,140,plot="PD")
 #utils.plot_multi_samples(71,140,plot="FAP")
 #
 #utils.plot_FAP(face_dataset[90])

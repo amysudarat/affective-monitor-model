@@ -334,7 +334,7 @@ def train_arousal(pickle_file="data_1_4_toTensor.pkl",learning_rate=0.01):
 
 
 if __name__ == "__main__":
-    train_valence(pickle_file="data_1_50_toTensor.pkl",learning_rate=0.05)
+    train_valence(pickle_file="data_1_50_toTensor.pkl",learning_rate=0.01)
 #    train_arousal(pickle_file="data_1_50_toTensor.pkl",learning_rate=0.05)
 
 

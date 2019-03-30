@@ -129,14 +129,17 @@ def generate_array_samples(start_idx, stop_idx, pickle_file="data_1_50_toTensor.
         array_samples.append(face_dataset[i])
     return array_samples
 
-def check_Q_color(arousal,valence):
-    if arousal >= 0 and valence >= 0:
-        color = 'red'
-    elif arousal >= 0 and valence < 0:
+def check_Q_color(label):
+    label = int(label)
+    if label == 1:
+        color = 'yellow'
+    elif label == 2:
         color = 'green'
-    elif arousal < 0 and valence < 0:
+    elif label == 3:
+        color = 'red'
+    elif label == 4:
         color = 'blue'
-    else:
+    elif label == 5:
         color = 'black'
     return color
 
@@ -148,13 +151,13 @@ def plot_FAP(sample,ax=None):
         ax = plt.axes()
     
     FAP = sample["FAP"].numpy()
-    arousal = sample["Arousal"].numpy()
     valence = sample["Valence"].numpy()
     
-    color = check_Q_color(arousal,valence)
+    color = check_Q_color(valence)
     
     cm = ax.imshow(FAP)
-    ax.set_title("color",color=color)
+#    ax.set_title("color",color='black')
+    ax.text(0, 0, str(valence), bbox=dict(facecolor=color, alpha=0.5))
     # Turn off tick labels
     ax.xaxis.set_visible(False)
     ax.yaxis.set_visible(False)
@@ -172,10 +175,9 @@ def plot_PD(sample,ax=None):
     
     PD = sample["PD"]
     arousal = sample["Arousal"].numpy()
-    valence = sample["Valence"].numpy()
-    color = check_Q_color(arousal,valence)
-    
-    ax.plot(PD.numpy(),color=color)
+    color = check_Q_color(arousal)
+    ax.text(0, 0, str(arousal), bbox=dict(facecolor=color, alpha=0.5))
+    ax.plot(PD.numpy(),color='black')
     
     # Turn off tick labels
     ax.xaxis.set_visible(False)
@@ -194,18 +196,20 @@ def plot_sample(sample):
     
     arousal = sample["Arousal"].numpy()
     valence = sample["Valence"].numpy()
-    color = check_Q_color(arousal,valence)
+    color_arousal = check_Q_color(arousal)
+    color_valence = check_Q_color(valence)
     
     # plot 1 row 2 column (pupil on left and FAP on right)
     plt.figure()
     plt.subplot(121)
-    plt.plot(pupil,color=color)
-    plt.text(0.5, 0.5, "Q1: red, Q2: green, Q3: blue, Q4: black", 
-             horizontalalignment='center', verticalalignment='center')
+    plt.plot(pupil,color='black')
+    plt.text(0, 0, str(arousal), bbox=dict(facecolor=color_arousal, alpha=0.5))
+
     plt.title("PD")
     plt.subplot(122)
     for fap in FAPs:
         plt.plot(fap,marker='o')
+    plt.text(0,0, str(valence), bbox=dict(facecolor=color_valence, alpha=0.5))
     plt.title("FAP")
     plt.show()
     return 
