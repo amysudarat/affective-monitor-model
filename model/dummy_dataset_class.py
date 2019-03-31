@@ -18,6 +18,7 @@ class DummyDataset(Dataset):
         whole_dataframe = whole_dataframe.append(self.generate_flat())
         whole_dataframe = whole_dataframe.append(self.generate_linear())
         whole_dataframe = whole_dataframe.append(self.generate_parabola())
+        whole_dataframe = whole_dataframe.sample(frac=1).reset_index(drop=True)
         return whole_dataframe
         
         
@@ -58,6 +59,9 @@ class DummyDataset(Dataset):
     
     def __getitem__(self,idx):
         sample = self.dataframe.iloc[idx]
+        if len(sample) != 1:
+            print("can only get one sample at a time if ToTensor is used")
+            return
         if self.transform:
             sample = self.transform(sample)
         return sample
@@ -68,11 +72,11 @@ class DummyDataset(Dataset):
 class ToTensor(object):
     """ convert to tensor object """
     def __call__(self,sample):
-        transformed_sample = {'data': torch.from_numpy(np.array(sample['data'])),
-                              'label':torch.from_numpy(np.array(sample['label']))}
+        transformed_sample = {'data': torch.from_numpy(sample['data']),
+                              'label':torch.from_numpy(sample['label'])}
         return transformed_sample
 
 if __name__ == "__main__":
     dummy_data = DummyDataset(transform=ToTensor())
-    sample = dummy_data[2]
+    sample = dummy_data[5]
 
