@@ -9,6 +9,7 @@ from torch.utils.data import Dataset
 class DummyDataset(Dataset):
     """ Dummy Data for train """
     def __init__(self,transform=None):
+        random.seed(42)
         self.transform = transform
         self.dataframe = self.generate_data()
         return
@@ -31,10 +32,10 @@ class DummyDataset(Dataset):
         return pd.DataFrame(sins)
     
     def generate_flat(self,length=100,n=850):
-        magnitude_random = [random.randrange(1,101) for _ in range(n)]
+        magnitude_random = [random.randrange(-50,50) for _ in range(n)]
         flats = []
         for mag in magnitude_random:
-            flats.append({'data':magnitude_random*np.ones(n),'label':2})
+            flats.append({'data':mag*np.ones(length),'label':2})
         return pd.DataFrame(flats)
     
     def generate_linear(self,length=100,n=850):
@@ -59,9 +60,9 @@ class DummyDataset(Dataset):
     
     def __getitem__(self,idx):
         sample = self.dataframe.iloc[idx]
-        if len(sample) != 1:
-            print("can only get one sample at a time if ToTensor is used")
-            return
+#        if len(sample) != 1:
+#            print("can only get one sample at a time if ToTensor is used")
+#            return
         if self.transform:
             sample = self.transform(sample)
         return sample
@@ -72,11 +73,11 @@ class DummyDataset(Dataset):
 class ToTensor(object):
     """ convert to tensor object """
     def __call__(self,sample):
-        transformed_sample = {'data': torch.from_numpy(sample['data']),
-                              'label':torch.from_numpy(sample['label'])}
+        transformed_sample = {'data': torch.tensor(sample['data'].astype('float')),
+                              'label':torch.tensor(sample['label'])}
         return transformed_sample
 
 if __name__ == "__main__":
     dummy_data = DummyDataset(transform=ToTensor())
-    sample = dummy_data[5]
+    sample = dummy_data[8]
 
