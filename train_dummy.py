@@ -80,7 +80,7 @@ def train_dummy(learning_rate=0.01,split_ratio=0.2):
     # Create data loader
     # len(dataset)/batch_size means one epoch    
     batch_size = 100
-    n_iter = 340*2
+    n_iter = 340*10
     num_epochs = int(np.floor(n_iter / (len(dummy_dataset)/batch_size)))
     
     train_loader = torch.utils.data.DataLoader(dummy_dataset,
@@ -92,7 +92,7 @@ def train_dummy(learning_rate=0.01,split_ratio=0.2):
     
     # define model parameters
     input_dim = dummy_dataset[0]['data'].shape[0]
-    hidden_dim = 100
+    hidden_dim = 20
     layer_dim = 1
     output_dim = 4
     seq_dim = 1
@@ -213,6 +213,6 @@ def train_dummy(learning_rate=0.01,split_ratio=0.2):
                     
     
 if __name__ == "__main__":
-    train_dummy(learning_rate=0.05)
+    train_dummy(learning_rate=0.008)
 
 

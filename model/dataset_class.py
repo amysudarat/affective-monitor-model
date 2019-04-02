@@ -355,8 +355,19 @@ class ToTensor(object):
                               'Valence': torch.from_numpy(np.array(sample['valence'])) }
         return transformed_sample
     
+class ToTensor_and_Skorch(object):
     
+    def __init__(self,data,label):
+        self.data = data
+        self.label = label
     
+    def __call__(self,sample):
+        transformed_sample = {'FAP': torch.from_numpy(np.array(sample['faceFAP'])),
+                              'PD': torch.from_numpy(np.array(sample['PD_avg_filtered'])),
+                              'Arousal': torch.from_numpy(np.array(sample['arousal'])),
+                              'Valence': torch.from_numpy(np.array(sample['valence'])) }
+        return transformed_sample[self.data], transformed_sample[self.label]
+        
     
     
     
