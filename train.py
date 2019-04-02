@@ -203,7 +203,7 @@ def train_arousal(pickle_file="data_1_4_toTensor.pkl",learning_rate=0.01):
     
     # Make Dataset Iterable
     batch_size = 100
-    n_iters = 3500
+    n_iters = 350*3
     train_loader = torch.utils.data.DataLoader(face_dataset,
                                                 batch_size=batch_size,
                                                 sampler=train_sampler)
@@ -245,6 +245,7 @@ def train_arousal(pickle_file="data_1_4_toTensor.pkl",learning_rate=0.01):
     iteration = 0
     iter_num = []
     loss_list = []
+    accuracy_list = []
     for epoch in range(num_epochs):
         for i, data in enumerate(train_loader):
             PDs = data['PD']
@@ -328,19 +329,25 @@ def train_arousal(pickle_file="data_1_4_toTensor.pkl",learning_rate=0.01):
                 
                 iter_num.append(iteration)
                 loss_list.append(loss.item())
+                accuracy_list.append(accuracy)
                 
                 # print Loss
                 print("Iteration: {}. Loss: {}. Accuracy: {}".format(iteration,loss.item(),accuracy))
                 
     # Plot Graph
-    plt.plot(iter_num,loss_list)
-    plt.xlabel("Number of Iterations")
-    plt.ylabel("Loss")
+    fig, (ax_loss, ax_lc) = plt.subplots(nrows=2,ncols=1,sharex=True)
+    ax_loss.plot(iter_num,loss_list)
+    ax_lc.plot(iter_num,accuracy_list)
+    ax_loss.grid(True)
+    ax_lc.grid(True)
+    ax_lc.set_xlabel("Number of Iterations")
+    ax_loss.set_ylabel("Loss")
+    ax_lc.set_ylabel("Learning curve")
+    fig.suptitle("learning rate: "+str(learning_rate))
     plt.show()
-
 
 if __name__ == "__main__":
 #    train_valence(pickle_file="data_1_50_toTensor.pkl",learning_rate=0.01)
-    train_arousal(pickle_file="data_1_50_toTensor.pkl",learning_rate=0.07)
+    train_arousal(pickle_file="data_1_50_toTensor.pkl",learning_rate=0.03)
 
 

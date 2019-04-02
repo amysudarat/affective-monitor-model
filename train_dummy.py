@@ -112,6 +112,7 @@ def train_dummy(learning_rate=0.01,split_ratio=0.2):
     iteration = 0
     iter_num = []
     loss_list = []
+    accuracy_list = []
    
     for epoch in range(num_epochs):
         for i, sample in enumerate(train_loader):
@@ -193,14 +194,21 @@ def train_dummy(learning_rate=0.01,split_ratio=0.2):
                 
                 iter_num.append(iteration)
                 loss_list.append(loss.item())
+                accuracy_list.append(accuracy)
                 
                 # print Loss
                 print("Iteration: {}. Loss: {}. Accuracy: {}".format(iteration,loss.item(),accuracy))
                 
-        # Plot Graph
-    plt.plot(iter_num,loss_list)
-    plt.xlabel("Number of Iterations")
-    plt.ylabel("Loss")
+    # Plot Graph
+    fig, (ax_loss, ax_lc) = plt.subplots(nrows=2,ncols=1,sharex=True)
+    ax_loss.plot(iter_num,loss_list)
+    ax_lc.plot(iter_num,accuracy_list)
+    ax_loss.grid(True)
+    ax_lc.grid(True)
+    ax_lc.set_xlabel("Number of Iterations")
+    ax_loss.set_ylabel("Loss")
+    ax_lc.set_ylabel("Learning curve")
+    fig.suptitle("learning rate: "+str(learning_rate))
     plt.show()
                     
     
