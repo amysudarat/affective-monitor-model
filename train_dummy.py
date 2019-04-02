@@ -35,7 +35,7 @@ class myLSTM(nn.Module):
         
         # Initialize cell state
         if torch.cuda.is_available():
-            c0 = torch.zeros(self.layer_dim, x.size(0), self.hiden_dim, requires_grad=True).cuda()
+            c0 = torch.zeros(self.layer_dim, x.size(0), self.hidden_dim, requires_grad=True).cuda()
         else:
             c0 = torch.zeros(self.layer_dim, x.size(0), self.hidden_dim, requires_grad=True)
         
@@ -78,15 +78,17 @@ def train_dummy(learning_rate=0.01,split_ratio=0.2):
     test_sampler = SubsetRandomSampler(test_indices)
     
     # Create data loader
+    # len(dataset)/batch_size means one epoch    
     batch_size = 100
+    n_iter = 340*2
+    num_epochs = int(np.floor(n_iter / (len(dummy_dataset)/batch_size)))
+    
     train_loader = torch.utils.data.DataLoader(dummy_dataset,
                                                batch_size=batch_size,
                                                sampler=train_sampler)
     test_loader = torch.utils.data.DataLoader(dummy_dataset,
                                               batch_size=batch_size,
                                               sampler=test_sampler)
-    
-    one_sample = dummy_dataset[0]
     
     # define model parameters
     input_dim = dummy_dataset[0]['data'].shape[0]
@@ -110,12 +112,15 @@ def train_dummy(learning_rate=0.01,split_ratio=0.2):
     iteration = 0
     iter_num = []
     loss_list = []
-    num_epochs = 10
-    
+   
     for epoch in range(num_epochs):
         for i, sample in enumerate(train_loader):
             graph = sample['data']
             label = sample['label']
+            
+            # cast the type of input tensor
+            graph = graph.float()
+            label = label.long()
             
             # Load input vector as tensors
             if torch.cuda.is_available():
@@ -151,6 +156,15 @@ def train_dummy(learning_rate=0.01,split_ratio=0.2):
                 
                 # run test set
                 for i, sample in enumerate(test_loader):
+                    
+                    # obtain data
+                    graph = sample['data']
+                    label = sample['label']
+                    
+                    # cast the type of input tensor
+                    graph = graph.float()
+                    label = label.long()
+                    
                     # prepare sample
                     if torch.cuda.is_available():
                         graph = graph.view(-1,seq_dim,input_dim).cuda()
@@ -169,9 +183,13 @@ def train_dummy(learning_rate=0.01,split_ratio=0.2):
                     # total number
                     total = total + label.size(0)
                     
-                    correct = correct + (predicted == label).sum()
+                    # total accuracy prediction
+                    if torch.cuda.is_available():
+                        correct = correct + (predicted.cpu() == label.cpu()).sum()
+                    else:
+                        correct = correct + (predicted == label).sum()
                     
-                accuracy = 100* (correct/total)
+                accuracy = 100* (correct.item()/total)
                 
                 iter_num.append(iteration)
                 loss_list.append(loss.item())
@@ -187,6 +205,6 @@ def train_dummy(learning_rate=0.01,split_ratio=0.2):
                     
     
 if __name__ == "__main__":
-    train_dummy()
+    train_dummy(learning_rate=0.05)
 
 

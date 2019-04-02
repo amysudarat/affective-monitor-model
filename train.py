@@ -155,10 +155,13 @@ def train_valence(pickle_file="data_1_50_toTensor.pkl",learning_rate=0.03):
                     # Total number of labels (sum of batches)
                     total = total + labels.size(0)
                     
-                    # Total correct predictions
-                    correct = correct + (predicted == labels).sum()
+                    # total accuracy prediction
+                    if torch.cuda.is_available():
+                        correct = correct + (predicted.cpu() == labels.cpu()).sum()
+                    else:
+                        correct = correct + (predicted == labels).sum()
                 
-                accuracy = 100 * (correct/total)
+                accuracy = 100 * (correct.item()/total)
                 
                 iter_num.append(iteration)
                 loss_list.append(loss.item())
@@ -200,7 +203,7 @@ def train_arousal(pickle_file="data_1_4_toTensor.pkl",learning_rate=0.01):
     
     # Make Dataset Iterable
     batch_size = 100
-    n_iters = 1000
+    n_iters = 3500
     train_loader = torch.utils.data.DataLoader(face_dataset,
                                                 batch_size=batch_size,
                                                 sampler=train_sampler)
@@ -315,10 +318,13 @@ def train_arousal(pickle_file="data_1_4_toTensor.pkl",learning_rate=0.01):
                     # Total number of labels (sum of batches)
                     total = total + labels.size(0)
                     
-                    # Total correct predictions
-                    correct = correct + (predicted == labels).sum()
+                    # total accuracy prediction
+                    if torch.cuda.is_available():
+                        correct = correct + (predicted.cpu() == labels.cpu()).sum()
+                    else:
+                        correct = correct + (predicted == labels).sum()
                 
-                accuracy = 100 * (correct/total)
+                accuracy = 100 * (correct.item()/total)
                 
                 iter_num.append(iteration)
                 loss_list.append(loss.item())
@@ -334,7 +340,7 @@ def train_arousal(pickle_file="data_1_4_toTensor.pkl",learning_rate=0.01):
 
 
 if __name__ == "__main__":
-    train_valence(pickle_file="data_1_50_toTensor.pkl",learning_rate=0.01)
-#    train_arousal(pickle_file="data_1_50_toTensor.pkl",learning_rate=0.05)
+#    train_valence(pickle_file="data_1_50_toTensor.pkl",learning_rate=0.01)
+    train_arousal(pickle_file="data_1_50_toTensor.pkl",learning_rate=0.07)
 
 
