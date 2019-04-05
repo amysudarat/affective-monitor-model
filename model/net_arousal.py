@@ -29,6 +29,7 @@ class myLSTM_arousal(nn.Module):
         # batch_first = True causes input/output tensors to be of shape
         # (batch_dim,seq_dim,feature_dim) in other word put the index of batch
         # on the first column of tuple
+        # skorch use batch_first as default
         self.lstm = nn.LSTM(input_dim,hidden_dim,layer_dim,batch_first=True)
         
         # Readout Layer (non-recurrent output layer)

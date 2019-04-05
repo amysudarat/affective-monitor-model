@@ -99,11 +99,19 @@ def load_object(filename):
         data = pickle.load(input)
         return data
 
-def create_pickle(pickle_name,n,path="C:\\Users\\DSPLab\\Research\\ExperimentData"):
+def create_pickle_tensor(pickle_name,n,path="C:\\Users\\DSPLab\\Research\\ExperimentData"):
     subjects = [i for i in range(1,n+1)]    
     face_dataset = AffectiveMonitorDataset(path,
                                            subjects=subjects,
                                            transform=ToTensor())        
+    # save face_dataset to pikle file
+    save_object(face_dataset, pickle_name)
+    return
+
+def create_pickle(pickle_name,n,path="C:\\Users\\DSPLab\\Research\\ExperimentData"):
+    subjects = [i for i in range(1,n+1)]    
+    face_dataset = AffectiveMonitorDataset(path,
+                                           subjects=subjects)        
     # save face_dataset to pikle file
     save_object(face_dataset, pickle_name)
     return
