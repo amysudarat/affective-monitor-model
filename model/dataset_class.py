@@ -127,6 +127,7 @@ class AffectiveMonitorDataset(Dataset):
             pupil_right_to_merge = filtered_pupil_right
             pupil_right_to_merge[:101] = pd_right[:101]
 #            pupil_avg_to_merge = [x+y for x,y in zip(pupil_left_to_merge,pupil_right_to_merge)]
+            # merge two eye sides signals together
             pupil_comb_to_merge = []
             for x,y in zip(pupil_left_to_merge,pupil_right_to_merge):
                 if x > y:
