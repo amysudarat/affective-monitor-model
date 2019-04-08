@@ -23,7 +23,7 @@ class AffectiveMonitorDataset(Dataset):
             subjects (list): list of test subject number specified to be loaded
     """
     
-    def __init__(self,filepath,mode='FAC',transform=None,fix_distance=False,subjects=None,removePLR=True):
+    def __init__(self,filepath,mode='FAC',transform=None,fix_distance=False,subjects=None,fix_PD=True):
         """
         Args:
             filepath (string): Path to data directory
@@ -36,8 +36,10 @@ class AffectiveMonitorDataset(Dataset):
             self.subjects = subjects
         else:
             self.subjects = [i for i in range(1,2)]
-        # removePLR or not
-        self.removePLR = removePLR
+#        # removePLR or not
+#        self.removePLR = removePLR
+        # fix PD
+        self.fix_PD = fix_PD
         # map pic index with arousal level and valence level
         self.label_lookup = self.load_label(filepath)
         self.fix_distance = fix_distance
@@ -51,7 +53,6 @@ class AffectiveMonitorDataset(Dataset):
         # option for data augmentation
         self.transform = transform
         
-        
     
     def load_dataframe_FAC(self,path):
         """
@@ -62,6 +63,7 @@ class AffectiveMonitorDataset(Dataset):
         
         # initialize Total dataframe
         total = pd.DataFrame()
+        self.face_df = pd.DataFrame()
         # Loop through each Testsubject folder
         for i in range(len(filepaths)):
             
@@ -72,7 +74,7 @@ class AffectiveMonitorDataset(Dataset):
             
             # set index column
             face_df = face_df.set_index("PicIndex")
-            self.face_df = face_df
+            self.face_df = self.face_df.append(face_df)
             # fill pupil diameter of the first row by the second row
             face_df.iloc[0,face_df.columns.get_loc("PupilDiameter")] = face_df.iloc[1,face_df.columns.get_loc("PupilDiameter")]
             
@@ -81,51 +83,63 @@ class AffectiveMonitorDataset(Dataset):
             a_prev = (0,0)
             for i in range(face_df.shape[0]):
                 try:
+                    # convert string to tuple
                     a = ast.literal_eval(face_df.iloc[i,face_df.columns.get_loc("PupilDiameter")])
-                    # handling missing value 
-                    if a[0] < 2.5:
-                        a[0] = a_prev[0]
-                    if a[1] < 2.5:
-                        a[1] = a_prev[1]
+                    if self.fix_PD:
+                        # handling missing value 
+                        if a[0] < 2.5:
+                            a[0] = a_prev[0]
+                        if a[1] < 2.5:
+                            a[1] = a_prev[1]
                     face_df.iat[i,face_df.columns.get_loc("PupilDiameter")] = a  
-#                    a_prev = a                        
+    #                    a_prev = a                        
                 except:
                     a = a_prev
                     face_df.iat[i,face_df.columns.get_loc("PupilDiameter")] = a   
-            # find average (discarding missing value)
-            pd_sum = [0,0]
-            count_left = 0
-            count_right = 0
-            for i in range(face_df.shape[0]):
-                a = face_df.iloc[i]['PupilDiameter']
-                if a[0] != 0:
-                    pd_sum[0] = pd_sum[0]+a[0]
-                    count_left += 1
-                if a[1] != 0:
-                    pd_sum[1] = pd_sum[1]+a[1]
-                    count_right += 1
-            pd_avg = (pd_sum[0]/count_left,pd_sum[1]/count_right)
             
-            # Pad (0,0) with average value
-            for i in range(face_df.shape[0]):
-                a = face_df.iloc[i]['PupilDiameter']
-                b = list(a)
-                if b[0] == 0:
-                    b[0] = pd_avg[0]
-                if b[1] == 0:
-                    b[1] = pd_avg[1]
-                face_df.iat[i,face_df.columns.get_loc('PupilDiameter')] = b
+            if self.fix_PD:
+                # find average (discard missing value)
+                pd_sum = [0,0]
+                count_left = 0
+                count_right = 0
+                for i in range(face_df.shape[0]):
+                    a = face_df.iloc[i]['PupilDiameter']
+                    if a[0] != 0:
+                        pd_sum[0] = pd_sum[0]+a[0]
+                        count_left += 1
+                    if a[1] != 0:
+                        pd_sum[1] = pd_sum[1]+a[1]
+                        count_right += 1
+                pd_avg = (pd_sum[0]/count_left,pd_sum[1]/count_right)
                 
-            # Remove PLR
-            
-            illum = face_df['Illuminance'].values
-            pd_left, pd_right = self.tuple_to_list(face_df['PupilDiameter'])
-            filtered_pupil_left = self.remove_PLR(pd_left,illum,10,15)
-            filtered_pupil_right = self.remove_PLR(pd_right,illum,10,15)
-            pupil_left_to_merge = filtered_pupil_left
-            pupil_left_to_merge[:101] = pd_left[:101]
-            pupil_right_to_merge = filtered_pupil_right
-            pupil_right_to_merge[:101] = pd_right[:101]
+                # Pad (0,0) with average value
+                for i in range(face_df.shape[0]):
+                    a = face_df.iloc[i]['PupilDiameter']
+                    b = list(a)
+                    if b[0] == 0:
+                        b[0] = pd_avg[0]
+                    if b[1] == 0:
+                        b[1] = pd_avg[1]
+                    face_df.iat[i,face_df.columns.get_loc('PupilDiameter')] = b
+                
+                # Remove PLR
+                
+                illum = face_df['Illuminance'].values
+                depth = face_df['Depth']
+                pd_left, pd_right = self.tuple_to_list(face_df['PupilDiameter'])
+                filtered_pupil_left = self.remove_PLR(pd_left,illum,10,15)
+                filtered_pupil_right = self.remove_PLR(pd_right,illum,10,15)
+                pupil_left_to_merge = filtered_pupil_left
+                pupil_left_to_merge[:101] = pd_left[:101]
+                pupil_right_to_merge = filtered_pupil_right
+                pupil_right_to_merge[:101] = pd_right[:101]
+                
+            else:
+                illum = face_df['Illuminance'].values
+                pd_left, pd_right = self.tuple_to_list(face_df['PupilDiameter'])                
+                pupil_left_to_merge = pd_left
+                pupil_right_to_merge = pd_right
+                
 #            pupil_avg_to_merge = [x+y for x,y in zip(pupil_left_to_merge,pupil_right_to_merge)]
             # merge two eye sides signals together
             pupil_comb_to_merge = []
