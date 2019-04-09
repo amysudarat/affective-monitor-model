@@ -136,6 +136,7 @@ class AffectiveMonitorDataset(Dataset):
                 
             else:
                 illum = face_df['Illuminance'].values
+                depth = face_df['Depth'].values
                 pd_left, pd_right = self.tuple_to_list(face_df['PupilDiameter'])                
                 pupil_left_to_merge = pd_left
                 pupil_right_to_merge = pd_right
@@ -178,6 +179,7 @@ class AffectiveMonitorDataset(Dataset):
                           'PD_right_filtered': pupil_right_to_merge[start:end],
                           'PD_avg_filtered': pupil_comb_to_merge[start:end],
                           'illuminance': illuminance,
+                          'depth': depth[start:end],
                           'arousal': self.label_lookup.loc[i,'Arousal_target'],
                           'valence': self.label_lookup.loc[i,'Valence_target'] }
                 # append prepared sample to total dataframe
