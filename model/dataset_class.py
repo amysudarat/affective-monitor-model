@@ -5,6 +5,7 @@ import ast
 import pandas as pd
 import numpy as np
 import torch
+import statistics
 from torch.utils.data import Dataset
 
 
@@ -79,48 +80,65 @@ class AffectiveMonitorDataset(Dataset):
             face_df.iloc[0,face_df.columns.get_loc("PupilDiameter")] = face_df.iloc[1,face_df.columns.get_loc("PupilDiameter")]
             
             # convert string to tuple on pupil diameter column 
-            # right now the way we handle sample is to replace the invalid value to (0,0)
+            # right now the way we handle sample is to replace the non-int value by (0,0)
             a_prev = (0,0)
             for i in range(face_df.shape[0]):
+                # try convert string to tuple
                 try:
-                    # convert string to tuple
+                    
                     a = ast.literal_eval(face_df.iloc[i,face_df.columns.get_loc("PupilDiameter")])
-                    if self.fix_PD:
-                        # handling missing value 
-                        if a[0] < 2.5:
-                            a[0] = a_prev[0]
-                        if a[1] < 2.5:
-                            a[1] = a_prev[1]
-                    face_df.iat[i,face_df.columns.get_loc("PupilDiameter")] = a  
-    #                    a_prev = a                        
+#                    if self.fix_PD:
+#                        # handling missing value 
+#                        if a[0] < 2.5:
+#                            a[0] = a_prev[0]
+#                        if a[1] < 2.5:
+#                            a[1] = a_prev[1]
+#                    face_df.iat[i,face_df.columns.get_loc("PupilDiameter")] = a  
+#    #                    a_prev = a                        
+                # replace (0,0) if cannot convert
                 except:
                     a = a_prev
                     face_df.iat[i,face_df.columns.get_loc("PupilDiameter")] = a   
+                    
+            # get list of pd_left and pd_right
+            pd_left, pd_right = self.tuple_to_list(face_df['PupilDiameter'])
             
+            # clean PD is self.fix_PD is true
             if self.fix_PD:
-                # find average (discard missing value)
-                pd_sum = [0,0]
-                count_left = 0
-                count_right = 0
-                for i in range(face_df.shape[0]):
-                    a = face_df.iloc[i]['PupilDiameter']
-                    if a[0] != 0:
-                        pd_sum[0] = pd_sum[0]+a[0]
-                        count_left += 1
-                    if a[1] != 0:
-                        pd_sum[1] = pd_sum[1]+a[1]
-                        count_right += 1
-                pd_avg = (pd_sum[0]/count_left,pd_sum[1]/count_right)
                 
-                # Pad (0,0) with average value
-                for i in range(face_df.shape[0]):
-                    a = face_df.iloc[i]['PupilDiameter']
-                    b = list(a)
-                    if b[0] == 0:
-                        b[0] = pd_avg[0]
-                    if b[1] == 0:
-                        b[1] = pd_avg[1]
-                    face_df.iat[i,face_df.columns.get_loc('PupilDiameter')] = b
+                # merge two eye sides signals together
+                pupil_merge = []
+                for x,y in zip(pd_left,pd_right):
+                    if x > y:
+                        pupil_merge.append(x)
+                    else:
+                        pupil_merge.append(y)   
+                
+                # determine missing value 
+                
+#                # find average (discard missing value)
+#                pd_sum = [0,0]
+#                count_left = 0
+#                count_right = 0
+#                for i in range(face_df.shape[0]):
+#                    a = face_df.iloc[i]['PupilDiameter']
+#                    if a[0] != 0:
+#                        pd_sum[0] = pd_sum[0]+a[0]
+#                        count_left += 1
+#                    if a[1] != 0:
+#                        pd_sum[1] = pd_sum[1]+a[1]
+#                        count_right += 1
+#                pd_avg = (pd_sum[0]/count_left,pd_sum[1]/count_right)
+#                
+#                # Pad (0,0) with average value
+#                for i in range(face_df.shape[0]):
+#                    a = face_df.iloc[i]['PupilDiameter']
+#                    b = list(a)
+#                    if b[0] == 0:
+#                        b[0] = pd_avg[0]
+#                    if b[1] == 0:
+#                        b[1] = pd_avg[1]
+#                    face_df.iat[i,face_df.columns.get_loc('PupilDiameter')] = b
                 
                 # Remove PLR
                 
