@@ -279,21 +279,18 @@ def plot_pd_sample(sample,ax=None):
     ax.plot(pd_merge,'k',linewidth=4)
     ax.plot(pd_left,'--r')
     ax.plot(pd_right,'--b')
-    ax.plot(zero_line,'y')
+#    ax.plot(zero_line,'y')
+    
 #    ax.plot(depth,'g')
     
-    
-    # Turn off tick labels
-    ax.xaxis.set_visible(False)
-    ax.yaxis.set_visible(False)
-
-
-    if ax is None:       
+    if ax is None:   
+        plt.title("left= red, right= blue, merge= black, depth= green")
         plt.show()
+        
+    else:
         # Turn off tick labels
-        ax.xaxis.set_visible(True)
-        ax.yaxis.set_visible(True)
-        ax.set_title("left= red, right= blue, merge= black, depth= green")
+        ax.xaxis.set_visible(False)
+        ax.yaxis.set_visible(False)
     return
     
 def generate_array_samples_pd(start_idx, stop_idx, pickle_file):

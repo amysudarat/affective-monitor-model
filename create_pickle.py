@@ -14,14 +14,15 @@ subjects = [i for i in range(1,n+1)]
 #                                           subjects=subjects,
 #                                           transform=ToTensor())
     
-#face_dataset = AffectiveMonitorDataset("C:\\Users\\DSPLab\\Research\\ExperimentData",
-#                                       subjects=subjects,
-#                                       fix_PD=False)
-#    
-face_dataset = AffectiveMonitorDataset("E:\\Research\\ExperimentData",
-                                           subjects=subjects,
-                                           fix_PD=False,
-                                           convert_label=False)
+face_dataset = AffectiveMonitorDataset("C:\\Users\\DSPLab\\Research\\ExperimentData",
+                                       subjects=subjects,
+                                       fix_PD=False,
+                                       convert_label=True)
+    
+#face_dataset = AffectiveMonitorDataset("E:\\Research\\ExperimentData",
+#                                           subjects=subjects,
+#                                           fix_PD=False,
+#                                           convert_label=False)
 
 ##############--------- Generate pickle file based on generateing face_dataset ----------##########
-utils.save_object(face_dataset, "data_1_50_fixPD_Label_False.pkl")
+utils.save_object(face_dataset, "data_1_50_fixPD_False.pkl")
