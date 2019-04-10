@@ -24,7 +24,7 @@ class AffectiveMonitorDataset(Dataset):
             subjects (list): list of test subject number specified to be loaded
     """
     
-    def __init__(self,filepath,mode='FAC',transform=None,fix_distance=False,subjects=None,fix_PD=True):
+    def __init__(self,filepath,mode='FAC',transform=None,fix_distance=False,subjects=None,fix_PD=True,convert_label=True):
         """
         Args:
             filepath (string): Path to data directory
@@ -42,6 +42,7 @@ class AffectiveMonitorDataset(Dataset):
         # fix PD
         self.fix_PD = fix_PD
         # map pic index with arousal level and valence level
+        self.convert_label = convert_label
         self.label_lookup = self.load_label(filepath)
         self.fix_distance = fix_distance
         # load global FAPU
@@ -98,7 +99,8 @@ class AffectiveMonitorDataset(Dataset):
                 # replace (0,0) if cannot convert
                 except:
                     a = a_prev
-                    face_df.iat[i,face_df.columns.get_loc("PupilDiameter")] = a   
+                # replace tuple value to face_df
+                face_df.iat[i,face_df.columns.get_loc("PupilDiameter")] = a   
                     
             # get list of pd_left and pd_right
             pd_left, pd_right = self.tuple_to_list(face_df['PupilDiameter'])
@@ -266,9 +268,13 @@ class AffectiveMonitorDataset(Dataset):
                 target_scale = 5
             return target_scale
         
-        # Apply function convert_to_label to Arousal and Valence Columns
-        SAM_df['Arousal_target'] = SAM_df['Arousal_mean(IAPS)'].apply(convert_to_label)
-        SAM_df['Valence_target'] = SAM_df['Valence_mean(IAPS)'].apply(convert_to_label)        
+        if self.convert_label:
+            # Apply function convert_to_label to Arousal and Valence Columns
+            SAM_df['Arousal_target'] = SAM_df['Arousal_mean(IAPS)'].apply(convert_to_label)
+            SAM_df['Valence_target'] = SAM_df['Valence_mean(IAPS)'].apply(convert_to_label)  
+        else:
+            SAM_df['Arousal_target'] = SAM_df['Arousal_mean(IAPS)']
+            SAM_df['Valence_target'] = SAM_df['Valence_mean(IAPS)']
         
         return SAM_df
     

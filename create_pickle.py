@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from model.dataset_class import AffectiveMonitorDataset
-import matplotlib.pyplot as plt
 import utils
 
 
@@ -21,7 +20,8 @@ subjects = [i for i in range(1,n+1)]
 #    
 face_dataset = AffectiveMonitorDataset("E:\\Research\\ExperimentData",
                                            subjects=subjects,
-                                           fix_PD=False)
+                                           fix_PD=False,
+                                           convert_label=False)
 
 ##############--------- Generate pickle file based on generateing face_dataset ----------##########
-utils.save_object(face_dataset, "data_1_50_fixPD_False.pkl")
+utils.save_object(face_dataset, "data_1_50_fixPD_Label_False.pkl")
