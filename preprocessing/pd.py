@@ -24,7 +24,7 @@ def detect_glitch(raw, threshold=1.5):
         if sum(diff_raw[start:stop]) == 0:
             replace_value = (raw[start-1]+raw[stop+1])/2
             replace_list = [replace_value for i in range(stop-start+1)]
-            output = raw[:start]+replace_list+raw[stop+1:]
+            output = output[:start]+replace_list+output[stop+1:]
             assert len(raw) == len(output), "fix slicing list"
         i = i+1 # 2
     
