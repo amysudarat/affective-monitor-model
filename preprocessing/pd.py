@@ -4,6 +4,7 @@ import numpy as np
 #import pandas as pd
 import matplotlib.pyplot as plt
 import scipy.signal
+import utils
 
 
 def detect_glitch(raw, threshold=1.5):
@@ -30,8 +31,6 @@ def detect_glitch(raw, threshold=1.5):
     
 
     return glitch_index, output
-
-
 
 
 def differentiator(pd_signal):
@@ -92,3 +91,48 @@ def plot_pd_before_after(sample,processed_pd=None,ax=None,adjust=True,glitch_ind
 #        ax.xaxis.set_visible(False)
 #        ax.yaxis.set_visible(False)
     return
+
+
+def plot_pd_overlap(subjects=[1],fix_pd=True):
+    face_dataset = utils.load_object("data_1_50_fixPD_Label_False.pkl")
+    figs = []
+    for subject_idx in subjects:
+        # [0,70,140,...]
+        start_idx = ((subject_idx*70)-70)
+        # [69,139,209,...]
+        stop_idx = (subject_idx*70)-1
+        
+        # prepare pd_signal numpy array
+        pd_signals = []
+        fig, axes = plt.subplots(nrows=1, ncols=1, figsize=(14, 12))
+        axes.grid(True)
+        for i in range(start_idx,stop_idx+1):                         
+            if fix_pd:
+                _, output = detect_glitch(face_dataset[i]['PD_avg_filtered'],0.3)                
+            else:
+                output = face_dataset[i]['PD_avg_filtered']
+                 
+            pd_signals.append(output) 
+            axes.plot(output)
+        
+        fig.suptitle("Testsubject: " + str(subject_idx))
+        figs.append(fig)
+        print(subject_idx)
+        
+    return figs
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+

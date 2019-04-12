@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import preprocessing.pd as ppd
+import matplotlib.backends.backend_pdf
+#import matplotlib.pyplot as plt
 import utils
 
 
@@ -21,5 +23,21 @@ pd_signal = face_dataset[sample_idx]['PD_avg_filtered']
 #ppd.plot_pd_before_after(face_dataset[sample_idx],processed_pd,adjust=False)
 
 # detect glitch
-glitch_index, processed_pd = ppd.detect_glitch(pd_signal,threshold=0.3)
-ppd.plot_pd_before_after(face_dataset[sample_idx],processed_pd,adjust=False,glitch_index=glitch_index)
+#glitch_index, processed_pd = ppd.detect_glitch(pd_signal,threshold=0.3)
+#ppd.plot_pd_before_after(face_dataset[sample_idx],processed_pd,adjust=False,glitch_index=glitch_index)
+
+# plot overlap
+#ppd.plot_pd_overlap([1,2])
+
+subjects = [i for i in range(1,51)]
+ 
+figs = ppd.plot_pd_overlap(subjects,fix_pd=False)
+
+# save figures to pdf file
+pdf = matplotlib.backends.backend_pdf.PdfPages("pdf/plot_pd_overlap_not_fix_pd.pdf")
+i = 0
+for fig in figs: ## will open an empty extra figure :(
+    pdf.savefig( fig )
+    i+=1
+    print("printing: "+str(i))
+pdf.close()  
