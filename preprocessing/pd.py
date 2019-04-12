@@ -54,7 +54,8 @@ def savgol(pd_signal,window=15,polyorder=2):
 
 def plot_pd_before_after(sample,processed_pd=None,ax=None,adjust=True,glitch_index=None,):
     
-    if ax is None:        
+    if ax is None:      
+        plt.figure()
         ax = plt.axes()
         ax.set_title("black = original, red = processed signal")
         ax.grid(True)
