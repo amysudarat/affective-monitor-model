@@ -268,30 +268,35 @@ def plot_pd_sample(sample,ax=None):
     
     if ax is None:        
         ax = plt.axes()
+        ax.set_title("left= red, right= blue, merge= black, depth= green")
+        ax.grid(True)
     
-    pd_left = sample["PD_left_filtered"]
-    zero_line = [0 for i in range(len(pd_left))]
-    pd_right = sample["PD_right_filtered"]
+#    pd_left = sample["PD_left_filtered"]
+#    zero_line = [0 for i in range(len(pd_left))]
+#    pd_right = sample["PD_right_filtered"]
     pd_merge = sample["PD_avg_filtered"]
-    depth = sample["depth"]
+#    depth = sample["depth"]
     arousal = sample["arousal"]    
     ax.text(0, pd_merge[0], str(arousal), bbox=dict(facecolor='red', alpha=0.5))
-    ax.plot(pd_merge,'k',linewidth=4)
-    ax.plot(pd_left,'--r')
-    ax.plot(pd_right,'--b')
+    ax.plot(pd_merge,'k',linewidth=3)
+    ax.grid(True)
+#    ax.plot(pd_left,'--r')
+#    ax.plot(pd_right,'--b')
 #    ax.plot(zero_line,'y')
     
 #    ax.plot(depth,'g')
     
-    if ax is None:   
-        plt.title("left= red, right= blue, merge= black, depth= green")
-        plt.show()
+#    if ax is None:   
         
-    else:
+#        plt.show()
+        
+#    else:
         # Turn off tick labels
-        ax.xaxis.set_visible(False)
-        ax.yaxis.set_visible(False)
+#        ax.xaxis.set_visible(False)
+#        ax.yaxis.set_visible(False)
     return
+
+
     
 def generate_array_samples_pd(start_idx, stop_idx, pickle_file):
     face_dataset = load_object(pickle_file)
