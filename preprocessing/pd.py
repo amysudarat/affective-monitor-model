@@ -6,9 +6,33 @@ import matplotlib.pyplot as plt
 import scipy.signal
 import utils
 
-def select_and_clean(samples,norm=True,miss_percent=None):
+def generate_features_df(samples):
+    """
+    Imagine bell curve, skew left (tail to left,positive), skew right (tail to right,negative)
+    mean follows tail, median stay with the bulk
+    """
+    samples['mean'] = samples.mean(axis=1)
+    samples['median'] = samples.median(axis=1)
+    samples['max'] = samples.max(axis=1)
+    samples['min'] = samples.min(axis=1)
+    samples['skew'] = samples.skew(axis=1)
+    return samples
+
+def select_and_clean(samples,norm=True,miss_percent=None,output_form='list',miss_threshold=0.4):
+    """
+        Select samples based on miss_percent with normalization as option.
+    samples: 
+        list of pd signals
+    norm:
+        (boolean)
+    miss_percent:
+        array of missing percentage 
+    output_form : 
+        'df' to return dataframe, otherwise will return list
+    """
     output = []
-    for subject_idx in range(50):
+    output_df = pd.DataFrame()
+    for subject_idx in range(1,51):
         # [0,70,140,...]
         start_idx = ((subject_idx*70)-70)
         # [70,140,210,...]
@@ -23,7 +47,7 @@ def select_and_clean(samples,norm=True,miss_percent=None):
             subject_df = pd.DataFrame(subject)
             miss_column = miss_percent[start_idx:stop_idx]
             subject_df['missing_percent'] = miss_column
-            subject_df = subject_df[subject_df.missing_percent > 0.6]
+            subject_df = subject_df[subject_df.missing_percent <= miss_threshold]
             subject_df = subject_df.drop(columns=['missing_percent'])
             subject = subject_df.values
         
@@ -34,15 +58,35 @@ def select_and_clean(samples,norm=True,miss_percent=None):
             subject = (subject-min_val)/(max_val-min_val)        
         
         # convert numpy array to list and append it to output list
+        index = [subject_idx for i in range(subject.shape[0])]
+        output_df = output_df.append(pd.DataFrame(subject,index=index))
         output = output + subject.tolist()
         
-    return output
-            
-def get_aoi(samples,start=20,stop=70):
-    samples = np.array(samples)
-    samples = samples[:,start:stop+1]
+    if output_form == 'df':
+        return output_df
+    else:
+        return output
+
+
+def get_missing_percentage(samples):
+    missing_percentages = []
+    for sample in samples:
+        # get differentiation of sample
+        diff_sample = differentiator(sample)
+        # detect diff signal if it's zero
+        count = 0
+        for i in diff_sample:
+            if i == 0:
+                count+=1
+        missing_percentages.append(count/len(diff_sample))
+    return missing_percentages
     
-    return samples.tolist()
+    
+def get_aoi_df(samples,start=20,stop=70):
+    samples = samples.drop(columns=[i for i in range(stop,samples.shape[1])]) 
+    samples = samples.drop(columns=[i for i in range(start)])
+       
+    return samples
 
 def get_pds(pickle_file="data_1_50_fixPD_Label_False.pkl"):
     face_dataset = utils.load_object(pickle_file)
@@ -131,7 +175,7 @@ def remove_glitch(pd_signals,threshold=0.3):
         output.append(processed_signal)
         miss_percent.append(missing_percentage)
         
-    return output, missing_percentage
+    return output, miss_percent
 
 
 def differentiator(pd_signal):
@@ -213,7 +257,7 @@ def plot_pd_before_after(sample,processed_pd=None,ax=None,adjust=True,glitch_ind
     return
 
 
-def plot_pd_overlap(subjects=[1],fix_pd=True):
+def plot_pd_overlap(subjects=[1],fix_pd=True,threshold=0.3):
     face_dataset = utils.load_object("data_1_50_fixPD_Label_False.pkl")
     figs = []
     for subject_idx in subjects:
@@ -228,7 +272,7 @@ def plot_pd_overlap(subjects=[1],fix_pd=True):
         axes.grid(True)
         for i in range(start_idx,stop_idx+1):                         
             if fix_pd:
-                _, output = detect_glitch(face_dataset[i]['PD_avg_filtered'],0.3)                
+                output, _, _ = detect_glitch(face_dataset[i]['PD_avg_filtered'],threshold=threshold)                
             else:
                 output = face_dataset[i]['PD_avg_filtered']
                  
@@ -241,7 +285,18 @@ def plot_pd_overlap(subjects=[1],fix_pd=True):
         
     return figs
         
-        
+def plot_pd_overlap_df(samples_df,subjects=[1,15,39]):
+    figs = []
+    for subject_idx in subjects:
+        samples = samples_df.loc[subject_idx].values
+        fig, axes = plt.subplots(nrows=1, ncols=1, figsize=(14, 12))
+        axes.grid(True)
+        for i in range(samples.shape[0]):
+            axes.plot(samples[i,:])
+        fig.suptitle("Testsubject: " + str(subject_idx))
+        figs.append(fig)
+        print(subject_idx)
+    return figs
         
         
         

@@ -9,6 +9,7 @@ import model.dataset_class
 from model.dataset_class import AffectiveMonitorDataset
 from model.dataset_class import ToTensor
 import matplotlib.pyplot as plt
+import matplotlib.backends.backend_pdf
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.proj3d import proj_transform
 from matplotlib.text import Annotation
@@ -89,13 +90,14 @@ def check_pupil(data):
     plt.legend()
     plt.show()
     
+
 def save_object(obj, filename):
-    with open(filename, 'wb') as output:  # Overwrites any existing file.
+    with open("pkl/"+filename, 'wb') as output:  # Overwrites any existing file.
         pickle.dump(obj, output, pickle.HIGHEST_PROTOCOL)
     return
         
 def load_object(filename):
-    with open(filename, 'rb') as input:
+    with open("pkl/"+filename, 'rb') as input:
         data = pickle.load(input)
         return data
 
@@ -330,7 +332,16 @@ def plot_pd_subjects(subjects=[1,2],pickle="data_1_50_fixPD_False.pkl"):
         plot_pd_multi_samples(start_idx,stop_idx,subject_idx=subject_idx,pickle=pickle)
     return
 
-
+def print_pdf(figs,filename):
+    """save figures to pdf file"""
+    pdf = matplotlib.backends.backend_pdf.PdfPages("pdf/"+filename+".pdf")
+    i = 0
+    for fig in figs: ## will open an empty extra figure :(
+        pdf.savefig( fig )
+        i+=1
+        print("printing: "+str(i))
+    pdf.close()
+    return
 
 #def update_plot(i,data,scat)
 

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import preprocessing.pd as ppd
-#import matplotlib.backends.backend_pdf
-
+import matplotlib.backends.backend_pdf
+import utils
 # get samples
 pd_signals = ppd.get_pds()
 
@@ -13,11 +13,28 @@ sample_idx = 1500
 #ppd.plot_compare_sample(pd_signals[sample_idx],title='Pupil Diameter')
 #ppd.plot_compare_sample(depth_signals[sample_idx],title='Depth')
 #ppd.plot_compare_sample(illum_signals[sample_idx],title='Illuminance')
+
 # remove glitch
-pd_signals, missing_percentage = ppd.remove_glitch(pd_signals,threshold=0.2)
+pd_signals, _ = ppd.remove_glitch(pd_signals,threshold=0.2)
+# find missing percentage list
+missing_percentage = ppd.get_missing_percentage(pd_signals)
+# normalize and select samples
+selected_samples = ppd.select_and_clean(pd_signals,norm=True,
+                                        miss_percent=missing_percentage,
+                                        output_form='df',
+                                        miss_threshold=0.2)
+# slice to get area of interest
+samples_aoi = ppd.get_aoi_df(selected_samples)
+## plot figures to pdf
+#figs = ppd.plot_pd_overlap_df(samples_aoi,subjects=[i for i in range(1,51)])
+#utils.print_pdf(figs,"after_slicing")
 
-# select samples
+# save to pickle
+utils.save_object(samples_aoi,'clean_data_0_2_0_2.pkl')
 
+
+# find stat of aoi signals
+samples = ppd.generate_features_df(samples_aoi)
 
 ## remove PLR
 #pd_PLR_removed = []
@@ -26,34 +43,37 @@ pd_signals, missing_percentage = ppd.remove_glitch(pd_signals,threshold=0.2)
 
 
 # visualize
-ppd.plot_compare_sample(pd_signals[sample_idx],title='Pupil Diameter')
-ppd.plot_compare_sample(pd_PLR_removed[sample_idx],title='remove PLR')
+#ppd.plot_compare_sample(pd_signals[sample_idx],title='Pupil Diameter')
+#ppd.plot_compare_sample(pd_PLR_removed[sample_idx],title='remove PLR')
 
 
 
 #face_dataset = utils.load_object("data_1_50_fixPD_Label_False.pkl")
 ## 583 is a good one
 ##sample_idx = 583,640
-#sample_idx = 583
+#sample_idx = 1000
 #pd_signal = face_dataset[sample_idx]['PD_avg_filtered']
-#
+##
 ## np diff
 #processed_pd = ppd.differentiator(pd_signal)
-## np gradient
-#processed_pd = ppd.gradient(pd_signal)
-#ppd.plot_pd_before_after(face_dataset[sample_idx],processed_pd)
-#
+### np gradient
+##processed_pd = ppd.gradient(pd_signal)
+#ppd.plot_pd_before_after(face_dataset[sample_idx],processed_pd,adjust=False)
+##
 ## smooth curve
 #processed_pd = ppd.savgol(pd_signal,11,4)
 #ppd.plot_pd_before_after(face_dataset[sample_idx],processed_pd,adjust=False)
 #
 ## detect glitch
-#output, missing_percentage, glitch_index = ppd.detect_glitch(pd_signal,threshold=0.3)
+#processed_pd, missing_percentage, glitch_index = ppd.detect_glitch(pd_signal,threshold=0.1)
 #ppd.plot_pd_before_after(face_dataset[sample_idx],processed_pd,adjust=False,glitch_index=glitch_index)
 
-# plot overlap
-#ppd.plot_pd_overlap([1,2])
+# missing percentage
+#missing_percentage = ppd.get_missing_percentage(pd_signal)
 
+## plot overlap
+#ppd.plot_pd_overlap([1,2])
+#
 #subjects = [i for i in range(1,51)]
 # 
 #figs = ppd.plot_pd_overlap(subjects,fix_pd=False)
