@@ -296,7 +296,6 @@ def plot_pd_sample(sample,ax=None):
 #        ax.yaxis.set_visible(False)
     return
 
-
     
 def generate_array_samples_pd(start_idx, stop_idx, pickle_file):
     face_dataset = load_object(pickle_file)
