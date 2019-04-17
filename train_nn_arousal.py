@@ -52,34 +52,20 @@ class simple_fnn(nn.Module):
         return out
 
 
-####### --------- train ---------------###########3
-
-#dummy_dataset = DummyDataset()
-#
-## prepare data
-#data = []
-#label = []
-#
-#for i in range(len(dummy_dataset)):
-#    data.append(dummy_dataset[i]['data'])    
-#    label.append(dummy_dataset[i]['label'])
-#    
-#data = np.array(data, dtype=np.float32)
-#label = np.array(label, dtype=np.int64)
-
-
+####### --------- train ---------------###########
+data_df = utils.load_object('pd_for_train.pkl')
 data = utils.load_object('pd_for_train.pkl')
 label = data['arousal'].values.astype(np.int64)
 #data = data.drop(columns=['arousal']).values.astype(np.float32)
 data = data[['mean','median','max','min','skew']].values.astype(np.float32)
 
-## visualise
-#utils_dummy.plot_sample(dummy_dataset[6])
-#pd.DataFrame(label).hist()
-
-
 # split train test data
 X_train , X_test, y_train, y_test = train_test_split(data,label,test_size=0.2,random_state=42)
+
+# calculate percentage of classes
+portion, _ = np.histogram(label)
+portion = (portion/portion.sum())*100
+
 
 # visualize label
 plt.hist(y_train)

@@ -360,8 +360,13 @@ def plot_pd_overlap_df(samples_df,subjects=[1,15,39]):
         samples = samples_df.loc[subject_idx].values
         fig, axes = plt.subplots(nrows=1, ncols=1, figsize=(14, 12))
         axes.grid(True)
-        for i in range(samples.shape[0]):
-            axes.plot(samples[i,:])
+#        if subject_idx == 34:
+#                print("stop")
+        if samples.shape == (100,) or samples.shape == (50,):
+            axes.plot(samples)
+        else:
+            for i in range(samples.shape[0]):    
+                axes.plot(samples[i,:])
         fig.suptitle("Testsubject: " + str(subject_idx))
         figs.append(fig)
         print(subject_idx)

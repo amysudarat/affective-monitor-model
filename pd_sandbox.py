@@ -25,22 +25,22 @@ selected_samples = ppd.select_and_clean(pd_signals,norm=True,
                                         label=arousals,
                                         sd_detect_remove=True)
 
-# plot figures to pdf
-figs = ppd.plot_pd_overlap_df(selected_samples.drop(columns=['arousal']),subjects=[i for i in range(1,51)])
-utils.print_pdf(figs,"sd_remove")
+## plot figures to pdf
+#figs = ppd.plot_pd_overlap_df(selected_samples.drop(columns=['arousal']),subjects=[i for i in range(1,51)])
+#utils.print_pdf(figs,"sd_remove")
 
 # slice to get area of interest
 samples_aoi = ppd.get_aoi_df(selected_samples)
-# plot figures to pdf
-figs = ppd.plot_pd_overlap_df(samples_aoi.drop(columns=['arousal']),subjects=[i for i in range(1,51)])
-utils.print_pdf(figs,"sd_remove_after_slicing")
+## plot figures to pdf
+#figs = ppd.plot_pd_overlap_df(samples_aoi.drop(columns=['arousal']),subjects=[i for i in range(1,51)])
+#utils.print_pdf(figs,"sd_remove_after_slicing")
 
 
 # find stat of aoi signals
 samples = ppd.generate_features_df(samples_aoi)
 
 # save to pickle
-#utils.save_object(samples,'pd_for_train.pkl')
+utils.save_object(samples,'pd_for_train.pkl')
 
 ## remove PLR
 #pd_PLR_removed = []
