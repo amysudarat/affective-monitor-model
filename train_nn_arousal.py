@@ -4,6 +4,7 @@ import utils
 import torch
 import torch.nn as nn
 import numpy as np
+import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from skorch import NeuralNetClassifier
 
@@ -79,12 +80,14 @@ data = data[['mean','median','max','min','skew']].values.astype(np.float32)
 
 # split train test data
 X_train , X_test, y_train, y_test = train_test_split(data,label,test_size=0.2,random_state=42)
-#pd.DataFrame(y_train).hist()
-#pd.DataFrame(y_test).hist()
+
+# visualize label
+plt.hist(y_train)
+plt.hist(y_test)
 
 # configure the model dimension
 input_dim = data.shape[1]
-hidden_dim = 100
+hidden_dim = 5
 output_dim = 5
 
 # Instantiate neural net
@@ -97,9 +100,15 @@ net = NeuralNetClassifier(
         module__output_dim=output_dim,
         criterion=nn.CrossEntropyLoss,
         optimizer=torch.optim.SGD,
-        lr=0.00001,
+        lr=0.005,
         max_epochs=100,
         device='cuda')
 
 # fit model
 net.fit(X_train,y_train)
+
+# predict
+y_pred = net.predict(X_test)
+print(y_pred)
+
+
