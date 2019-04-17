@@ -11,14 +11,19 @@ def generate_features_df(samples):
     Imagine bell curve, skew left (tail to left,positive), skew right (tail to right,negative)
     mean follows tail, median stay with the bulk
     """
+    if 'arousal' in samples.columns:
+        arousal_col = samples['arousal']
+        samples = samples.drop(columns=['arousal'])
     samples['mean'] = samples.mean(axis=1)
     samples['median'] = samples.median(axis=1)
     samples['max'] = samples.max(axis=1)
     samples['min'] = samples.min(axis=1)
     samples['skew'] = samples.skew(axis=1)
+    if arousal_col is not None:
+        samples['arousal'] = arousal_col  
     return samples
 
-def select_and_clean(samples,norm=True,miss_percent=None,output_form='list',miss_threshold=0.4):
+def select_and_clean(samples,norm=True,miss_percent=None,miss_threshold=0.4,label=None):
     """
         Select samples based on miss_percent with normalization as option.
     samples: 
@@ -30,7 +35,6 @@ def select_and_clean(samples,norm=True,miss_percent=None,output_form='list',miss
     output_form : 
         'df' to return dataframe, otherwise will return list
     """
-    output = []
     output_df = pd.DataFrame()
     for subject_idx in range(1,51):
         # [0,70,140,...]
@@ -43,29 +47,36 @@ def select_and_clean(samples,norm=True,miss_percent=None,output_form='list',miss
         subject = np.array(subject)
                 
         # drop sample with has missing percent more than 60%
-        if miss_percent is not None:
-            subject_df = pd.DataFrame(subject)
+        subject_df = pd.DataFrame(subject)
+        if label is not None:
+            subject_df['arousal'] = label[start_idx:stop_idx] 
+        if miss_percent is not None:            
             miss_column = miss_percent[start_idx:stop_idx]
             subject_df['missing_percent'] = miss_column
             subject_df = subject_df[subject_df.missing_percent <= miss_threshold]
             subject_df = subject_df.drop(columns=['missing_percent'])
-            subject = subject_df.values
         
         # normalization mix max
+        
         if norm:
+            if label is not None:
+                arousal_col = subject_df['arousal']
+                subject_df = subject_df.drop(columns=['arousal'])
+            subject = subject_df.values
             min_val = subject.min()
             max_val = subject.max()
-            subject = (subject-min_val)/(max_val-min_val)        
+            subject = (subject-min_val)/(max_val-min_val)
+            
         
         # convert numpy array to list and append it to output list
-        index = [subject_idx for i in range(subject.shape[0])]
-        output_df = output_df.append(pd.DataFrame(subject,index=index))
-        output = output + subject.tolist()
         
-    if output_form == 'df':
-        return output_df
-    else:
-        return output
+        subject = pd.DataFrame(subject)
+        if label is not None:            
+            subject['arousal'] = arousal_col.reset_index(drop=True)
+        subject['index'] = subject_idx
+        subject = subject.set_index('index')
+        output_df = output_df.append(subject)       
+    return output_df
 
 
 def get_missing_percentage(samples):
@@ -83,9 +94,13 @@ def get_missing_percentage(samples):
     
     
 def get_aoi_df(samples,start=20,stop=70):
+    if 'arousal' in samples.columns:
+        arousal_col = samples['arousal']
+        samples = samples.drop(columns=['arousal'])
     samples = samples.drop(columns=[i for i in range(stop,samples.shape[1])]) 
     samples = samples.drop(columns=[i for i in range(start)])
-       
+    if arousal_col is not None:
+        samples['arousal'] = arousal_col       
     return samples
 
 def get_pds(pickle_file="data_1_50_fixPD_Label_False.pkl"):
@@ -108,6 +123,43 @@ def get_illums(pickle_file="data_1_50_fixPD_Label_False.pkl"):
     for i in range(len(face_dataset)):
         array_samples.append(face_dataset[i]['illuminance'])
     return array_samples
+
+def get_arousal(pickle_file="data_1_50_fixPD_Label_False.pkl",fix=False):
+    face_dataset = utils.load_object(pickle_file)
+    array_samples = []
+    
+    def convert_to_label(SAM):
+            scale = 1
+            target_scale = scale*((SAM-5)/4)
+            
+            if -1.0 <= target_scale < -0.6:
+                target_scale = 1
+            elif -0.6 <= target_scale < -0.2:
+                target_scale = 2
+            elif -0.2 <= target_scale < 0.2:
+                target_scale = 3
+            elif 0.2 <= target_scale < 0.6:
+                target_scale = 4
+            elif 0.6 <= target_scale <= 1:
+                target_scale = 5
+            return target_scale
+    for i in range(len(face_dataset)):
+        sample = face_dataset[i]['arousal']
+        if fix:
+            sample = convert_to_label(sample)
+        array_samples.append(sample)
+    array_samples = np.array(array_samples)
+    
+    return array_samples
+
+def get_valence(pickle_file="data_1_50_fixPD_Label_False.pkl"):
+    face_dataset = utils.load_object(pickle_file)
+    array_samples = []
+    for i in range(len(face_dataset)):
+        array_samples.append(face_dataset[i]['valence'])
+    return array_samples
+
+
 
 def my_lms(d,r,L,mu):
     e = np.zeros(d.shape)

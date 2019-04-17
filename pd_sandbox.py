@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 import preprocessing.pd as ppd
 import matplotlib.backends.backend_pdf
 import utils
@@ -8,7 +7,8 @@ pd_signals = ppd.get_pds()
 
 depth_signals = ppd.get_depths()
 illum_signals = ppd.get_illums()
-sample_idx = 1500
+arousals = ppd.get_arousal(fix=True)
+#sample_idx = 1500
 
 #ppd.plot_compare_sample(pd_signals[sample_idx],title='Pupil Diameter')
 #ppd.plot_compare_sample(depth_signals[sample_idx],title='Depth')
@@ -21,20 +21,20 @@ missing_percentage = ppd.get_missing_percentage(pd_signals)
 # normalize and select samples
 selected_samples = ppd.select_and_clean(pd_signals,norm=True,
                                         miss_percent=missing_percentage,
-                                        output_form='df',
-                                        miss_threshold=0.2)
+                                        miss_threshold=0.2,
+                                        label=arousals)
 # slice to get area of interest
 samples_aoi = ppd.get_aoi_df(selected_samples)
 ## plot figures to pdf
 #figs = ppd.plot_pd_overlap_df(samples_aoi,subjects=[i for i in range(1,51)])
 #utils.print_pdf(figs,"after_slicing")
 
-# save to pickle
-utils.save_object(samples_aoi,'clean_data_0_2_0_2.pkl')
-
 
 # find stat of aoi signals
 samples = ppd.generate_features_df(samples_aoi)
+
+# save to pickle
+utils.save_object(samples,'pd_for_train.pkl')
 
 ## remove PLR
 #pd_PLR_removed = []
