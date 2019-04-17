@@ -19,11 +19,13 @@ def generate_features_df(samples):
     samples['max'] = samples.max(axis=1)
     samples['min'] = samples.min(axis=1)
     samples['skew'] = samples.skew(axis=1)
+    samples['std'] = samples.std(axis=1)
     if arousal_col is not None:
         samples['arousal'] = arousal_col  
     return samples
 
-def select_and_clean(samples,norm=True,miss_percent=None,miss_threshold=0.4,label=None):
+
+def select_and_clean(samples,norm=True,miss_percent=None,miss_threshold=0.4,label=None,sd_detect_remove=True):
     """
         Select samples based on miss_percent with normalization as option.
     samples: 
@@ -55,7 +57,22 @@ def select_and_clean(samples,norm=True,miss_percent=None,miss_threshold=0.4,labe
             subject_df['missing_percent'] = miss_column
             subject_df = subject_df[subject_df.missing_percent <= miss_threshold]
             subject_df = subject_df.drop(columns=['missing_percent'])
-        
+        if sd_detect_remove:
+#            subject_df['mean'] = subject_df.mean(axis=1)
+#            subject_df['std']= subject_df.std(axis=1)
+            df_mean = subject_df.drop(columns=['arousal']).values.mean()
+            df_std = subject_df.drop(columns=['arousal']).values.std()
+            upper_threshold = df_mean + 3*df_std
+            lower_threshold = df_mean - 3*df_std
+            subject_df = subject_df.reset_index(drop=True)
+            def generate_mask(row,upper=upper_threshold,lower=lower_threshold):
+                for i in row:
+                    if i < lower or i > upper:
+                        return False
+                return True
+#            subject_df['mask'] = subject_df.drop(columns=['arousal']).apply(generate_mask,axis=1)
+#            subject_df = subject_df[subject_df['mask']]
+            subject_df = subject_df[subject_df.drop(columns=['arousal']).apply(generate_mask,axis=1)]
         # normalization mix max
         
         if norm:

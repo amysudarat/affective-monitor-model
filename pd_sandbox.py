@@ -5,10 +5,10 @@ import utils
 # get samples
 pd_signals = ppd.get_pds()
 
-depth_signals = ppd.get_depths()
-illum_signals = ppd.get_illums()
+#depth_signals = ppd.get_depths()
+#illum_signals = ppd.get_illums()
 arousals = ppd.get_arousal(fix=True)
-#sample_idx = 1500
+#sample_idx = 90
 
 #ppd.plot_compare_sample(pd_signals[sample_idx],title='Pupil Diameter')
 #ppd.plot_compare_sample(depth_signals[sample_idx],title='Depth')
@@ -22,19 +22,25 @@ missing_percentage = ppd.get_missing_percentage(pd_signals)
 selected_samples = ppd.select_and_clean(pd_signals,norm=True,
                                         miss_percent=missing_percentage,
                                         miss_threshold=0.2,
-                                        label=arousals)
+                                        label=arousals,
+                                        sd_detect_remove=True)
+
+# plot figures to pdf
+figs = ppd.plot_pd_overlap_df(selected_samples.drop(columns=['arousal']),subjects=[i for i in range(1,51)])
+utils.print_pdf(figs,"sd_remove")
+
 # slice to get area of interest
 samples_aoi = ppd.get_aoi_df(selected_samples)
-## plot figures to pdf
-#figs = ppd.plot_pd_overlap_df(samples_aoi,subjects=[i for i in range(1,51)])
-#utils.print_pdf(figs,"after_slicing")
+# plot figures to pdf
+figs = ppd.plot_pd_overlap_df(samples_aoi.drop(columns=['arousal']),subjects=[i for i in range(1,51)])
+utils.print_pdf(figs,"sd_remove_after_slicing")
 
 
 # find stat of aoi signals
 samples = ppd.generate_features_df(samples_aoi)
 
 # save to pickle
-utils.save_object(samples,'pd_for_train.pkl')
+#utils.save_object(samples,'pd_for_train.pkl')
 
 ## remove PLR
 #pd_PLR_removed = []
