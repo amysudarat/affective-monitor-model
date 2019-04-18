@@ -85,15 +85,17 @@ net = NeuralNetClassifier(
         module__hidden_dim=hidden_dim,
         module__output_dim=output_dim,
         criterion=nn.CrossEntropyLoss,
-        optimizer=torch.optim.SGD,
-        lr=0.005,
+        optimizer=torch.optim.Adam,
+        lr=0.01,
         max_epochs=100,
         device='cuda')
 
 # fit model
-net.fit(X_train,y_train)
+fit_param = net.fit(X_train,y_train)
 
 # predict
+y_pred_prob = net.predict_proba(X_test)
+print(y_pred_prob)
 y_pred = net.predict(X_test)
 print(y_pred)
 
