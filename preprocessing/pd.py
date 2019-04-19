@@ -25,17 +25,25 @@ def generate_features_df(samples):
     return samples
 
 
-def select_and_clean(samples,norm=True,miss_percent=None,miss_threshold=0.4,label=None,sd_detect_remove=True):
+def select_and_clean(samples,norm=True,miss_percent=None,miss_threshold=0.4,label=None,sd_detect_remove=True,align=True):
     """
-        Select samples based on miss_percent with normalization as option.
+        filter and transform samples based on the method parameter set, 
+        return dataframe of output signals
     samples: 
         list of pd signals
     norm:
         (boolean)
     miss_percent:
         array of missing percentage 
-    output_form : 
-        'df' to return dataframe, otherwise will return list
+    miss_threshold: 
+        if missing_percent of that sample is larger than
+        setting threshold, discard that sample
+    label: 
+        array of label
+    sd_detect_remove: 
+        discard the sample if one of their sequence deviate from 3 unit of std
+    align : 
+        shift the starting of the sample to the overall mean of each test subject
     """
     output_df = pd.DataFrame()
     for subject_idx in range(1,51):
@@ -58,8 +66,7 @@ def select_and_clean(samples,norm=True,miss_percent=None,miss_threshold=0.4,labe
             subject_df = subject_df[subject_df.missing_percent <= miss_threshold]
             subject_df = subject_df.drop(columns=['missing_percent'])
         if sd_detect_remove:
-#            subject_df['mean'] = subject_df.mean(axis=1)
-#            subject_df['std']= subject_df.std(axis=1)
+            # mean and std of the whole dataset
             df_mean = subject_df.drop(columns=['arousal']).values.mean()
             df_std = subject_df.drop(columns=['arousal']).values.std()
             upper_threshold = df_mean + 3*df_std
@@ -70,21 +77,23 @@ def select_and_clean(samples,norm=True,miss_percent=None,miss_threshold=0.4,labe
                     if i < lower or i > upper:
                         return False
                 return True
-#            subject_df['mask'] = subject_df.drop(columns=['arousal']).apply(generate_mask,axis=1)
-#            subject_df = subject_df[subject_df['mask']]
             subject_df = subject_df[subject_df.drop(columns=['arousal']).apply(generate_mask,axis=1)]
-        # normalization mix max
         
+        # align the starting point
+        if align:
+            df_mean = subject_df.drop(columns=['arousal']).values.mean()
+            
+        
+        # normalization mix max
+        arousal_col = subject_df['arousal']
         if norm:
-            if label is not None:
-                arousal_col = subject_df['arousal']
+            if label is not None:                
                 subject_df = subject_df.drop(columns=['arousal'])
             subject = subject_df.values
             min_val = subject.min()
             max_val = subject.max()
             subject = (subject-min_val)/(max_val-min_val)
-            
-        
+       
         # convert numpy array to list and append it to output list
         
         subject = pd.DataFrame(subject)
