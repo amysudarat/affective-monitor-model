@@ -1,15 +1,18 @@
 # -*- coding: utf-8 -*-
 
-import utils_dummy
-import utils
+#import utils_dummy
+#import utils
 import torch
 import torch.nn as nn
 import numpy as np
-import pandas as pd
-from sklearn.model_selection import train_test_split
+#import pandas as pd
+from sklearn.model_selection import train_test_split, RandomizedSearchCV
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import confusion_matrix, roc_curve, auc
 from skorch import NeuralNetClassifier
 from model.dummy_dataset_class import DummyDataset
 import matplotlib.pyplot as plt
+#import torch.nn.functional as F
 
 
 ###### --------- define net ------------###########
@@ -55,7 +58,22 @@ class simple_fnn(nn.Module):
         return out
 
 
-####### --------- train ---------------###########3
+####### ---------- utility function ------ #########
+# Utility function to report best scores (found online)
+def report(results, n_top=3):
+    for i in range(1, n_top + 1):
+        candidates = np.flatnonzero(results['rank_test_score'] == i)
+        for candidate in candidates:
+            print("Model with rank: {0}".format(i))
+            print("Mean validation score: {0:.3f} (std: {1:.3f})".format(
+                  results['mean_test_score'][candidate],
+                  results['std_test_score'][candidate]))
+            print("Parameters: {0}".format(results['params'][candidate]))
+            print("")
+
+
+
+####### --------- train ---------------###########
 
 dummy_dataset = DummyDataset()
 
@@ -81,9 +99,15 @@ X_train , X_test, y_train, y_test = train_test_split(data,label,test_size=0.2,ra
 plt.hist(y_train)
 plt.hist(y_test)
 
+# normalize data to 0 mean and unit std
+scaler = StandardScaler()
+scaler.fit(X_train)
+X_train_scaled = scaler.transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
 # configure the model dimension
 input_dim = 100
-hidden_dim = 100
+hidden_dim = 30
 output_dim = 4
 
 # Instantiate neural net
@@ -96,15 +120,70 @@ net = NeuralNetClassifier(
         module__output_dim=output_dim,
         criterion=nn.CrossEntropyLoss,
         optimizer=torch.optim.Adam,
-        lr=0.05,
+        optimizer__lr=0.05,
         max_epochs=100,
         device='cuda')
 
 # fit model
-net.fit(X_train,y_train)
+#net.fit(X_train,y_train)
 
-# predict
-y_pred_prob = net.predict_proba(X_test)
-print(y_pred_prob)
-y_pred = net.predict(X_test)
-print(y_pred)
+# randomize hyperparameter search
+lr = (10**np.random.uniform(-5,-2.5,1000)).tolist()
+params = {
+    'optimizer__lr': lr,
+    'max_epochs':[300,400,500],
+#    'module__num_units': [14,20,28,36,42],
+#    'module__drop' : [0,.1,.2,.3,.4]
+}
+gs = RandomizedSearchCV(net,params,refit=False,cv=3,scoring=['recall','neg_log_loss','accuracy'],n_iter=100)
+
+# fit model using randomizer
+gs.fit(X_train_scaled,y_train);
+
+# review top 10 results and parameters associated
+report(gs.cv_results_,10)
+
+# get training and validation loss
+epochs = [i for i in range(len(gs.best_estimator_.history))]
+train_loss = gs.best_estimator_.history[:,'train_loss']
+valid_loss = gs.best_estimator_.history[:,'valid_loss']
+# plot learning curve
+plt.figure()
+plt.plot(epochs,train_loss,'g-');
+plt.plot(epochs,valid_loss,'r-');
+plt.title('Training Loss Curves');
+plt.xlabel('Epochs');
+plt.ylabel('Mean Squared Error');
+plt.legend(['Train','Validation']);
+plt.show()
+
+## predict
+#y_pred_prob = net.predict_proba(X_test)
+#print(y_pred_prob)
+#y_pred = net.predict(X_test)
+#print(y_pred)
+
+#########------------ Evaluate model ----------#############
+
+# predict on test data
+y_pred = gs.best_estimator_.predict(X_test_scaled)
+
+# confusion metrix
+confusion_matrix(y_test, y_pred) 
+# ROC curve
+fpr, tpr, thresholds = roc_curve(y_test, y_pred, pos_label=2) 
+roc_auc = auc(fpr, tpr)
+plt.figure()
+lw = 2
+plt.plot(fpr, tpr, color='darkorange',
+         lw=lw, label='ROC curve (area = %0.2f)' % roc_auc)
+plt.plot([0, 1], [0, 1], color='navy', lw=lw, linestyle='--')
+plt.xlim([0.0, 1.0])
+plt.ylim([0.0, 1.05])
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title('Receiver operating characteristic example')
+plt.legend(loc="lower right")
+plt.show()
+
+
