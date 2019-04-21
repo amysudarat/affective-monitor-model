@@ -31,14 +31,14 @@ fig = data_df['arousal'].iplot(kind='hist',histnorm='percent',
 plotly.offline.plot(fig)
 
 
-# scatter plot between mean and arousal
-plot_df = data_df[['arousal','mean']]
-plot_df['arousal_str'] = data_df['arousal'].astype(str)
-fig = plot_df.iplot(x='arousal',
-                    y='mean',
-                    categories='arousal_str',
-                    asFigure=True)
-plotly.offline.plot(fig)
+## scatter plot between mean and arousal
+#plot_df = data_df[['arousal','mean']]
+#plot_df['arousal_str'] = data_df['arousal'].astype(str)
+#fig = plot_df.iplot(x='arousal',
+#                    y='mean',
+#                    categories='arousal_str',
+#                    asFigure=True)
+#plotly.offline.plot(fig)
 
 # box plot of mean grouped by arousal
 fig = data_df.reset_index(drop=True).pivot(columns='arousal', values='mean').iplot(
@@ -60,11 +60,11 @@ fig = data_df.reset_index(drop=True).pivot(columns='arousal', values='median').i
 
 plotly.offline.plot(fig)
 
-# box plot of mean grouped by median
-fig = data_df.reset_index(drop=True).pivot(columns='arousal', values='median').iplot(
+# box plot of mean grouped by std
+fig = data_df.reset_index(drop=True).pivot(columns='arousal', values='std').iplot(
         kind='box',
-        title='median',
-        yTitle='median',
+        title='std',
+        yTitle='std',
         xTitle='label',
         asFigure=True)
 

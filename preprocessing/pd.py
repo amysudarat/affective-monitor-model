@@ -58,6 +58,7 @@ def select_and_clean(samples,norm=True,miss_percent=None,miss_threshold=0.4,labe
                 
         # drop sample with has missing percent more than 60%
         subject_df = pd.DataFrame(subject)
+        subject_df['ori_idx_row'] = pd.Series([i for i in range(start_idx,stop_idx)])
         if label is not None:
             subject_df['arousal'] = label[start_idx:stop_idx] 
         if miss_percent is not None:            
@@ -67,8 +68,8 @@ def select_and_clean(samples,norm=True,miss_percent=None,miss_threshold=0.4,labe
             subject_df = subject_df.drop(columns=['missing_percent'])
         if sd_detect_remove:
             # mean and std of the whole dataset
-            df_mean = subject_df.drop(columns=['arousal']).values.mean()
-            df_std = subject_df.drop(columns=['arousal']).values.std()
+            df_mean = subject_df.drop(columns=['arousal','ori_idx_row']).values.mean()
+            df_std = subject_df.drop(columns=['arousal','ori_idx_row']).values.std()
             upper_threshold = df_mean + 3*df_std
             lower_threshold = df_mean - 3*df_std
             subject_df = subject_df.reset_index(drop=True)
@@ -77,23 +78,26 @@ def select_and_clean(samples,norm=True,miss_percent=None,miss_threshold=0.4,labe
                     if i < lower or i > upper:
                         return False
                 return True
-            subject_df = subject_df[subject_df.drop(columns=['arousal']).apply(generate_mask,axis=1)]
+            subject_df = subject_df[subject_df.drop(columns=['arousal','ori_idx_row']).apply(generate_mask,axis=1)]
         
         # align the starting point
         if align:
-            df_mean = subject_df.drop(columns=['arousal']).values.mean()
+            df_mean = subject_df.drop(columns=['arousal','ori_idx_row']).values.mean()
             arousal_col = subject_df['arousal']
-            pd_np = subject_df.drop(columns=['arousal']).values
+            ori_idx_row_col = subject_df['ori_idx_row']
+            pd_np = subject_df.drop(columns=['arousal','ori_idx_row']).values
             for i in range(pd_np.shape[0]):
                 pd_np[i,:] = pd_np[i,:] + (df_mean-pd_np[i,0])
             subject_df = pd.DataFrame(pd_np)
             subject_df['arousal'] = arousal_col.reset_index(drop=True)
+            subject_df['ori_idx_row'] = ori_idx_row_col.reset_index(drop=True)
         
         # normalization mix max
         arousal_col = subject_df['arousal']
+        ori_idx_row_col = subject_df['ori_idx_row']
         if norm:
             if label is not None:                
-                subject_df = subject_df.drop(columns=['arousal'])
+                subject_df = subject_df.drop(columns=['arousal','ori_idx_row'])
             subject = subject_df.values
             min_val = subject.min()
             max_val = subject.max()
@@ -104,6 +108,7 @@ def select_and_clean(samples,norm=True,miss_percent=None,miss_threshold=0.4,labe
         subject = pd.DataFrame(subject)
         if label is not None:            
             subject['arousal'] = arousal_col.reset_index(drop=True)
+        subject['ori_idx_row'] = ori_idx_row_col.reset_index(drop=True)
         subject['index'] = subject_idx
         subject = subject.set_index('index')
         output_df = output_df.append(subject)       
@@ -126,7 +131,7 @@ def get_missing_percentage(samples):
     
 def get_aoi_df(samples,start=20,stop=70):
     if 'arousal' in samples.columns:
-        arousal_col = samples['arousal']
+        arousal_col = samples['arousal']        
         samples = samples.drop(columns=['arousal'])
     samples = samples.drop(columns=[i for i in range(stop,samples.shape[1])]) 
     samples = samples.drop(columns=[i for i in range(start)])
@@ -205,39 +210,89 @@ def my_lms(d,r,L,mu):
         w = w_next   
     return y, e, w
 
-def remove_PLR(pd_df,illums,n,mu):
+def remove_PLR(pd_df,illums,n=10,mu=0.5,adjust=False,showFigures=None,arousal_col=True):
     """
-        accept dataframe and return dataframe that PLR is removed
-        paramter 
+        accept dataframe and return dataframe that PLR effect is removed along
+        with the weights logs and modified reference signals
+    pd:
+        pupil diameter dataframe should contain column 'ori_idx_row' only aside
+        from pupil diameter signals to refer to the corresponding illums order
+        if column 'arousal' is attached then have to set arousal_col to True
+    illums:
+        accept list of illums list signal 
     n:
-        length
+        length of adaptive window
     mu:
         learning rate
     """
-    # get samples per one test subject
-    test_subjects = [i for i in range(1,pd_df.index.max()+1)]
-    illums_np = np.array(illums)
+    # preserve index col
     index_col = pd_df.index
-    pd_np = pd_df.drop(columns=['arousal']).values
-    for i in range(pd_np.)
-            d = np.array(samples[i,:])
-            
-    #    d_norm = d / np.linalg.norm(d)
-    #    illum_norm = illum / np.linalg.norm(illum)
-    #    illum_norm = 1.2*illum_norm
-    #    illum_norm = illum_norm - np.mean(illum_norm) + np.mean(d_norm)
-        y, e, w = my_lms(d,illum,n,mu)
+    ori_idx_row = pd_df['ori_idx_row'].tolist()
+    pd_np = pd_df.drop(columns=['ori_idx_row'])
+    if arousal_col:
+        pd_np = pd_df.drop(columns=['arousal'])
+    pd_np = pd_df.values
+    processed_pd = []
+    weights_log = []
+    modified_r_signal = []
+    for i in range(pd_np.shape[0]):
+        d = np.array(pd_np[i,:])
+        illum = np.array(illums[ori_idx_row[i]])
+        if adjust:
+            d = d / np.linalg.norm(d)
+            illum = illum / np.linalg.norm(illum)
+            illum = 1.2*illum
+            illum = illum - np.mean(illum) + np.mean(d)
+        # call lms here
+        y, e, w = my_lms(d,illum,n,mu)   
+        processed_pd.append(e)
+        weights_log.append(w)
+        modified_r_signal.append(y)
+    # create output dataframe with the original index based on test subject
+    output_df = pd.DataFrame(processed_pd)
+    output_df = output_df.set_index(index_col)
+    weight_log_df = pd.DataFrame(weights_log)
+    weight_log_df = weight_log_df.set_index(index_col)
+    modified_r_signal_df = pd.DataFrame(modified_r_signal)
+    modified_r_signal_df = modified_r_signal_df.set_index(index_col)
     
-    # return e signals in df form
-#    subject = pd.DataFrame(subject)
-                   
-#    subject['arousal'] = arousal_col.reset_index(drop=True)
-#    subject['index'] = subject_idx
-#    subject = subject.set_index('index')
-#    output_df = output_df.append(subject)       
-    return e
-
-
+    # plot if showFigure is True
+    if showFigures is not None:        
+        for sample_idx in showFigures:
+            original_signal = pd_np[sample_idx,:]
+            processed_signal = processed_pd[sample_idx]
+            illum_signal = illums[ori_idx_row[sample_idx]]
+            modified_illum_signal = modified_r_signal[sample_idx]
+            # first plot same graph
+            plt.figure()
+            fig, axes = plt.subplots(nrows=1,ncols=1,figsize=(14, 12))
+            axes.plot(original_signal,label='original pd')
+            axes.plot(processed_signal,label='processed pd')
+            axes.plot(illum_signal,label='original illum')
+            axes.plot(modified_illum_signal,label='modified illum')
+            axes.grid(True)
+            axes.legend()
+            fig.suptitle("Sample No.: "+str(sample_idx))
+            # second plot plot separately
+            plt.figure()
+            fig, axes = plt.subplots(nrows=4,ncols=1,figsize=(14, 12))
+            axes[0].plot(original_signal,label='original pd')
+            axes[0].set_ylabel("original pd")
+            axes[0].grid(True)
+            axes[1].plot(processed_signal,label='processed pd')
+            axes[1].set_ylabel("processed pd")
+            axes[1].grid(True)
+            axes[2].plot(illum_signal,label='original illum')
+            axes[2].set_ylabel("original illum")
+            axes[2].grid(True)
+            axes[3].plot(modified_illum_signal,label='modified illum')
+            axes[3].set_ylabel("modified illum")
+            axes[3].grid(True)
+            fig.suptitle("Sample No.: "+str(sample_idx))
+            # show plot
+            plt.show()
+    
+    return output_df, weight_log_df, modified_r_signal_df
 
 def detect_glitch(raw, threshold=0.3):
     
@@ -314,6 +369,27 @@ def plot_compare_sample(signal,processed_signal=None,ax=None,adjust=False,title=
         ax.plot(processed_signal,'--r',linewidth=2)
     
     return
+
+def plot_pd_before_after_df(ori,after,sample_idx=0):
+    """
+        plot original and processed signal overlapping for one sample
+    ori:
+        original signal
+    after:
+        processed signal
+    sample_idx:
+        index of sample you want to plot
+    """
+    primary_signal = ori.iloc[sample_idx].values
+    secondary_signal = after.iloc[sample_idx].values
+    plt.figure()
+    fig, axes = plt.subplots(nrows=1,ncols=1,figsize=(14, 12))
+    axes.plot(primary_signal,label='original signal')
+    axes.plot(secondary_signal,label='processed signal')
+    axes.grid(True)
+    axes.legend()
+    fig.suptitle("Sample No.: "+str(sample_idx))
+    return fig
 
 def plot_pd_before_after(sample,processed_pd=None,ax=None,adjust=True,glitch_index=None,):
     

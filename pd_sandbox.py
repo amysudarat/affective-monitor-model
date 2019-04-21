@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 import preprocessing.pd as ppd
-import matplotlib.backends.backend_pdf
-import utils
+
+
 # get samples
 pd_signals = ppd.get_pds()
 
-#depth_signals = ppd.get_depths()
+depth_signals = ppd.get_depths()
 illum_signals = ppd.get_illums()
 
-sample_idx = 112
-#ppd.plot_compare_sample(pd_signals[sample_idx],title='Pupil Diameter')
-#ppd.plot_compare_sample(depth_signals[sample_idx],title='Depth')
-#ppd.plot_compare_sample(illum_signals[sample_idx],title='Illuminance')
+sample_idx = 9
+ppd.plot_compare_sample(pd_signals[sample_idx],title='Pupil Diameter')
+ppd.plot_compare_sample(depth_signals[sample_idx],title='Depth')
+ppd.plot_compare_sample(illum_signals[sample_idx],title='Illuminance')
 
 # get arousal
 arousals = ppd.get_arousal(fix=False)
@@ -29,34 +29,30 @@ selected_samples = ppd.select_and_clean(pd_signals,norm=True,
                                         sd_detect_remove=True,
                                         align=True)
 
-# remove PLR
-pd_PLR_removed = []
-for pd, illum in zip(pd_signals,illum_signals):
-    pd_PLR_removed.append(ppd.remove_PLR(pd,illum,10,0.5,norm=False))
+PLR_removed_samples, _, _ = ppd.remove_PLR(selected_samples,
+                                           illum_signals,
+                                           n=4,
+                                           mu=0.0001,
+                                           showFigures=[3],
+                                           arousal_col=True)
 
-
-# visualize
-ppd.plot_compare_sample(pd_signals[sample_idx],title='Pupil Diameter')
-ppd.plot_compare_sample(pd_PLR_removed[sample_idx],title='remove PLR')
-
-
-## plot figures to pdf
-#figs = ppd.plot_pd_overlap_df(selected_samples,subjects=[i for i in range(1,51)])
-#utils.print_pdf(figs,"sd_remove")
-
-# slice to get area of interest
-samples_aoi = ppd.get_aoi_df(selected_samples,start=0,stop=40)
 # plot figures to pdf
-figs = ppd.plot_pd_overlap_df(samples_aoi,subjects=[i for i in range(1,51)])
-utils.print_pdf(figs,"everthing_0_40")
+#figs = ppd.plot_pd_overlap_df(selected_samples.drop(columns=['ori_idx_row']),subjects=[i for i in range(1,51)])
+#utils.print_pdf(figs,"sd_remove")
+#
+## slice to get area of interest
+#samples_aoi = ppd.get_aoi_df(selected_samples,start=0,stop=40)
+## plot figures to pdf
+#figs = ppd.plot_pd_overlap_df(samples_aoi,subjects=[i for i in range(1,51)])
+#utils.print_pdf(figs,"everthing_0_40")
 
 
 # find stat of aoi signals
-samples = ppd.generate_features_df(samples_aoi)
-print('Total amount of samples: '+str(samples.shape))
+#samples = ppd.generate_features_df(samples_aoi)
+#print('Total amount of samples: '+str(samples.shape))
 
 # save to pickle
-utils.save_object(samples,'pd_for_train.pkl')
+#utils.save_object(samples,'pd_for_train.pkl')
 
 ## remove PLR
 #pd_PLR_removed = []
