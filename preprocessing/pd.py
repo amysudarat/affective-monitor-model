@@ -82,7 +82,12 @@ def select_and_clean(samples,norm=True,miss_percent=None,miss_threshold=0.4,labe
         # align the starting point
         if align:
             df_mean = subject_df.drop(columns=['arousal']).values.mean()
-            
+            arousal_col = subject_df['arousal']
+            pd_np = subject_df.drop(columns=['arousal']).values
+            for i in range(pd_np.shape[0]):
+                pd_np[i,:] = pd_np[i,:] + (df_mean-pd_np[i,0])
+            subject_df = pd.DataFrame(pd_np)
+            subject_df['arousal'] = arousal_col.reset_index(drop=True)
         
         # normalization mix max
         arousal_col = subject_df['arousal']
@@ -159,15 +164,15 @@ def get_arousal(pickle_file="data_1_50_fixPD_Label_False.pkl",fix=False):
             target_scale = scale*((SAM-5)/4)
             
             if -1.0 <= target_scale < -0.6:
-                target_scale = 1
+                target_scale = 5
             elif -0.6 <= target_scale < -0.2:
-                target_scale = 2
+                target_scale = 4
             elif -0.2 <= target_scale < 0.2:
                 target_scale = 3
             elif 0.2 <= target_scale < 0.6:
-                target_scale = 4
+                target_scale = 2
             elif 0.6 <= target_scale <= 1:
-                target_scale = 5
+                target_scale = 1
             return target_scale
     for i in range(len(face_dataset)):
         sample = face_dataset[i]['arousal']
@@ -200,21 +205,38 @@ def my_lms(d,r,L,mu):
         w = w_next   
     return y, e, w
 
-def remove_PLR(pd,illum,n,mu,norm=True):
+def remove_PLR(pd_df,illums,n,mu):
     """
-    n = length, mu = learning rate
+        accept dataframe and return dataframe that PLR is removed
+        paramter 
+    n:
+        length
+    mu:
+        learning rate
     """
-    d = np.array(pd)
-    illum = np.array(illum)
-    d_norm = d / np.linalg.norm(d)
-    illum_norm = illum / np.linalg.norm(illum)
-    illum_norm = 1.2*illum_norm
-    illum_norm = illum_norm - np.mean(illum_norm) + np.mean(d_norm)
-    if norm:
-        y, e, w = my_lms(d_norm,illum_norm,n,mu)
-    else:
+    # get samples per one test subject
+    test_subjects = [i for i in range(1,pd_df.index.max()+1)]
+    illums_np = np.array(illums)
+    index_col = pd_df.index
+    pd_np = pd_df.drop(columns=['arousal']).values
+    for i in range(pd_np.)
+            d = np.array(samples[i,:])
+            
+    #    d_norm = d / np.linalg.norm(d)
+    #    illum_norm = illum / np.linalg.norm(illum)
+    #    illum_norm = 1.2*illum_norm
+    #    illum_norm = illum_norm - np.mean(illum_norm) + np.mean(d_norm)
         y, e, w = my_lms(d,illum,n,mu)
+    
+    # return e signals in df form
+#    subject = pd.DataFrame(subject)
+                   
+#    subject['arousal'] = arousal_col.reset_index(drop=True)
+#    subject['index'] = subject_idx
+#    subject = subject.set_index('index')
+#    output_df = output_df.append(subject)       
     return e
+
 
 
 def detect_glitch(raw, threshold=0.3):
@@ -363,19 +385,44 @@ def plot_pd_overlap(subjects=[1],fix_pd=True,threshold=0.3):
         
     return figs
         
-def plot_pd_overlap_df(samples_df,subjects=[1,15,39]):
+def plot_pd_overlap_df(samples_df,subjects=[1,15,39]):   
+    def color_label(label):
+        color = 'black'
+        scale = 1
+        target_scale = scale*((label-5)/4)
+        if -1.0 <= target_scale < -0.6:
+            color = 'black'
+        elif -0.6 <= target_scale < -0.2:
+            color = 'blue'
+        elif -0.2 <= target_scale < 0.2:
+            color = 'red'
+        elif 0.2 <= target_scale < 0.6:
+            color = 'green'
+        elif 0.6 <= target_scale <= 1:
+            color = 'yellow'
+        return color
+    
     figs = []
     for subject_idx in subjects:
-        samples = samples_df.loc[subject_idx].values
+        # get color from arousal
+        try:
+            arousal_pd = samples_df['arousal'].loc[subject_idx].apply(color_label)
+        except:
+            print(subject_idx)
+        # cut samples per test subject to numpy array
+        samples = samples_df.drop(columns=['arousal']).loc[subject_idx].values
+        # get arousal list of color
+        arousal_list = arousal_pd.tolist()
+        # plotting
         fig, axes = plt.subplots(nrows=1, ncols=1, figsize=(14, 12))
         axes.grid(True)
-#        if subject_idx == 34:
-#                print("stop")
-        if samples.shape == (100,) or samples.shape == (50,):
-            axes.plot(samples)
-        else:
+        try:
             for i in range(samples.shape[0]):    
-                axes.plot(samples[i,:])
+                axes.plot(samples[i,:],color=arousal_list[i])
+        except:
+            print("array is  only one dimension")
+            axes.plot(samples,color=arousal_list[0])
+            
         fig.suptitle("Testsubject: " + str(subject_idx))
         figs.append(fig)
         print(subject_idx)

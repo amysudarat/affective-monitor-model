@@ -16,6 +16,12 @@ init_notebook_mode(connected=True)
 
 
 data_df = utils.load_object('pd_for_train.pkl')
+#test_subject_idx = 13
+#
+#data_df = data_df.loc[test_subject_idx]
+
+# plot pd signals overlapping per test subject
+plot_df = data_df.drop(columns=['mean','arousal','median','max','min','std','skew'])
 
 # histogram of label
 fig = data_df['arousal'].iplot(kind='hist',histnorm='percent',
