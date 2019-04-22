@@ -6,6 +6,10 @@ import matplotlib.pyplot as plt
 import scipy.signal
 import utils
 
+#import warnings
+#warnings.filterwarnings("error")
+
+
 def generate_features_df(samples):
     """
     Imagine bell curve, skew left (tail to left,positive), skew right (tail to right,negative)
@@ -206,7 +210,10 @@ def my_lms(d,r,L,mu):
         x = r[k-L:k]
         y[k] = np.dot(x,w)
         e[k] = d[k]-y[k]
-        w_next = w + (2*mu*e[k])*x
+        try:
+            w_next = w + (2*mu*e[k])*x
+        except:
+            print("here is when it fails")
         w = w_next   
     return y, e, w
 
@@ -230,13 +237,16 @@ def remove_PLR(pd_df,illums,n=10,mu=0.5,adjust=False,showFigures=None,arousal_co
     ori_idx_row = pd_df['ori_idx_row'].tolist()
     pd_np = pd_df.drop(columns=['ori_idx_row'])
     if arousal_col:
-        pd_np = pd_df.drop(columns=['arousal'])
-    pd_np = pd_df.values
+        arousal = pd_df['arousal']
+        pd_np = pd_np.drop(columns=['arousal'])
+    pd_np = pd_np.values
+    original_pd = []
     processed_pd = []
     weights_log = []
     modified_r_signal = []
     for i in range(pd_np.shape[0]):
         d = np.array(pd_np[i,:])
+        original_pd.append(d)
         illum = np.array(illums[ori_idx_row[i]])
         if adjust:
             d = d / np.linalg.norm(d)
@@ -250,6 +260,8 @@ def remove_PLR(pd_df,illums,n=10,mu=0.5,adjust=False,showFigures=None,arousal_co
         modified_r_signal.append(y)
     # create output dataframe with the original index based on test subject
     output_df = pd.DataFrame(processed_pd)
+    if arousal_col:
+        output_df['arousal'] = arousal.reset_index(drop=True)
     output_df = output_df.set_index(index_col)
     weight_log_df = pd.DataFrame(weights_log)
     weight_log_df = weight_log_df.set_index(index_col)
@@ -259,16 +271,18 @@ def remove_PLR(pd_df,illums,n=10,mu=0.5,adjust=False,showFigures=None,arousal_co
     # plot if showFigure is True
     if showFigures is not None:        
         for sample_idx in showFigures:
-            original_signal = pd_np[sample_idx,:]
+            original_signal = original_pd[sample_idx]
             processed_signal = processed_pd[sample_idx]
             illum_signal = illums[ori_idx_row[sample_idx]]
+            illum_signal_adjust = ((np.array(illum_signal) - min(illum_signal)) / (max(illum_signal)-min(illum_signal))).tolist()
+#            illum_signal_adjust = illum_signal_adjust -np.mean(illum_signal_adjust) + np.mean(original_signal)
             modified_illum_signal = modified_r_signal[sample_idx]
             # first plot same graph
             plt.figure()
             fig, axes = plt.subplots(nrows=1,ncols=1,figsize=(14, 12))
             axes.plot(original_signal,label='original pd')
             axes.plot(processed_signal,label='processed pd')
-            axes.plot(illum_signal,label='original illum')
+            axes.plot(illum_signal_adjust,label='original illum (adjust)')
             axes.plot(modified_illum_signal,label='modified illum')
             axes.grid(True)
             axes.legend()
@@ -464,18 +478,29 @@ def plot_pd_overlap(subjects=[1],fix_pd=True,threshold=0.3):
 def plot_pd_overlap_df(samples_df,subjects=[1,15,39]):   
     def color_label(label):
         color = 'black'
-        scale = 1
-        target_scale = scale*((label-5)/4)
-        if -1.0 <= target_scale < -0.6:
+        if label == 5:
             color = 'black'
-        elif -0.6 <= target_scale < -0.2:
+        elif label == 4:
             color = 'blue'
-        elif -0.2 <= target_scale < 0.2:
+        elif label == 3:
             color = 'red'
-        elif 0.2 <= target_scale < 0.6:
+        elif label == 2:
             color = 'green'
-        elif 0.6 <= target_scale <= 1:
+        elif label == 1:
             color = 'yellow'
+        
+#        scale = 1
+#        target_scale = scale*((label-5)/4)
+#        if -1.0 <= target_scale < -0.6:
+#            color = 'black'
+#        elif -0.6 <= target_scale < -0.2:
+#            color = 'blue'
+#        elif -0.2 <= target_scale < 0.2:
+#            color = 'red'
+#        elif 0.2 <= target_scale < 0.6:
+#            color = 'green'
+#        elif 0.6 <= target_scale <= 1:
+#            color = 'yellow'
         return color
     
     figs = []
