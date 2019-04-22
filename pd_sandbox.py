@@ -31,19 +31,19 @@ selected_samples = ppd.select_and_clean(pd_signals,norm=True,
 
 PLR_removed_samples, _, _ = ppd.remove_PLR(selected_samples,
                                            illum_signals,
-                                           n=10,
-                                           mu=0.000000005,
+                                           n=5,
+                                           mu=0.0000035,
                                            showFigures=[3,1800,50],
                                            arousal_col=True)
 
 # plot figures to pdf
-#figs = ppd.plot_pd_overlap_df(selected_samples.drop(columns=['ori_idx_row']),subjects=[i for i in range(1,51)])
+figs = ppd.plot_pd_overlap_df(selected_samples.drop(columns=['ori_idx_row']),subjects=[i for i in range(1,51)])
 #utils.print_pdf(figs,"sd_remove")
 #
 # slice to get area of interest
 samples_aoi = ppd.get_aoi_df(PLR_removed_samples,start=10,stop=50)
 ## plot figures to pdf
-figs = ppd.plot_pd_overlap_df(samples_aoi,subjects=[i for i in range(1,51)])
+#figs = ppd.plot_pd_overlap_df(samples_aoi,subjects=[i for i in range(1,51)])
 #utils.print_pdf(figs,"everthing_0_40")
 
 
