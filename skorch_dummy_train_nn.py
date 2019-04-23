@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 
 ###### --------- define net ------------###########
 class simple_fnn(nn.Module):
-    def __init__(self, input_dim, hidden_dim, output_dim):
+    def __init__(self, input_dim, hidden_dim, output_dim): 
         super(simple_fnn, self).__init__()
         # Linear function 1: 784 --> 100
         self.fc1 = nn.Linear(input_dim, hidden_dim) 
@@ -30,12 +30,12 @@ class simple_fnn(nn.Module):
         self.sigmoid2 = nn.Sigmoid()
         
         # Linear function 3: 100 --> 100
-        self.fc3 = nn.Linear(hidden_dim, hidden_dim)
-        # Non-linearity 3
-        self.sigmoid3 = nn.Sigmoid()
-        
-        # Linear function 4 (readout): 100 --> 10
-        self.fc4 = nn.Linear(hidden_dim, output_dim)  
+        self.fc3 = nn.Linear(hidden_dim, output_dim)
+#        # Non-linearity 3
+#        self.sigmoid3 = nn.Sigmoid()
+#        
+#        # Linear function 4 (readout): 100 --> 10
+#        self.fc4 = nn.Linear(hidden_dim, output_dim)  
     
     def forward(self, x):
         # Linear function 1
@@ -50,11 +50,11 @@ class simple_fnn(nn.Module):
         
         # Linear function 2
         out = self.fc3(out)
-        # Non-linearity 2
-        out = self.sigmoid3(out)
-        
-        # Linear function 4 (readout)
-        out = self.fc4(out)
+#        # Non-linearity 2
+#        out = self.sigmoid3(out)
+#        
+#        # Linear function 4 (readout)
+#        out = self.fc4(out)
         return out
 
 
@@ -120,70 +120,72 @@ net = NeuralNetClassifier(
         module__output_dim=output_dim,
         criterion=nn.CrossEntropyLoss,
         optimizer=torch.optim.Adam,
-        optimizer__lr=0.05,
+        optimizer__lr=0.055,
         max_epochs=100,
         device='cuda')
 
 # fit model
-#net.fit(X_train,y_train)
+net.fit(X_train,y_train)
 
 # randomize hyperparameter search
-lr = (10**np.random.uniform(-5,-2.5,1000)).tolist()
-params = {
-    'optimizer__lr': lr,
-    'max_epochs':[300,400,500],
-#    'module__num_units': [14,20,28,36,42],
-#    'module__drop' : [0,.1,.2,.3,.4]
-}
-gs = RandomizedSearchCV(net,params,refit=False,cv=3,scoring=['recall','neg_log_loss','accuracy'],n_iter=100)
+#lr = (10**np.random.uniform(-5,-2.5,1000)).tolist()
+#params = {
+#    'optimizer__lr': lr,
+#    'max_epochs':[300,400,500],
+##    'module__num_units': [14,20,28,36,42],
+##    'module__drop' : [0,.1,.2,.3,.4]
+#}
+#gs = RandomizedSearchCV(net,params,refit=False,cv=3,scoring=['recall','neg_log_loss','accuracy'],n_iter=100)
 
-# fit model using randomizer
-gs.fit(X_train_scaled,y_train);
+## fit model using randomizer
+#gs.fit(X_train_scaled,y_train);
+#
+## review top 10 results and parameters associated
+#report(gs.cv_results_,10)
 
-# review top 10 results and parameters associated
-report(gs.cv_results_,10)
+## get training and validation loss
+#epochs = [i for i in range(len(gs.best_estimator_.history))]
+#train_loss = gs.best_estimator_.history[:,'train_loss']
+#valid_loss = gs.best_estimator_.history[:,'valid_loss']
+## plot learning curve
+#plt.figure()
+#plt.plot(epochs,train_loss,'g-');
+#plt.plot(epochs,valid_loss,'r-');
+#plt.title('Training Loss Curves');
+#plt.xlabel('Epochs');
+#plt.ylabel('Mean Squared Error');
+#plt.legend(['Train','Validation']);
+#plt.show()
 
-# get training and validation loss
-epochs = [i for i in range(len(gs.best_estimator_.history))]
-train_loss = gs.best_estimator_.history[:,'train_loss']
-valid_loss = gs.best_estimator_.history[:,'valid_loss']
-# plot learning curve
-plt.figure()
-plt.plot(epochs,train_loss,'g-');
-plt.plot(epochs,valid_loss,'r-');
-plt.title('Training Loss Curves');
-plt.xlabel('Epochs');
-plt.ylabel('Mean Squared Error');
-plt.legend(['Train','Validation']);
-plt.show()
-
-## predict
-#y_pred_prob = net.predict_proba(X_test)
-#print(y_pred_prob)
-#y_pred = net.predict(X_test)
-#print(y_pred)
+# predict
+y_pred_prob = net.predict_proba(X_test)
+print(y_pred_prob)
+y_pred = net.predict(X_test)
+print(y_pred)
 
 #########------------ Evaluate model ----------#############
 
-# predict on test data
-y_pred = gs.best_estimator_.predict(X_test_scaled)
 
-# confusion metrix
-confusion_matrix(y_test, y_pred) 
-# ROC curve
-fpr, tpr, thresholds = roc_curve(y_test, y_pred, pos_label=2) 
-roc_auc = auc(fpr, tpr)
-plt.figure()
-lw = 2
-plt.plot(fpr, tpr, color='darkorange',
-         lw=lw, label='ROC curve (area = %0.2f)' % roc_auc)
-plt.plot([0, 1], [0, 1], color='navy', lw=lw, linestyle='--')
-plt.xlim([0.0, 1.0])
-plt.ylim([0.0, 1.05])
-plt.xlabel('False Positive Rate')
-plt.ylabel('True Positive Rate')
-plt.title('Receiver operating characteristic example')
-plt.legend(loc="lower right")
-plt.show()
+
+## predict on test data
+#y_pred = gs.best_estimator_.predict(X_test_scaled)
+#
+## confusion metrix
+#confusion_matrix(y_test, y_pred) 
+## ROC curve
+#fpr, tpr, thresholds = roc_curve(y_test, y_pred, pos_label=2) 
+#roc_auc = auc(fpr, tpr)
+#plt.figure()
+#lw = 2
+#plt.plot(fpr, tpr, color='darkorange',
+#         lw=lw, label='ROC curve (area = %0.2f)' % roc_auc)
+#plt.plot([0, 1], [0, 1], color='navy', lw=lw, linestyle='--')
+#plt.xlim([0.0, 1.0])
+#plt.ylim([0.0, 1.05])
+#plt.xlabel('False Positive Rate')
+#plt.ylabel('True Positive Rate')
+#plt.title('Receiver operating characteristic example')
+#plt.legend(loc="lower right")
+#plt.show()
 
 
