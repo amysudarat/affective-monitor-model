@@ -2,7 +2,8 @@
 import preprocessing.pd as ppd
 import utils
 from preprocessing.iaps import iaps
-iaps_class = iaps()
+#iaps_class = iaps(r"C:\Users\DSPLab\Research\affective-monitor-model\preprocessing\IAPSinfoFile_Final.txt")
+iaps_class = iaps(r"E:\Research\affective-monitor-model\preprocessing\IAPSinfoFile_Final.txt")
 
 # get samples
 pd_signals = ppd.get_pds()

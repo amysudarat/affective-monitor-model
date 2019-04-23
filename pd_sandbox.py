@@ -32,12 +32,12 @@ selected_samples = ppd.select_and_clean(pd_signals,norm=True,
 PLR_removed_samples, _, _ = ppd.remove_PLR(selected_samples,
                                            illum_signals,
                                            n=5,
-                                           mu=0.0000035,
-                                           showFigures=[3,1800,50],
+                                           mu=0.0000015,
+                                           showFigures=None,
                                            arousal_col=True)
 
 # plot figures to pdf
-figs = ppd.plot_pd_overlap_df(selected_samples.drop(columns=['ori_idx_row']),subjects=[i for i in range(1,51)])
+#figs = ppd.plot_pd_overlap_df(selected_samples.drop(columns=['ori_idx_row']),subjects=[i for i in range(1,51)])
 #utils.print_pdf(figs,"sd_remove")
 #
 # slice to get area of interest
