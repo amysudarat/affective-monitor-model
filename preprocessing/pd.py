@@ -164,14 +164,27 @@ def get_illums(pickle_file="data_1_50_fixPD_Label_False.pkl"):
         array_samples.append(face_dataset[i]['illuminance'])
     return array_samples
 
-def get_arousal(pickle_file="data_1_50_fixPD_Label_False.pkl",fix=False):
+def get_arousal(pickle_file="data_1_50_fixPD_Label_False.pkl",source='iaps',fix=False,class_mode='default'):
     face_dataset = utils.load_object(pickle_file)
+    
     array_samples = []
     
-    def convert_to_label(SAM):
-            scale = 1
-            target_scale = scale*((SAM-5)/4)
-            
+    def convert_to_label(SAM,three_class):
+        scale = 1
+        target_scale = scale*((SAM-5)/4)
+        if class_mode=='three':
+            if target_scale < -0.125:
+                target_scale = 3
+            elif -0.125 <= target_scale <= 0.125:
+                target_scale = 2
+            elif 0.125 < target_scale:
+                target_scale = 1
+        elif class_mode=='two':
+            if target_scale > 0:
+                target_scale = 1
+            else:
+                target_scale = 2
+        else:
             if -1.0 <= target_scale < -0.6:
                 target_scale = 5
             elif -0.6 <= target_scale < -0.2:
@@ -182,13 +195,16 @@ def get_arousal(pickle_file="data_1_50_fixPD_Label_False.pkl",fix=False):
                 target_scale = 2
             elif 0.6 <= target_scale <= 1:
                 target_scale = 1
-            return target_scale
-    for i in range(len(face_dataset)):
-        sample = face_dataset[i]['arousal']
-        if fix:
-            sample = convert_to_label(sample)
-        array_samples.append(sample)
-    array_samples = np.array(array_samples)
+        return target_scale
+    if source == 'arousal':
+        for i in range(len(face_dataset)):
+            sample = face_dataset[i]['arousal']
+            if fix:
+                sample = convert_to_label(sample,class_mode)
+            array_samples.append(sample)
+        array_samples = np.array(array_samples)
+    else:
+        pass
     
     return array_samples
 
@@ -479,7 +495,7 @@ def plot_pd_overlap_df(samples_df,subjects=[1,15,39]):
     def color_label(label):
         color = 'black'
         if label == 5:
-            color = 'black'
+            color = 'yellow'
         elif label == 4:
             color = 'blue'
         elif label == 3:
@@ -487,7 +503,7 @@ def plot_pd_overlap_df(samples_df,subjects=[1,15,39]):
         elif label == 2:
             color = 'green'
         elif label == 1:
-            color = 'yellow'
+            color = 'black'
         
 #        scale = 1
 #        target_scale = scale*((label-5)/4)

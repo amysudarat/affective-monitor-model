@@ -77,18 +77,18 @@ def report(results, n_top=3):
 
 ####### --------- train ---------------###########
 
-#dummy_dataset = DummyDataset()
+dummy_dataset = DummyDataset()
 
-## prepare data
-#data = []
-#label = []
-#
-#for i in range(len(dummy_dataset)):
-#    data.append(dummy_dataset[i]['data'])    
-#    label.append(dummy_dataset[i]['label'])
-#    
-data = utils.load_object('dummy_data.pkl')
-label = utils.load_object('dummy_label.pkl')
+# prepare data
+data = []
+label = []
+
+for i in range(len(dummy_dataset)):
+    data.append(dummy_dataset[i]['data'])    
+    label.append(dummy_dataset[i]['label'])
+    
+#data = utils.load_object('dummy_data.pkl')
+#label = utils.load_object('dummy_label.pkl')
     
 data = np.array(data, dtype=np.float32)
 label = np.array(label, dtype=np.int64)
@@ -138,10 +138,10 @@ net = NeuralNetClassifier(
 
 #%%
 # randomize hyperparameter search
-lr = [0.5,0.005,0.0005]
+lr = [0.01,0.05,0.1]
 params = {
     'optimizer__lr': lr,
-    'max_epochs':[20,50,70],
+    'max_epochs':[70,150,200],
 #    'module__num_units': [14,20,28,36,42],
 #    'module__drop' : [0,.1,.2,.3,.4]
 }

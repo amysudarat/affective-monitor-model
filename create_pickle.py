@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 
 from model.dataset_class import AffectiveMonitorDataset
+import preprocessing.pd as ppd
 import utils
 
-
+#%%
 
 #############--------- Select test subjects to include ----------##########
 n = 50
 subjects = [i for i in range(1,n+1)]
-
+#%%
 ##############--------- Generate face_dataset getting raw PD ----------##########
 #face_dataset = AffectiveMonitorDataset("C:\\Users\\dspcrew\\affective-monitor-model\\data",
 #                                           subjects=subjects,
@@ -24,5 +25,13 @@ face_dataset = AffectiveMonitorDataset("C:\\Users\\DSPLab\\Research\\ExperimentD
 #                                           fix_PD=False,
 #                                           convert_label=False)
 
+#%%
+# raw face dataset sandbox
+
+face_df = face_dataset.face_df
+
+
+#%%
 ##############--------- Generate pickle file based on generateing face_dataset ----------##########
 utils.save_object(face_dataset, "data_1_50_fixPD_False.pkl")
+

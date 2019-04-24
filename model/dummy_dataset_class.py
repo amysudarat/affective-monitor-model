@@ -18,7 +18,7 @@ class DummyDataset(Dataset):
         whole_dataframe = self.generate_sine()
         whole_dataframe = whole_dataframe.append(self.generate_flat())
         whole_dataframe = whole_dataframe.append(self.generate_linear())
-        whole_dataframe = whole_dataframe.append(self.generate_parabola())
+#        whole_dataframe = whole_dataframe.append(self.generate_parabola())
         whole_dataframe = whole_dataframe.sample(frac=1).reset_index(drop=True)
         return whole_dataframe
         

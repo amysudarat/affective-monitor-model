@@ -5,7 +5,7 @@ import utils
 # get samples
 pd_signals = ppd.get_pds()
 
-#depth_signals = ppd.get_depths()
+depth_signals = ppd.get_depths()
 illum_signals = ppd.get_illums()
 
 #sample_idx = 9

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+#%%
 """ run pip install cufflinks plotly in anaconda prompt
 run to see iplot option 'help(df.iplot)'
 """
@@ -13,7 +13,7 @@ import plotly.figure_factory as ff
 import cufflinks
 cufflinks.go_offline(connected=True)
 init_notebook_mode(connected=True)
-
+#%%
 
 data_df = utils.load_object('pd_for_train.pkl')
 #test_subject_idx = 13
@@ -49,7 +49,7 @@ fig = data_df.reset_index(drop=True).pivot(columns='arousal', values='mean').ipl
         asFigure=True)
 
 plotly.offline.plot(fig)
-
+#%%
 # box plot of mean grouped by median
 fig = data_df.reset_index(drop=True).pivot(columns='arousal', values='median').iplot(
         kind='box',
@@ -59,7 +59,7 @@ fig = data_df.reset_index(drop=True).pivot(columns='arousal', values='median').i
         asFigure=True)
 
 plotly.offline.plot(fig)
-
+#%%
 # box plot of mean grouped by std
 fig = data_df.reset_index(drop=True).pivot(columns='arousal', values='std').iplot(
         kind='box',
@@ -69,7 +69,7 @@ fig = data_df.reset_index(drop=True).pivot(columns='arousal', values='std').iplo
         asFigure=True)
 
 plotly.offline.plot(fig)
-
+#%%
 # box plot of mean grouped by max
 fig = data_df.reset_index(drop=True).pivot(columns='arousal', values='max').iplot(
         kind='box',
@@ -79,7 +79,7 @@ fig = data_df.reset_index(drop=True).pivot(columns='arousal', values='max').iplo
         asFigure=True)
 
 plotly.offline.plot(fig)
-
+#%%
 # box plot of mean grouped by min
 fig = data_df.reset_index(drop=True).pivot(columns='arousal', values='min').iplot(
         kind='box',
@@ -89,7 +89,7 @@ fig = data_df.reset_index(drop=True).pivot(columns='arousal', values='min').iplo
         asFigure=True)
 
 plotly.offline.plot(fig)
-
+#%%
 # box plot of mean grouped by skew
 fig = data_df.reset_index(drop=True).pivot(columns='arousal', values='skew').iplot(
         kind='box',
@@ -99,7 +99,7 @@ fig = data_df.reset_index(drop=True).pivot(columns='arousal', values='skew').ipl
         asFigure=True)
 
 plotly.offline.plot(fig)
-
+#%%
 # scatter plot matrix
 #fig = data_df[['mean','max','median','min','skew']].reset_index(drop=True).scatter_matrix(asFigure=True)
 #plotly.offline.plot(fig)
@@ -112,7 +112,7 @@ fig = ff.create_scatterplotmatrix(
 
 plotly.offline.plot(fig)
 
-
+#%%
 
 
 

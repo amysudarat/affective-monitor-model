@@ -10,18 +10,25 @@ from torch.utils.data import Dataset
 
 
 class AffectiveMonitorDataset(Dataset):
-    """ Affective Monitor Dataset:
-         Args:
-            filepath (string): Path to data directory
-            
-            mode (string):  'FAC' is default mode to load vector of FAC unit 
-                            'RAW' load raw data which are 1347 points of facial points cloud
-                            
-            transform (callable,optional): optional transform to be applied on a sample
-            
-            fix_distance (bool): will FAPU get adjusted by distance or not. Default is 'False' 
-            
-            subjects (list): list of test subject number specified to be loaded
+    """    
+        Affective Monitor Dataset in Pytorch version class
+        raw dataframe read from csv file is in .face_df
+        
+    filepath (string): 
+        Path to data directory
+        
+    mode (string):
+        'FAC' is default mode to load vector of FAC unit 
+        'RAW' load raw data which are 1347 points of facial points cloud
+                        
+    transform (callable,optional): 
+        optional transform to be applied on a sample
+        
+    fix_distance (bool): 
+        will FAPU get adjusted by distance or not. Default is 'False' 
+        
+    subjects (list): 
+        list of test subject number specified to be loaded
     """
     
     def __init__(self,filepath,mode='FAC',transform=None,fix_distance=False,subjects=None,fix_PD=True,convert_label=True):
@@ -47,6 +54,7 @@ class AffectiveMonitorDataset(Dataset):
         self.fix_distance = fix_distance
         # load global FAPU
         self.global_fapu = self.load_FAPU(filepath)
+        
         # load samples from csv file
         if mode == 'FAC':
             self.samples = self.load_dataframe_FAC(filepath)
@@ -62,21 +70,20 @@ class AffectiveMonitorDataset(Dataset):
         """
         # create file path 
         filepaths = [os.path.join(path, "TestSubject"+str(i)+"\\FAP.txt") for i in self.subjects]
-        
+        self.face_df_raw = pd.DataFrame()
         # initialize Total dataframe
         total = pd.DataFrame()
-        self.face_df = pd.DataFrame()
+        
         # Loop through each Testsubject folder
         for i in range(len(filepaths)):
             
             face_df = pd.read_csv(filepaths[i],header=1,delimiter=",",
                                   quotechar=";",
 #                                  index_col="PicIndex",
-                                  skipinitialspace=True) 
-            
+                                  skipinitialspace=True)             
             # set index column
             face_df = face_df.set_index("PicIndex")
-            self.face_df = self.face_df.append(face_df)
+            self.face_df_raw = self.face_df_raw.append(face_df)
             # fill pupil diameter of the first row by the second row
             face_df.iloc[0,face_df.columns.get_loc("PupilDiameter")] = face_df.iloc[1,face_df.columns.get_loc("PupilDiameter")]
             
