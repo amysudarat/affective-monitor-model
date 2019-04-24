@@ -11,7 +11,7 @@ arousals = ppd.get_arousal(fix=True)
 illum_signals = ppd.get_illums()
 sample_list_from_pic_id = iaps_class.get_sample_idx(2141)
 # remove glitch
-pd_signals, _ = ppd.remove_glitch(pd_signals,threshold=0.1)
+pd_signals, _ = ppd.remove_glitch(pd_signals,threshold=0.2)
 # find missing percentage list
 missing_percentage = ppd.get_missing_percentage(pd_signals)
 selected_samples = ppd.select_and_clean(pd_signals,norm=True,
@@ -19,11 +19,11 @@ selected_samples = ppd.select_and_clean(pd_signals,norm=True,
                                         miss_threshold=0.25,
                                         label=arousals,
                                         sd_detect_remove=True,
-                                        align=False)
+                                        align=True)
 
 # set that seems work: n=10, mu=0.00000085
 # set that seems work: n=5, mu=0.00000095
-remove_PLR = True
+remove_PLR = False
 if remove_PLR:
     illum_select_df = selected_samples.copy()
     illum_select_df['idx'] = illum_select_df.reset_index(drop=True).index
@@ -33,13 +33,14 @@ if remove_PLR:
                                                illum_signals,
                                                n=5,
                                                mu=0.0000015,
-                                               showFigures=illum_select_list,
+#                                               showFigures=illum_select_list,
+                                               showFigures=None,
                                                arousal_col=True)
 else:
-    final_samples = selected_samples
+    final_samples = selected_samples.drop(columns=['ori_idx_row'])
 
 # slice to get area of interest
-samples_aoi = ppd.get_aoi_df(final_samples,start=20,stop=50)
+samples_aoi = ppd.get_aoi_df(final_samples,start=20,stop=70)
 
 # find stat of aoi signals
 samples = ppd.generate_features_df(samples_aoi)
