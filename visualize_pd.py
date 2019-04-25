@@ -13,6 +13,9 @@ import plotly.figure_factory as ff
 import cufflinks
 cufflinks.go_offline(connected=True)
 init_notebook_mode(connected=True)
+
+#%%
+from sklearn.preprocessing import StandardScaler
 #%%
 
 data_df = utils.load_object('pd_for_train.pkl')

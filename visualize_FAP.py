@@ -3,14 +3,52 @@ import utils
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.backends.backend_pdf
+import preprocessing.valence as pval
 import preprocessing.fap as pfap
 
-#%% fap sandbox
+#%%
+# Standard plotly imports
+import plotly
+import plotly.plotly as py
+import plotly.graph_objs as go
+from plotly.offline import iplot, init_notebook_mode
+import plotly.figure_factory as ff
+# Using plotly + cufflinks in offline mode
+import cufflinks
+cufflinks.go_offline(connected=True)
+init_notebook_mode(connected=True)
+
+#%%
+#path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
+path = "E:\\Research\\ExperimentData"
+n = 50
+subjects = [i for i in range(1,n+1)]
+
+#%% get data
 faps_df = pfap.get_faps()
+valence_df = pval.get_valence_df(path,subjects,fix=True,class_mode='default')
 
 #%%
 # save to pickle
-utils.save_object(faps_df,'faps.pkl')
+utils.save_object(faps_df,'fap.pkl')
+utils.save_object(valence_df,'valence.pkl')
+
+#%% in case we already save pickle load it from there
+faps_df = utils.load_object('fap.pkl')
+valence_df = utils.load_object('valence.pkl')
+
+#%%
+# plot all test subject
+fig = faps_df.loc[1].reset_index(drop=True).iplot(kind='scatter',mode='lines',
+                                 title='depth',
+                                 xTitle='picIndex', yTitle= 'Depth',
+                                 asFigure=True)
+plotly.offline.plot(fig)
+
+#%%
+
+
+
 
 #%%
 
