@@ -3,6 +3,27 @@
 import numpy as np
 import scipy.signal
 import matplotlib.pyplot as plt
+import utils
+import pandas as pd
+
+def get_faps(pickle_file="data_1_50_fixPD_Label_False.pkl"):
+    face_dataset = utils.load_object(pickle_file)
+    array_samples = []
+    for i in range(len(face_dataset)):
+        array_samples.append(face_dataset[i]['faceFAP'])
+    array_samples = np.array(array_samples)
+    # create dataframe from 3d numpy array (stacking each sample)
+    faps_df = pd.DataFrame()
+    faps_col = ['31','32','35','36','37','38','19','20',
+                       '41','42','61','62','59','60','53','54','5','4','3']
+    for slice_idx in range(1,array_samples.shape[0]+1):
+        # slice array create view which is a shallow copy of array (different id)
+        tmp_df = pd.DataFrame(array_samples[slice_idx-1,:,:])
+        tmp_df.columns = faps_col
+        tmp_df['index'] = [slice_idx for j in range(tmp_df.shape[0])]
+        tmp_df = tmp_df.set_index('index')
+        faps_df = faps_df.append(tmp_df)   
+    return faps_df    
 
 
 def median_filter(fap_signal,window=11):
