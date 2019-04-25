@@ -5,7 +5,6 @@ import pandas as pd
 import numpy as np
 
 #%%
-
 def get_depth_df(path,subjects):    
     # Loop through each Testsubject folder
     depth_df = pd.DataFrame()
@@ -22,4 +21,25 @@ def get_depth_df(path,subjects):
             depth_df.columns = [elem]
         else:
             depth_df[elem] = depth_df_raw
+    return depth_df
+
+#%%
+def get_mean(depth_df):
+    mean_df = pd.DataFrame()
+    column_name = ['D'+str(i) for i in range(1,len(depth_df.columns)+1)]
+    for i in range(1,depth_df.index.max()+1):    
+        mean = depth_df.loc[i].mean().values
+        sample_length = depth_df.loc[i].shape[0]
+        # create temporary mean df to concat to the original df
+        mean = np.tile(mean.transpose(),(sample_length,1))
+        mean = pd.DataFrame(mean)
+        mean.columns = column_name
+        idx = [i for j in range(sample_length)]
+        mean['index'] = idx
+        mean = mean.set_index('index')
+        if i == 1:
+            mean_df = mean        
+        else:
+            mean_df = mean_df.append(mean)
+    depth_df = pd.concat([depth_df,mean_df],axis=1)
     return depth_df

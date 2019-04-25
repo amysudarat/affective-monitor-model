@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 #%%
-import os
 import pandas as pd
 import numpy as np
 import preprocessing.depth as pdep
+import utils
 
 #%%
 # Standard plotly imports
@@ -21,11 +21,29 @@ init_notebook_mode(connected=True)
 """
 Read CSV file and convert it FAC unit
 """
-path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
+#path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
+path = "E:\\Research\\ExperimentData"
 n = 50
 subjects = [i for i in range(1,n+1)]
 #%%
 depth_df = pdep.get_depth_df(path,subjects)
+
+#%%
+# save to pickle
+utils.save_object(depth_df,'depth.pkl')
+
+#%% load object
+depth_df = utils.load_object('depth.pkl')
+
+#%% get mean columns
+depth_df = pdep.get_mean(depth_df)
+
+#%% plot one subject
+fig = depth_df[[1,'D1']].reset_index(drop=True).iplot(kind='scatter',mode='lines',
+                                 title='depth',
+                                 xTitle='picIndex', yTitle= 'Depth',
+                                 asFigure=True)
+plotly.offline.plot(fig)
 
 #%%
 # plot all test subject
@@ -34,6 +52,37 @@ fig = depth_df.reset_index(drop=True).iplot(kind='scatter',mode='lines',
                                  xTitle='picIndex', yTitle= 'Depth',
                                  asFigure=True)
 plotly.offline.plot(fig)
+#%%
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
