@@ -43,7 +43,7 @@ plotly.offline.plot(fig)
 # box plot of mean grouped by arousal
 fig = data_df.reset_index(drop=True).pivot(columns='arousal', values='mean').iplot(
         kind='box',
-        title='mean',
+        title='mean with subject rating and without remove PLR',
         yTitle='mean',
         xTitle='label',
         asFigure=True)

@@ -3,6 +3,7 @@ import preprocessing.pd as ppd
 import utils
 import pandas as pd
 from preprocessing.iaps import iaps
+import preprocessing.arousal as paro
 #%%
 # Standard plotly imports
 import plotly
@@ -17,11 +18,18 @@ init_notebook_mode(connected=True)
 #%%
 iaps_class = iaps(r"C:\Users\DSPLab\Research\affective-monitor-model\preprocessing\IAPSinfoFile_Final.txt")
 #iaps_class = iaps(r"E:\Research\affective-monitor-model\preprocessing\IAPSinfoFile_Final.txt")
+path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
+#path = "E:\\Research\\ExperimentData"
+n = 50
+subjects = [i for i in range(1,n+1)]
+
 sample_list_from_pic_id = iaps_class.get_sample_idx(2141)
 #%%
 # get samples
 pd_signals = ppd.get_pds()
-arousals = ppd.get_arousal(fix=True,class_mode='two')
+#arousals = ppd.get_arousal(fix=True,class_mode='two')
+arousals = paro.get_arousal_df(path,subjects,source='subject',fix=True,class_mode='two')
+arousals = arousals.values.reshape(-1,)
 illum_signals = ppd.get_illums()
 
 #%%
@@ -29,7 +37,7 @@ illum_signals = ppd.get_illums()
 data_df = pd.DataFrame(arousals)
 data_df.columns = ['arousal']
 fig = data_df['arousal'].iplot(kind='hist',histnorm='percent',
-                                 title='arousal distribution',
+                                 title='arousal distribution before remove glitch',
                                  xTitle='Label', yTitle= '% of each group',
                                  asFigure=True)
 plotly.offline.plot(fig)
@@ -51,7 +59,7 @@ selected_samples = ppd.select_and_clean(pd_signals,norm=True,
 #%%
 # visualize arousal
 fig = selected_samples['arousal'].iplot(kind='hist',histnorm='percent',
-                                 title='arousal distribution',
+                                 title='arousal distribution after remove glitch',
                                  xTitle='Label', yTitle= '% of each group',
                                  asFigure=True)
 plotly.offline.plot(fig)
@@ -60,7 +68,7 @@ plotly.offline.plot(fig)
 #%%
 # set that seems work: n=10, mu=0.00000085
 # set that seems work: n=5, mu=0.00000095
-remove_PLR = True
+remove_PLR = False
 if remove_PLR:
     illum_select_df = selected_samples.copy()
     illum_select_df['idx'] = illum_select_df.reset_index(drop=True).index

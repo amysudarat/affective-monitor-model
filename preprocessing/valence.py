@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 import os
-import utils
+#import utils
 import numpy as np
 import pandas as pd
 
-def get_faps(path,subjects,source='iaps',fix=False,class_mode='default'):    
+def get_valence_df(path,subjects,source='iaps',fix=False,class_mode='default'):    
     # Loop through each Testsubject folder
     valence_df = pd.DataFrame()
     for i,elem in enumerate(subjects):
@@ -14,27 +14,21 @@ def get_faps(path,subjects,source='iaps',fix=False,class_mode='default'):
                                   usecols=['Valence_mean(IAPS)','Valence(rating)','PictureIndex'],
     #                              index_col="PicIndex",
                                   skipinitialspace=True)
-        valence_df_raw = valence_df_raw.set_index('PicIndex')
-        if i==0:
-            valence_df = valence_df
-            valence_df.columns = [elem]
-        else:
-            valence_df[elem] = valence_df_raw
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    face_dataset = utils.load_object(pickle_file)
-    
-    array_samples = []
-    
-    def convert_to_label(SAM,three_class):
+        valence_df_raw = valence_df_raw.set_index('PictureIndex')
+        valence_df_raw.columns = ['subject','iaps']        
+        valence_df = valence_df.append(valence_df_raw)
+        
+    # replace nan value with iaps value   
+    valence_df.subject.fillna(valence_df.iaps,inplace=True)
+    if source == 'iaps':
+        valence_df = valence_df.drop(columns=['subject'])
+    elif source == 'subject':
+        valence_df = valence_df.drop(columns=['iaps'])
+    valence_df.columns = ['valence']
+    # function to apply to each row if fix is True
+    def convert_to_label(SAM,class_mode):
+        # the first argument is an dataframe so make sure we choose column
+        SAM = SAM['valence']
         scale = 1
         target_scale = scale*((SAM-5)/4)
         if class_mode=='three':
@@ -60,15 +54,9 @@ def get_faps(path,subjects,source='iaps',fix=False,class_mode='default'):
                 target_scale = 2
             elif 0.6 <= target_scale <= 1:
                 target_scale = 1
-        return target_scale
-    if source == 'iaps':
-        for i in range(len(face_dataset)):
-            sample = face_dataset[i]['valence']
-            if fix:
-                sample = convert_to_label(sample,class_mode)
-            array_samples.append(sample)
-        array_samples = np.array(array_samples)
-    else:
-        pass
-    
-    return array_samples
+        return target_scale   
+    if fix:
+        valence_df['adjust'] = valence_df.apply(convert_to_label,class_mode=class_mode,axis=1)
+        valence_df = valence_df.drop(columns=['valence'])
+        valence_df.columns = ['valence']
+    return valence_df

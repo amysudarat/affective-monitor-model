@@ -164,7 +164,7 @@ def get_illums(pickle_file="data_1_50_fixPD_Label_False.pkl"):
         array_samples.append(face_dataset[i]['illuminance'])
     return array_samples
 
-def get_arousal(pickle_file="data_1_50_fixPD_Label_False.pkl",source='iaps',fix=False,class_mode='default'):
+def get_arousal(pickle_file="data_1_50_fixPD_Label_False.pkl",fix=False,class_mode='default'):
     face_dataset = utils.load_object(pickle_file)
     
     array_samples = []
@@ -196,16 +196,13 @@ def get_arousal(pickle_file="data_1_50_fixPD_Label_False.pkl",source='iaps',fix=
             elif 0.6 <= target_scale <= 1:
                 target_scale = 1
         return target_scale
-    if source == 'arousal':
-        for i in range(len(face_dataset)):
-            sample = face_dataset[i]['arousal']
-            if fix:
-                sample = convert_to_label(sample,class_mode)
-            array_samples.append(sample)
-        array_samples = np.array(array_samples)
-    else:
-        pass
-    
+   
+    for i in range(len(face_dataset)):
+        sample = face_dataset[i]['arousal']
+        if fix:
+            sample = convert_to_label(sample,class_mode)
+        array_samples.append(sample)
+    array_samples = np.array(array_samples)   
     return array_samples
 
 def get_valence(pickle_file="data_1_50_fixPD_Label_False.pkl"):

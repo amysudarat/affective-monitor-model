@@ -1,9 +1,22 @@
-# -*- coding: utf-8 -*-
+#%%
 
 import preprocessing.fap as pfap
+import preprocessing.valence as pval
 import utils
 import numpy as np
 
+#%%
+path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
+#path = "E:\\Research\\ExperimentData"
+n = 50
+subjects = [i for i in range(1,n+1)]
+
+#%% load valence
+valence_df = pval.get_valence_df(path,subjects,fix=True,class_mode='two')
+
+
+
+#%%
 face_dataset = utils.load_object("data_1_50_fixPD_Label_False.pkl")
 # 583 is a good one
 #sample_idx = 583,640
