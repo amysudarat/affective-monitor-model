@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import scipy.signal
+import pre_utils as pu
 import utils
 
 #import warnings
@@ -15,21 +16,19 @@ def generate_features_df(samples):
     Imagine bell curve, skew left (tail to left,positive), skew right (tail to right,negative)
     mean follows tail, median stay with the bulk
     """
-    if 'arousal' in samples.columns:
-        arousal_col = samples['arousal']
-        samples = samples.drop(columns=['arousal'])
+    ori_column = samples['ori_idx']
+    samples = samples.drop(columns=['ori_idx'])
     samples['mean'] = samples.mean(axis=1)
     samples['median'] = samples.median(axis=1)
     samples['max'] = samples.max(axis=1)
     samples['min'] = samples.min(axis=1)
     samples['skew'] = samples.skew(axis=1)
     samples['std'] = samples.std(axis=1)
-    if arousal_col is not None:
-        samples['arousal'] = arousal_col  
+    samples['ori_idx'] = ori_column 
     return samples
 
 
-def select_and_clean(samples,norm=True,miss_percent=None,miss_threshold=0.4,label=None,sd_detect_remove=True,align=True):
+def select_and_clean(samples,norm=True,miss_percent=None,miss_threshold=0.4,sd_detect_remove=True,align=True,fix_depth=None,fix_illum=None,alpha=1):
     """
         filter and transform samples based on the method parameter set, 
         return dataframe of output signals
@@ -62,9 +61,7 @@ def select_and_clean(samples,norm=True,miss_percent=None,miss_threshold=0.4,labe
                 
         # drop sample with has missing percent more than 60%
         subject_df = pd.DataFrame(subject)
-        subject_df['ori_idx_row'] = pd.Series([i for i in range(start_idx,stop_idx)])
-        if label is not None:
-            subject_df['arousal'] = label[start_idx:stop_idx] 
+        subject_df['ori_idx'] = pd.Series([i for i in range(start_idx,stop_idx)])
         if miss_percent is not None:            
             miss_column = miss_percent[start_idx:stop_idx]
             subject_df['missing_percent'] = miss_column
@@ -72,8 +69,8 @@ def select_and_clean(samples,norm=True,miss_percent=None,miss_threshold=0.4,labe
             subject_df = subject_df.drop(columns=['missing_percent'])
         if sd_detect_remove:
             # mean and std of the whole dataset
-            df_mean = subject_df.drop(columns=['arousal','ori_idx_row']).values.mean()
-            df_std = subject_df.drop(columns=['arousal','ori_idx_row']).values.std()
+            df_mean = subject_df.drop(columns=['ori_idx']).values.mean()
+            df_std = subject_df.drop(columns=['ori_idx']).values.std()
             upper_threshold = df_mean + 3*df_std
             lower_threshold = df_mean - 3*df_std
             subject_df = subject_df.reset_index(drop=True)
@@ -82,37 +79,52 @@ def select_and_clean(samples,norm=True,miss_percent=None,miss_threshold=0.4,labe
                     if i < lower or i > upper:
                         return False
                 return True
-            subject_df = subject_df[subject_df.drop(columns=['arousal','ori_idx_row']).apply(generate_mask,axis=1)]
+            subject_df = subject_df[subject_df.drop(columns=['ori_idx']).apply(generate_mask,axis=1)]
         
         # align the starting point
         if align:
-            df_mean = subject_df.drop(columns=['arousal','ori_idx_row']).values.mean()
-            arousal_col = subject_df['arousal']
-            ori_idx_row_col = subject_df['ori_idx_row']
-            pd_np = subject_df.drop(columns=['arousal','ori_idx_row']).values
+            df_mean = subject_df.drop(columns=['ori_idx']).values.mean()
+            ori_idx_row_col = subject_df['ori_idx']
+            pd_np = subject_df.drop(columns=['ori_idx']).values
             for i in range(pd_np.shape[0]):
                 pd_np[i,:] = pd_np[i,:] + (df_mean-pd_np[i,0])
-            subject_df = pd.DataFrame(pd_np)
-            subject_df['arousal'] = arousal_col.reset_index(drop=True)
-            subject_df['ori_idx_row'] = ori_idx_row_col.reset_index(drop=True)
+            subject_df = pd.DataFrame(pd_np)            
+            subject_df['ori_idx'] = ori_idx_row_col.reset_index(drop=True)
         
-        # normalization mix max
-        arousal_col = subject_df['arousal']
-        ori_idx_row_col = subject_df['ori_idx_row']
-        if norm:
-            if label is not None:                
-                subject_df = subject_df.drop(columns=['arousal','ori_idx_row'])
-            subject = subject_df.values
+        if fix_depth is not None:
+            ori_idx_list = subject_df['ori_idx'].tolist()
+            depth_mean = fix_depth[fix_depth.index.isin(ori_idx_list)]['mean_per_frame'].values
+            depth_min = fix_depth[fix_depth.index.isin(ori_idx_list)]['min'].values
+            pd_np = subject_df.drop('ori_idx',axis=1).values
+            for row in range(pd_np.shape[0]):
+                pd_np[row] = pd_np[row]+(depth_mean[row]/depth_min[row])
+            tmp_df = pd.DataFrame(pd_np)
+            tmp_df['ori_idx'] = subject_df['ori_idx']
+            subject_df = tmp_df
+            
+            
+        if fix_illum is not None:
+            ori_idx_list = subject_df['ori_idx'].tolist()
+            illum_mean = fix_illum[fix_illum.index.isin(ori_idx_list)]['mean_per_frame'].values            
+            pd_np = subject_df.drop('ori_idx',axis=1).values
+            for row in range(pd_np.shape[0]):
+                pd_np[row] = pd_np[row]+ (alpha*illum_mean[row])
+            tmp_df = pd.DataFrame(pd_np)
+            tmp_df['ori_idx'] = subject_df['ori_idx']
+            subject_df = tmp_df
+        
+        # normalization mix max        
+        
+        if norm:            
+            subject = subject_df.drop(columns=['ori_idx']).values
             min_val = subject.min()
             max_val = subject.max()
             subject = (subject-min_val)/(max_val-min_val)
        
         # convert numpy array to list and append it to output list
         
-        subject = pd.DataFrame(subject)
-        if label is not None:            
-            subject['arousal'] = arousal_col.reset_index(drop=True)
-        subject['ori_idx_row'] = ori_idx_row_col.reset_index(drop=True)
+        subject = pd.DataFrame(subject)        
+        subject['ori_idx'] = subject_df['ori_idx']
         subject['index'] = subject_idx
         subject = subject.set_index('index')
         output_df = output_df.append(subject)       
@@ -134,13 +146,11 @@ def get_missing_percentage(samples):
     
     
 def get_aoi_df(samples,start=20,stop=70):
-    if 'arousal' in samples.columns:
-        arousal_col = samples['arousal']        
-        samples = samples.drop(columns=['arousal'])
+    ori_column = samples['ori_idx']
+    samples = samples.drop(columns=['ori_idx'])
     samples = samples.drop(columns=[i for i in range(stop,samples.shape[1])]) 
     samples = samples.drop(columns=[i for i in range(start)])
-    if arousal_col is not None:
-        samples['arousal'] = arousal_col       
+    samples['ori_idx'] = ori_column    
     return samples
 
 def get_pds(pickle_file="data_1_50_fixPD_Label_False.pkl"):

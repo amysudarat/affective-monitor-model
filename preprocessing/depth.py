@@ -1,5 +1,4 @@
-
-#%%
+# import
 import os
 import pandas as pd
 import numpy as np
@@ -43,3 +42,36 @@ def get_mean(depth_df):
             mean_df = mean_df.append(mean)
     depth_df = pd.concat([depth_df,mean_df],axis=1)
     return depth_df
+
+#%%
+def get_min_depth(depth_df):
+    min_list = []
+    for row in range(1,depth_df.index.max()+1):
+        for col in range(1,len(depth_df.columns)+1):
+            min_list.append(depth_df.loc[row][col].min())
+    return min_list
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

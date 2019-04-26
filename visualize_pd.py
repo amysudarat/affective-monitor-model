@@ -3,6 +3,7 @@
 run to see iplot option 'help(df.iplot)'
 """
 import utils
+import preprocessing.arousal as paro
 # Standard plotly imports
 import plotly
 import plotly.plotly as py
@@ -15,34 +16,16 @@ cufflinks.go_offline(connected=True)
 init_notebook_mode(connected=True)
 
 from sklearn.preprocessing import StandardScaler
-#%%
-
+#%% get data
 data_df = utils.load_object('pd_for_train.pkl')
-#test_subject_idx = 13
-#
-#data_df = data_df.loc[test_subject_idx]
+arousals = utils.load_object('arousal.pkl')
 
-# plot pd signals overlapping per test subject
-plot_df = data_df.drop(columns=['mean','arousal','median','max','min','std','skew'])
+match_arousal_list = paro.match_with_sample(arousals,data_df['ori_idx'])
+data_df = data_df.reset_index(drop=True)
+data_df = data_df.drop(columns=['ori_idx'])
+data_df['arousal'] = match_arousal_list
 
-# histogram of label
-fig = data_df['arousal'].iplot(kind='hist',histnorm='percent',
-                                 title='arousal distribution',
-                                 xTitle='Label', yTitle= '% of each group',
-                                 asFigure=True)
-plotly.offline.plot(fig)
-
-
-## scatter plot between mean and arousal
-#plot_df = data_df[['arousal','mean']]
-#plot_df['arousal_str'] = data_df['arousal'].astype(str)
-#fig = plot_df.iplot(x='arousal',
-#                    y='mean',
-#                    categories='arousal_str',
-#                    asFigure=True)
-#plotly.offline.plot(fig)
-
-# box plot of mean grouped by arousal
+#%% box plot of mean grouped by arousal
 fig = data_df.reset_index(drop=True).pivot(columns='arousal', values='mean').iplot(
         kind='box',
         title='mean with subject rating and without remove PLR',

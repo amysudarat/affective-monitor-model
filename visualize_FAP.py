@@ -103,6 +103,7 @@ for fig in figs: ## will open an empty extra figure :(
     i+=1
     print("printing: "+str(i))
 pdf.close()    
+
 #%%    
 
 
