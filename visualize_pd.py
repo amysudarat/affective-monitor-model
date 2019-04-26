@@ -14,7 +14,6 @@ import cufflinks
 cufflinks.go_offline(connected=True)
 init_notebook_mode(connected=True)
 
-#%%
 from sklearn.preprocessing import StandardScaler
 #%%
 

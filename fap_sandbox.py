@@ -40,23 +40,27 @@ utils.save_object(valence_df,'valence.pkl')
 faps_df = utils.load_object('fap.pkl')
 valence_df = utils.load_object('valence.pkl')
 
-#%%
+#%% standard normalization to put all units in the same scale
+# after transformation: each column will have mean=0 and std=1 
+# now we set with_std = False so we didn't scale std
+
+sample = 4
 # plot all test subject
-fig = faps_df.loc[1].reset_index(drop=True).iplot(kind='scatter',mode='lines',
+fig = faps_df.loc[sample].reset_index(drop=True).iplot(kind='scatter',mode='lines',
                                  title='FAP through time before standard scaling',
                                  xTitle='picIndex', yTitle= 'Depth',
                                  asFigure=True)
 plotly.offline.plot(fig)
 
-#%%
+
 scaler = StandardScaler(with_std=False)
-scaler.fit(faps_df.loc[1])
-faps_scaled = scaler.transform(faps_df.loc[1])
+scaler.fit(faps_df.loc[sample])
+faps_scaled = scaler.transform(faps_df.loc[sample])
 
 faps_scaled_df = pd.DataFrame(faps_scaled,columns=faps_df.columns)
 
 
-#%%
+
 # plot all test subject
 fig = faps_scaled_df.iplot(kind='scatter',mode='lines',
                                  title='FAP through time after standard scaling',
@@ -64,7 +68,11 @@ fig = faps_scaled_df.iplot(kind='scatter',mode='lines',
                                  asFigure=True)
 plotly.offline.plot(fig)
 
- 
+
+#%% checkout feature scaling (minmax scalar and absscalar)
+
+
+
 #%%
 face_dataset = utils.load_object("data_1_50_fixPD_Label_False.pkl")
 # 583 is a good one

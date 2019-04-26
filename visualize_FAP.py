@@ -45,7 +45,6 @@ fig = faps_df.loc[1].reset_index(drop=True).iplot(kind='scatter',mode='lines',
                                  asFigure=True)
 plotly.offline.plot(fig)
 
-#%%
 
 
 
