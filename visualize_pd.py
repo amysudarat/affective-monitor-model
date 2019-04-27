@@ -4,6 +4,7 @@ run to see iplot option 'help(df.iplot)'
 """
 import utils
 import preprocessing.arousal as paro
+import preprocessing.pre_utils as pu
 # Standard plotly imports
 import plotly
 import plotly.plotly as py
@@ -20,7 +21,7 @@ from sklearn.preprocessing import StandardScaler
 data_df = utils.load_object('pd_for_train.pkl')
 arousals = utils.load_object('arousal.pkl')
 
-match_arousal_list = paro.match_with_sample(arousals,data_df['ori_idx'])
+match_arousal_list = pu.match_with_sample(arousals,data_df['ori_idx'])
 data_df = data_df.reset_index(drop=True)
 data_df = data_df.drop(columns=['ori_idx'])
 data_df['arousal'] = match_arousal_list

@@ -69,8 +69,8 @@ selected_samples = ppd.select_and_clean(pd_signals,norm=True,
                                         miss_percent=missing_percentage,
                                         miss_threshold=0.25,
                                         sd_detect_remove=True,
-                                        fix_depth=depth_mean_df,
-                                        fix_illum=None,
+                                        fix_depth=None,
+                                        fix_illum=illum_mean_df,
                                         align=True,
                                         alpha=0.03)
 
@@ -97,9 +97,14 @@ selected_samples = ppd.select_and_clean(pd_signals,norm=True,
 # slice to get area of interest
 final_samples = selected_samples
 samples_aoi = ppd.get_aoi_df(final_samples,start=20,stop=70)
-#%%
-# plot figures to pdf
-figs = ppd.plot_pd_overlap_df(samples_aoi.drop(columns=['ori_idx']),subjects=[i for i in range(1,51)])
+#%% visualize pd
+plot_df = samples_aoi.copy()
+plot_df = plot_df.loc[1].reset_index(drop=True).drop('ori_idx',axis=1).transpose()
+fig = plot_df.reset_index(drop=True).iplot(kind='scatter',mode='lines',
+                                 title='depth_adjust',
+                                 xTitle='sample', yTitle= 'depth per frame / min depth per subject',
+                                 asFigure=True)
+plotly.offline.plot(fig)
 
 #%%
 # find stat of aoi signals
