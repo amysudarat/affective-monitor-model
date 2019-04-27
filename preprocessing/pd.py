@@ -28,7 +28,7 @@ def generate_features_df(samples):
     return samples
 
 
-def select_and_clean(samples,norm=True,miss_percent=None,miss_threshold=0.4,sd_detect_remove=True,align=True,fix_depth=None,fix_illum=None,alpha=1):
+def select_and_clean(samples,norm=True,miss_percent=None,miss_threshold=0.4,sd_detect_remove=True,align=True,fix_depth=None,fix_illum=None,alpha=0.03):
     """
         filter and transform samples based on the method parameter set, 
         return dataframe of output signals
@@ -101,8 +101,7 @@ def select_and_clean(samples,norm=True,miss_percent=None,miss_threshold=0.4,sd_d
             tmp_df = pd.DataFrame(pd_np)
             tmp_df['ori_idx'] = subject_df['ori_idx']
             subject_df = tmp_df
-            
-            
+                        
         if fix_illum is not None:
             ori_idx_list = subject_df['ori_idx'].tolist()
             illum_mean = fix_illum[fix_illum.index.isin(ori_idx_list)]['mean_per_frame'].values            
@@ -113,8 +112,7 @@ def select_and_clean(samples,norm=True,miss_percent=None,miss_threshold=0.4,sd_d
             tmp_df['ori_idx'] = subject_df['ori_idx']
             subject_df = tmp_df
         
-        # normalization mix max        
-        
+        # normalization mix max                
         if norm:            
             subject = subject_df.drop(columns=['ori_idx']).values
             min_val = subject.min()

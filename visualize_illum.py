@@ -36,15 +36,15 @@ illum_df = pill.get_mean(illum_df)
 
 #%% plot one subject
 fig = illum_df[[25,'D25']].reset_index(drop=True).iplot(kind='scatter',mode='lines',
-                                 title='depth',
-                                 xTitle='picIndex', yTitle= 'Depth',
+                                 title='illum',
+                                 xTitle='picIndex', yTitle= 'Illuminance',
                                  asFigure=True)
 plotly.offline.plot(fig)
 
 #%%
 # plot all test subject
 fig = illum_df.reset_index(drop=True).iplot(kind='scatter',mode='lines',
-                                 title='depth',
-                                 xTitle='picIndex', yTitle= 'Depth',
+                                 title='illum',
+                                 xTitle='picIndex', yTitle= 'Illuminance',
                                  asFigure=True)
 plotly.offline.plot(fig)

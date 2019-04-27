@@ -73,8 +73,8 @@ utils.save_object(depth_df,'depth.pkl')
 depth_df = depth_df.drop(columns=subjects)
 depth_df.columns = subjects
 depth_mean = []
-for row in range(1,depth_df.index.max()+1):
-    for col in range(1,len(depth_df.columns)+1):
+for col in range(1,len(depth_df.columns)+1):
+    for row in range(1,depth_df.index.max()+1):    
         depth_mean.append(depth_df.loc[row][col].values.tolist()[0])
 depth_mean_df = pd.DataFrame(depth_mean)
 depth_mean_df.columns = ['mean_per_frame']
@@ -82,7 +82,6 @@ depth_mean_df['min'] = min_depth_df
 
 # save depth mean to pickle
 utils.save_object(depth_mean_df,'depth_mean.pkl')
-
 
 #%% Illuminance
 #path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
@@ -95,15 +94,20 @@ illum_df = pill.get_illum_df(path,subjects)
 utils.save_object(illum_df,'illum.pkl')
 
 # generate mean columns for samples
+illum_mean_subject_list = pill.get_mean_per_subject(illum_df)
+
 illum_df = pill.get_mean(illum_df)
+
 illum_df = illum_df.drop(columns=subjects)
 illum_df.columns = subjects
 illum_mean = []
-for row in range(1,illum_df.index.max()+1):
-    for col in range(1,len(illum_df.columns)+1):
+
+for col in range(1,len(illum_df.columns)+1):
+    for row in range(1,illum_df.index.max()+1):
         illum_mean.append(illum_df.loc[row][col].values.tolist()[0])
 illum_mean_df = pd.DataFrame(illum_mean)
 illum_mean_df.columns = ['mean_per_frame']
+illum_mean_df['mean_per_subject'] = illum_mean_subject_list
 
 # save depth mean to pickle
 utils.save_object(illum_mean_df,'illum_mean.pkl')

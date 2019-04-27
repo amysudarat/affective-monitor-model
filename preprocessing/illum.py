@@ -42,3 +42,14 @@ def get_mean(illum_df):
             mean_df = mean_df.append(mean)
     illum_df = pd.concat([illum_df,mean_df],axis=1)
     return illum_df
+
+#%%
+def get_mean_per_subject(illum_df):
+    mean_list = []    
+    for col in range(1,len(illum_df.columns)+1):
+        mean_list = mean_list + [illum_df[col].mean() for i in range(70)]
+    return mean_list
+
+
+
+

@@ -45,10 +45,9 @@ def get_mean(depth_df):
 
 #%%
 def get_min_depth(depth_df):
-    min_list = []
-    for row in range(1,depth_df.index.max()+1):
-        for col in range(1,len(depth_df.columns)+1):
-            min_list.append(depth_df.loc[row][col].min())
+    min_list = []    
+    for col in range(1,len(depth_df.columns)+1):
+        min_list = min_list + [depth_df[col].min() for i in range(70)]
     return min_list
 
 
