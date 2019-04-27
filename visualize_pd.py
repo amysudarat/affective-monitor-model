@@ -7,6 +7,7 @@ import preprocessing.arousal as paro
 import preprocessing.pre_utils as pu
 # Standard plotly imports
 import plotly
+import plotly.io as pio
 import plotly.plotly as py
 import plotly.graph_objs as go
 from plotly.offline import iplot, init_notebook_mode
@@ -35,6 +36,7 @@ fig = data_df.reset_index(drop=True).pivot(columns='arousal', values='mean').ipl
         asFigure=True)
 
 plotly.offline.plot(fig)
+pio.write_image(fig,'fap_plot/test.pdf')
 #%%
 # box plot of mean grouped by median
 fig = data_df.reset_index(drop=True).pivot(columns='arousal', values='median').iplot(

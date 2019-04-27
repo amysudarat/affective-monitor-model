@@ -96,7 +96,7 @@ selected_samples = ppd.select_and_clean(pd_signals,norm=True,
 #%%
 # slice to get area of interest
 final_samples = selected_samples
-samples_aoi = ppd.get_aoi_df(final_samples,start=20,stop=70)
+samples_aoi = ppd.get_aoi_df(final_samples,start=0,stop=100)
 #%% visualize pd
 plot_df = samples_aoi.copy()
 plot_df = plot_df.loc[1].reset_index(drop=True).drop('ori_idx',axis=1).transpose()

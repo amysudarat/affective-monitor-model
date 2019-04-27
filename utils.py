@@ -13,6 +13,27 @@ import matplotlib.backends.backend_pdf
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.proj3d import proj_transform
 from matplotlib.text import Annotation
+import glob
+
+from PyPDF2 import PdfFileMerger
+
+def merge_pdf(filename,input_path):
+    
+    def merger(output_path, input_paths):
+        pdf_merger = PdfFileMerger(strict=False)
+ 
+        for path in input_paths:
+            pdf_merger.append(path)
+     
+        with open(output_path, 'wb') as fileobj:
+            pdf_merger.write(fileobj)
+        del fileobj
+            
+    paths = glob.glob(input_path)
+    paths.sort()
+    merger(filename+'.pdf', paths)
+    
+    return
 
 class Annotation3D(Annotation):
     '''Annotate the point xyz with text s'''
@@ -342,6 +363,7 @@ def print_pdf(figs,filename):
         print("printing: "+str(i))
     pdf.close()
     return
+
 
 #def update_plot(i,data,scat)
 
