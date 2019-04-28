@@ -4,6 +4,7 @@ import glob
 import os
 import pandas as pd
 import numpy as np
+from preprocessing.iaps import iaps
 import matplotlib.pyplot as plt
 import matplotlib.backends.backend_pdf
 import preprocessing.valence as pval
@@ -26,45 +27,61 @@ init_notebook_mode(connected=True)
 from sklearn.preprocessing import StandardScaler
 
 #%%
+##iaps_class = iaps(r"C:\Users\DSPLab\Research\affective-monitor-model\preprocessing\IAPSinfoFile_Final.txt")
+iaps_class = iaps(r"E:\Research\affective-monitor-model\preprocessing")
+sample_list_from_pic_id = iaps_class.get_sample_idx(2141)
+feel_df = iaps_class.get_feeling('happy')
+
+#%%
 #path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
 path = "E:\\Research\\ExperimentData"
-n = 1
+n = 4
 subjects = [i for i in range(1,n+1)]
 
 #%% get data
-faps_df = pfap.get_faps()
-FAP_index = ['l_i_eyebrow_y','r_i_eyebrow_y','l_o_eyebrow_y','r_o_eyebrow_y',
-                 'l_i_eyebrow_x','r_i_eyebrow_x','t_l_eyelid_y','t_r_eyelid_y',
-                 'l_cheeck_y','r_cheeck_y','l_nose_x','r_nose_x',
-                 'l_o_cornerlip_y','r_o_cornerlip_y','l_o_cornerlip_x','r_o_cornerlip_x',
-                 'l_b_midlip_y','l_t_midlip_y','open_jaw']
-faps_df.columns = FAP_index
-valence_df = pval.get_valence_df(path,subjects,fix=True,class_mode='default')
+#faps_df = pfap.get_faps()
+#FAP_index = ['l_i_eyebrow_y','r_i_eyebrow_y','l_o_eyebrow_y','r_o_eyebrow_y',
+#                 'l_i_eyebrow_x','r_i_eyebrow_x','t_l_eyelid_y','t_r_eyelid_y',
+#                 'l_cheeck_y','r_cheeck_y','l_nose_x','r_nose_x',
+#                 'l_o_cornerlip_y','r_o_cornerlip_y','l_o_cornerlip_x','r_o_cornerlip_x',
+#                 'l_b_midlip_y','l_t_midlip_y','open_jaw']
+#faps_df.columns = FAP_index
+#valence_df = pval.get_valence_df(path,subjects,fix=True,class_mode='default')
 
 #%%
 # save to pickle
-utils.save_object(faps_df,'fap.pkl')
-utils.save_object(valence_df,'valence.pkl')
+#utils.save_object(faps_df,'fap.pkl')
+#utils.save_object(valence_df,'valence.pkl')
 
 #%% in case we already save pickle load it from there
 faps_df = utils.load_object('fap.pkl')
 valence_df = utils.load_object('valence.pkl')
 
+#%% smooth curve
+faps_smoothed_df = pd.DataFrame()
+for smp in range(1,faps_df.index.max()+1):
+    tmp_np = faps_df.loc[smp].values   
+    tmp_np = pfap.savgol_filter(tmp_np)
+    tmp_df = pd.DataFrame(tmp_np,index=[smp for i in range(tmp_np.shape[0])])
+    faps_smoothed_df = faps_smoothed_df.append(tmp_df)
+
 #%% Normalize scaler
-scaler = StandardScaler(with_std=False)
-scaler.fit(faps_df)
-faps_scaled = scaler.transform(faps_df) 
+scaler = StandardScaler()
+scaler.fit(faps_smoothed_df)
+faps_scaled = scaler.transform(faps_smoothed_df)
+
+#%% generate fap adjusted df 
 FAP_index = ['l_i_eyebrow_y','r_i_eyebrow_y','l_o_eyebrow_y','r_o_eyebrow_y',
                  'l_i_eyebrow_x','r_i_eyebrow_x','t_l_eyelid_y','t_r_eyelid_y',
                  'l_cheeck_y','r_cheeck_y','l_nose_x','r_nose_x',
                  'l_o_cornerlip_y','r_o_cornerlip_y','l_o_cornerlip_x','r_o_cornerlip_x',
                  'l_b_midlip_y','l_t_midlip_y','open_jaw']
-faps_scaled_df = pd.DataFrame(faps_scaled,columns=FAP_index,index=faps_df.index)
+faps_adjusted_df = pd.DataFrame(faps_scaled,columns=FAP_index,index=faps_df.index)
 
 
 #%%
 # plot all test subject
-fig = faps_scaled_df.loc[1].reset_index(drop=True).iplot(kind='scatter',mode='lines',
+fig = faps_adjusted_df.loc[90].reset_index(drop=True).iplot(kind='scatter',mode='lines',
                                  title='FAPS',
                                  xTitle='frame', yTitle= 'FAP changes',
                                  asFigure=True)
@@ -72,6 +89,7 @@ plotly.offline.plot(fig)
 #pio.write_html(fig,'fap_plot/1_1.html')
 
 #%% plot mulitple subplots to save in one html file
+paths = []
 for sbj in subjects:
     traces = []
     # [0,70,140,...]
@@ -81,7 +99,7 @@ for sbj in subjects:
     count=1
     for smp in range(start_idx,stop_idx):
         title = 'sample: '+str(smp)
-        fig = faps_scaled_df.loc[smp].reset_index(drop=True).iplot(kind='scatter',mode='lines',
+        fig = faps_adjusted_df.loc[smp].reset_index(drop=True).iplot(kind='scatter',mode='lines',
                                  title=title,
                                  xTitle='sequence', yTitle= 'FAP',
                                  asFigure=True)
@@ -90,8 +108,11 @@ for sbj in subjects:
         pio.write_image(fig,'fap_plot/'+filename)
         count+=1
     utils.merge_pdf('fap_plot/all_sbj_'+str(sbj),'fap_plot/sbj_'+str(sbj)+'*.pdf')
-    paths = glob.glob('fap_plot/sbj_'+str(sbj)+'*.pdf')    
-    # remove all variable and then run this
+    
+#%%
+# remove all variable and then run this to clear unwanted pdf files
+for sbj in subjects:
+    paths = glob.glob('fap_plot/sbj_'+str(sbj)+'*.pdf') 
     for elem in paths:
         os.remove(elem)
     

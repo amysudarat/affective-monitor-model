@@ -5,6 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import scipy.signal
 import preprocessing.pre_utils as pu
+import preprocessing.fap as pfap
 import utils
 
 #import warnings
@@ -90,6 +91,9 @@ def select_and_clean(samples,norm=True,miss_percent=None,miss_threshold=0.4,sd_d
                 pd_np[i,:] = pd_np[i,:] + (df_mean-pd_np[i,0])
             subject_df = pd.DataFrame(pd_np)            
             subject_df['ori_idx'] = ori_idx_row_col.reset_index(drop=True)
+        
+        if smooth:
+            pass
         
         if fix_depth is not None:
             ori_idx_list = subject_df['ori_idx'].tolist()

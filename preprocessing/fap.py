@@ -26,6 +26,16 @@ def get_faps(pickle_file="data_1_50_fixPD_Label_False.pkl"):
     return faps_df    
 
 
+def savgol_filter(fap_signal,window=15,polyorder=2):
+    """
+        expect 2D array of faps shape (100,19)
+    """
+    output = []
+    for i in range(fap_signal.shape[1]):
+        output.append(scipy.signal.savgol_filter(fap_signal[:,i],window,polyorder))   
+    return np.array(output).transpose()
+
+
 def median_filter(fap_signal,window=11):
     """ input should be numpy array and it will return numpy array """
     output = []
