@@ -29,7 +29,7 @@ def generate_features_df(samples):
     return samples
 
 
-def select_and_clean(samples,norm=True,miss_percent=None,miss_threshold=0.4,sd_detect_remove=True,align=True,fix_depth=None,fix_illum=None,alpha=0.03):
+def select_and_clean(samples,norm=True,miss_percent=None,miss_threshold=0.4,sd_detect_remove=True,smooth=False,align=True,fix_depth=None,fix_illum=None,alpha=0.03):
     """
         filter and transform samples based on the method parameter set, 
         return dataframe of output signals
@@ -93,7 +93,12 @@ def select_and_clean(samples,norm=True,miss_percent=None,miss_threshold=0.4,sd_d
             subject_df['ori_idx'] = ori_idx_row_col.reset_index(drop=True)
         
         if smooth:
-            pass
+            ori_idx_list = subject_df['ori_idx'].tolist()
+            pd_np = subject_df.drop('ori_idx',axis=1).values.transpose()
+            pd_np = pfap.savgol_filter(pd_np,window=5,polyorder=3).transpose()
+            tmp_df = pd.DataFrame(pd_np)
+            tmp_df['ori_idx'] = subject_df['ori_idx']
+            subject_df = tmp_df 
         
         if fix_depth is not None:
             ori_idx_list = subject_df['ori_idx'].tolist()

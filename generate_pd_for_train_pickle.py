@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import preprocessing.pd as ppd
-import preprocessing.fap as pfap
 import utils
 import pandas as pd
 from preprocessing.iaps import iaps
@@ -94,10 +93,6 @@ selected_samples = ppd.select_and_clean(pd_signals,norm=True,
 #                                               arousal_col=True)
 #else:
 #    final_samples = selected_samples
-
-#%% apply smooth filter
-pd_smoothed_df = selected_samples.drop(columns=['ori_idx']).values
-
     
 #%%
 # slice to get area of interest
