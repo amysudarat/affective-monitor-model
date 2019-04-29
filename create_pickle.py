@@ -36,8 +36,8 @@ face_dataset = AffectiveMonitorDataset("C:\\Users\\DSPLab\\Research\\ExperimentD
 utils.save_object(face_dataset, "data_1_51.pkl")
 
 #%% arousal pickle
-path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
-#path = "E:\\Research\\ExperimentData"
+#path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
+path = "E:\\Research\\ExperimentData"
 n = 51
 subjects = [i for i in range(1,n+1)]
 arousals = paro.get_arousal_df(path,subjects,source='iaps',fix=True,class_mode='two')
@@ -51,14 +51,14 @@ path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
 n = 51
 subjects = [i for i in range(1,n+1)]
 
-valence = pval.get_valence_df(path,subjects,source='iaps',fix=True,class_mode='default')
+valence = pval.get_valence_df(path,subjects,source='iaps',fix=True,class_mode='three')
 
 # save to pickle file
 utils.save_object(arousals, "valence.pkl")
 
 #%% Depth
-path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
-#path = "E:\\Research\\ExperimentData"
+#path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
+path = "E:\\Research\\ExperimentData"
 n = 51
 subjects = [i for i in range(1,n+1)]
 
@@ -84,8 +84,8 @@ depth_mean_df['min'] = min_depth_df
 utils.save_object(depth_mean_df,'depth_mean.pkl')
 
 #%% Illuminance
-path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
-#path = "E:\\Research\\ExperimentData"
+#path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
+path = "E:\\Research\\ExperimentData"
 n = 51
 subjects = [i for i in range(1,n+1)]
 
@@ -102,12 +102,21 @@ illum_df = illum_df.drop(columns=subjects)
 illum_df.columns = subjects
 illum_mean = []
 
+# prepare illum recorded data
+#filepath = r"C:\Users\DSPLab\Research\affective-monitor-model\preprocessing\lux_record_manual.csv"
+filepath = r"E:\Research\affective-monitor-model\preprocessing\lux_record_manual.csv"
+ill_lux_manual_list = pill.get_illum_lux_manual(filepath).values.reshape(-1).tolist()
+ill_rec_col = []
+for i in range(len(subjects)):
+    ill_rec_col = ill_rec_col+ill_lux_manual_list
+
 for col in range(1,len(illum_df.columns)+1):
     for row in range(1,illum_df.index.max()+1):
         illum_mean.append(illum_df.loc[row][col].values.tolist()[0])
 illum_mean_df = pd.DataFrame(illum_mean)
 illum_mean_df.columns = ['mean_per_frame']
 illum_mean_df['mean_per_subject'] = illum_mean_subject_list
+illum_mean_df['illum_rec'] = ill_rec_col
 
 # save depth mean to pickle
 utils.save_object(illum_mean_df,'illum_mean.pkl')

@@ -28,6 +28,8 @@ pd_signals = ppd.get_pds(pickle_file='data_1_51.pkl')
 illum_mean_df = utils.load_object('illum_mean.pkl')
 depth_mean_df = utils.load_object('depth_mean.pkl')
 
+
+
 ##%% visualize illum and depth mean
 #fig = depth_mean_df.reset_index(drop=True).iplot(kind='scatter',mode='lines',
 #                                 title='depth_mean_df',
@@ -72,8 +74,31 @@ selected_samples = ppd.select_and_clean(pd_signals,norm=True,
                                         smooth=False,
                                         fix_depth=depth_mean_df,
                                         fix_illum=None,
+                                        fix_illum_alt=illum_mean_df,
                                         align=True,
-                                        alpha=0.08)
+                                        alpha=0.08,
+                                        beta=-3)
+
+# slice to get area of interest
+final_samples = selected_samples
+samples_aoi = ppd.get_aoi_df(final_samples,start=20,stop=40)
+
+# find stat of aoi signals
+samples = ppd.generate_features_df(samples_aoi)
+print('Total amount of samples: '+str(samples.shape))
+
+# save to pickle
+utils.save_object(samples,'pd_for_train.pkl')
+#%% visualize pd depth adjusted
+plot_df = samples_aoi.copy()
+plot_df = plot_df.loc[51].reset_index(drop=True).drop('ori_idx',axis=1).transpose()
+fig = plot_df.reset_index(drop=True).iplot(kind='scatter',mode='lines',
+                                 title='illum_adjust',
+                                 xTitle='sample', yTitle= 'pd (normalized scale)',
+                                 asFigure=True)
+plotly.offline.plot(fig)
+
+
 
 #%%
 ## set that seems work: n=10, mu=0.00000085
@@ -93,26 +118,3 @@ selected_samples = ppd.select_and_clean(pd_signals,norm=True,
 #                                               arousal_col=True)
 #else:
 #    final_samples = selected_samples
-    
-#%%
-# slice to get area of interest
-final_samples = selected_samples
-samples_aoi = ppd.get_aoi_df(final_samples,start=0,stop=100)
-#%% visualize pd depth adjusted
-plot_df = samples_aoi.copy()
-plot_df = plot_df.loc[51].reset_index(drop=True).drop('ori_idx',axis=1).transpose()
-fig = plot_df.reset_index(drop=True).iplot(kind='scatter',mode='lines',
-                                 title='illum_adjust',
-                                 xTitle='sample', yTitle= 'pd (normalized scale)',
-                                 asFigure=True)
-plotly.offline.plot(fig)
-
-
-#%%
-# find stat of aoi signals
-samples = ppd.generate_features_df(samples_aoi)
-print('Total amount of samples: '+str(samples.shape))
-#%%
-# save to pickle
-utils.save_object(samples,'pd_for_train.pkl')
-#%%

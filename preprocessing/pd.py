@@ -29,7 +29,7 @@ def generate_features_df(samples):
     return samples
 
 
-def select_and_clean(samples,norm=True,miss_percent=None,miss_threshold=0.4,sd_detect_remove=True,smooth=False,align=True,fix_depth=None,fix_illum=None,alpha=0.03):
+def select_and_clean(samples,norm=True,miss_percent=None,miss_threshold=0.4,sd_detect_remove=True,smooth=False,align=True,fix_depth=None,fix_illum=None,fix_illum_alt=None,alpha=0.03,beta=-5):
     """
         filter and transform samples based on the method parameter set, 
         return dataframe of output signals
@@ -118,6 +118,16 @@ def select_and_clean(samples,norm=True,miss_percent=None,miss_threshold=0.4,sd_d
             pd_np = subject_df.drop('ori_idx',axis=1).values
             for row in range(pd_np.shape[0]):
                 pd_np[row] = pd_np[row]+ (alpha*(illum_mean[row]-illum_sbj_mean))
+            tmp_df = pd.DataFrame(pd_np)
+            tmp_df['ori_idx'] = subject_df['ori_idx']
+            subject_df = tmp_df
+        
+        if fix_illum_alt is not None:
+            ori_idx_list = subject_df['ori_idx'].tolist()
+            illum_rec = fix_illum_alt[fix_illum_alt.index.isin(ori_idx_list)]['illum_rec'].values
+            pd_np = subject_df.drop('ori_idx',axis=1).values
+            for row in range(pd_np.shape[0]):
+                pd_np[row] = pd_np[row]+ (beta/max(illum_rec))*illum_rec[row]
             tmp_df = pd.DataFrame(pd_np)
             tmp_df['ori_idx'] = subject_df['ori_idx']
             subject_df = tmp_df

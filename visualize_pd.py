@@ -30,13 +30,13 @@ data_df['arousal'] = match_arousal_list
 #%% box plot of mean grouped by arousal
 fig = data_df.reset_index(drop=True).pivot(columns='arousal', values='mean').iplot(
         kind='box',
-        title='mean with subject rating and without remove PLR',
+        title='illum alter and depth adjustment with beta=-3 , label=iaps',
         yTitle='mean',
         xTitle='label',
         asFigure=True)
 
 plotly.offline.plot(fig)
-pio.write_image(fig,'fap_plot/test.pdf')
+#pio.write_image(fig,'fap_plot/test.pdf')
 #%%
 # box plot of mean grouped by median
 fig = data_df.reset_index(drop=True).pivot(columns='arousal', values='median').iplot(
