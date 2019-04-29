@@ -3,6 +3,20 @@ import os
 import pandas as pd
 import numpy as np
 
+#%% get illum recorded by LUX meter
+def get_illum_lux(filepath):
+    illum_lux_df = pd.read_csv(filepath,sep="\t",skiprows=1,header=None)
+    # only select column 1 and 2
+    illum_lux_df = illum_lux_df.iloc[:,2]
+    illum_lux_df.columns = ['illum_lux']
+    return illum_lux_df
+
+def get_illum_lux_manual(filepath):
+    illum_lux_df = pd.read_csv(filepath,header=None)
+    illum_lux_df.columns = ['illum_lux']
+    return illum_lux_df
+
+
 #%%
 def get_illum_df(path,subjects):    
     # Loop through each Testsubject folder

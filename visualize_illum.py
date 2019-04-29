@@ -21,8 +21,8 @@ init_notebook_mode(connected=True)
 """
 Read CSV file and convert it FAC unit
 """
-#path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
-path = "E:\\Research\\ExperimentData"
+path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
+#path = "E:\\Research\\ExperimentData"
 n = 50
 subjects = [i for i in range(1,n+1)]
 #%%

@@ -50,7 +50,7 @@ def select_and_clean(samples,norm=True,miss_percent=None,miss_threshold=0.4,sd_d
         shift the starting of the sample to the overall mean of each test subject
     """
     output_df = pd.DataFrame()
-    for subject_idx in range(1,51):
+    for subject_idx in range(1,52):
         # [0,70,140,...]
         start_idx = ((subject_idx*70)-70)
         # [70,140,210,...]
@@ -106,17 +106,18 @@ def select_and_clean(samples,norm=True,miss_percent=None,miss_threshold=0.4,sd_d
             depth_min = fix_depth[fix_depth.index.isin(ori_idx_list)]['min'].values
             pd_np = subject_df.drop('ori_idx',axis=1).values
             for row in range(pd_np.shape[0]):
-                pd_np[row] = pd_np[row]+(depth_mean[row]/depth_min[row])
+                pd_np[row] = pd_np[row]+2*(depth_mean[row]/depth_min[row])
             tmp_df = pd.DataFrame(pd_np)
             tmp_df['ori_idx'] = subject_df['ori_idx']
             subject_df = tmp_df
                         
         if fix_illum is not None:
             ori_idx_list = subject_df['ori_idx'].tolist()
-            illum_mean = fix_illum[fix_illum.index.isin(ori_idx_list)]['mean_per_frame'].values            
+            illum_mean = fix_illum[fix_illum.index.isin(ori_idx_list)]['mean_per_frame'].values
+            illum_sbj_mean = fix_illum[fix_illum.index.isin(ori_idx_list)]['mean_per_subject'].values.tolist()[0]            
             pd_np = subject_df.drop('ori_idx',axis=1).values
             for row in range(pd_np.shape[0]):
-                pd_np[row] = pd_np[row]+ (alpha*illum_mean[row])
+                pd_np[row] = pd_np[row]+ (alpha*(illum_mean[row]-illum_sbj_mean))
             tmp_df = pd.DataFrame(pd_np)
             tmp_df['ori_idx'] = subject_df['ori_idx']
             subject_df = tmp_df

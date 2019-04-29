@@ -11,7 +11,7 @@ import preprocessing.pre_utils as pu
 import utils
 
 #%% face_dataset pickle
-n = 50
+n = 51
 subjects = [i for i in range(1,n+1)]
 
 ##############--------- Generate face_dataset getting raw PD ----------##########
@@ -22,7 +22,7 @@ subjects = [i for i in range(1,n+1)]
 face_dataset = AffectiveMonitorDataset("C:\\Users\\DSPLab\\Research\\ExperimentData",
                                        subjects=subjects,
                                        fix_PD=False,
-                                       convert_label=True)
+                                       convert_label=False)
     
 #face_dataset = AffectiveMonitorDataset("E:\\Research\\ExperimentData",
 #                                           subjects=subjects,
@@ -33,22 +33,22 @@ face_dataset = AffectiveMonitorDataset("C:\\Users\\DSPLab\\Research\\ExperimentD
 #face_df = face_dataset.face_df
 
 # save to pickle file
-utils.save_object(face_dataset, "data_1_50_fixPD_False.pkl")
+utils.save_object(face_dataset, "data_1_51.pkl")
 
 #%% arousal pickle
-#path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
-path = "E:\\Research\\ExperimentData"
-n = 50
+path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
+#path = "E:\\Research\\ExperimentData"
+n = 51
 subjects = [i for i in range(1,n+1)]
-arousals = paro.get_arousal_df(path,subjects,source='iaps',fix=True,class_mode='default')
+arousals = paro.get_arousal_df(path,subjects,source='iaps',fix=True,class_mode='two')
 
 # save to pickle file
 utils.save_object(arousals, "arousal.pkl")
 
 #%% valence pickle
-#path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
-path = "E:\\Research\\ExperimentData"
-n = 50
+path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
+#path = "E:\\Research\\ExperimentData"
+n = 51
 subjects = [i for i in range(1,n+1)]
 
 valence = pval.get_valence_df(path,subjects,source='iaps',fix=True,class_mode='default')
@@ -57,9 +57,9 @@ valence = pval.get_valence_df(path,subjects,source='iaps',fix=True,class_mode='d
 utils.save_object(arousals, "valence.pkl")
 
 #%% Depth
-#path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
-path = "E:\\Research\\ExperimentData"
-n = 50
+path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
+#path = "E:\\Research\\ExperimentData"
+n = 51
 subjects = [i for i in range(1,n+1)]
 
 depth_df = pdep.get_depth_df(path,subjects)
@@ -84,9 +84,9 @@ depth_mean_df['min'] = min_depth_df
 utils.save_object(depth_mean_df,'depth_mean.pkl')
 
 #%% Illuminance
-#path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
-path = "E:\\Research\\ExperimentData"
-n = 50
+path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
+#path = "E:\\Research\\ExperimentData"
+n = 51
 subjects = [i for i in range(1,n+1)]
 
 illum_df = pill.get_illum_df(path,subjects)

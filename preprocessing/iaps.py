@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import pandas as pd
+import preprocessing.illum as pill
 
 class iaps(object):
     
@@ -29,4 +30,11 @@ class iaps(object):
         filepath = self.filepath+'\\IAPS_selectedList_Mild.csv'
         feel_df = pd.read_csv(filepath,index_col=0)
         return feel_df
+    
+    def get_report(self):
+        """
+            export csv report of IAPS info and illuminance recorded from lux meter
+        """
+        illum_lux_df = pill.get_illum_lux(self.filepath)
+        return
 

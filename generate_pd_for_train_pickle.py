@@ -24,7 +24,7 @@ init_notebook_mode(connected=True)
 
 #%%
 # get samples
-pd_signals = ppd.get_pds()
+pd_signals = ppd.get_pds(pickle_file='data_1_51.pkl')
 illum_mean_df = utils.load_object('illum_mean.pkl')
 depth_mean_df = utils.load_object('depth_mean.pkl')
 
@@ -45,7 +45,7 @@ depth_mean_df = utils.load_object('depth_mean.pkl')
 ##%% visualize the scale of change
 #
 #depth_adjust = depth_mean_df['mean_per_frame']/depth_mean_df['min']
-#alpha = 0.05
+#alpha = 0.1
 #illum_adjust = alpha*(illum_mean_df['mean_per_subject']-illum_mean_df['mean_per_frame'])
 #
 #fig = depth_adjust.reset_index(drop=True).iplot(kind='scatter',mode='lines',
@@ -69,11 +69,11 @@ selected_samples = ppd.select_and_clean(pd_signals,norm=True,
                                         miss_percent=missing_percentage,
                                         miss_threshold=0.25,
                                         sd_detect_remove=True,
-                                        smooth=True,
-                                        fix_depth=None,
-                                        fix_illum=illum_mean_df,
+                                        smooth=False,
+                                        fix_depth=depth_mean_df,
+                                        fix_illum=None,
                                         align=True,
-                                        alpha=0.03)
+                                        alpha=0.08)
 
 #%%
 ## set that seems work: n=10, mu=0.00000085
@@ -98,14 +98,15 @@ selected_samples = ppd.select_and_clean(pd_signals,norm=True,
 # slice to get area of interest
 final_samples = selected_samples
 samples_aoi = ppd.get_aoi_df(final_samples,start=0,stop=100)
-#%% visualize pd
+#%% visualize pd depth adjusted
 plot_df = samples_aoi.copy()
-plot_df = plot_df.loc[1].reset_index(drop=True).drop('ori_idx',axis=1).transpose()
+plot_df = plot_df.loc[51].reset_index(drop=True).drop('ori_idx',axis=1).transpose()
 fig = plot_df.reset_index(drop=True).iplot(kind='scatter',mode='lines',
-                                 title='depth_adjust',
-                                 xTitle='sample', yTitle= 'depth per frame / min depth per subject',
+                                 title='illum_adjust',
+                                 xTitle='sample', yTitle= 'pd (normalized scale)',
                                  asFigure=True)
 plotly.offline.plot(fig)
+
 
 #%%
 # find stat of aoi signals
