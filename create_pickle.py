@@ -40,7 +40,7 @@ utils.save_object(face_dataset, "data_1_51.pkl")
 path = "E:\\Research\\ExperimentData"
 n = 51
 subjects = [i for i in range(1,n+1)]
-arousals = paro.get_arousal_df(path,subjects,source='iaps',fix=True,class_mode='two')
+arousals = paro.get_arousal_df(path,subjects,source='iaps',fix=True,class_mode='three')
 
 # save to pickle file
 utils.save_object(arousals, "arousal.pkl")

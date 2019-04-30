@@ -28,8 +28,6 @@ pd_signals = ppd.get_pds(pickle_file='data_1_51.pkl')
 illum_mean_df = utils.load_object('illum_mean.pkl')
 depth_mean_df = utils.load_object('depth_mean.pkl')
 
-
-
 ##%% visualize illum and depth mean
 #fig = depth_mean_df.reset_index(drop=True).iplot(kind='scatter',mode='lines',
 #                                 title='depth_mean_df',

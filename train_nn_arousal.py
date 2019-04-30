@@ -4,6 +4,7 @@ import utils
 import torch
 import torch.nn as nn
 import numpy as np
+import preprocessing.pre_utils as pu
 #import pandas as pd
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
@@ -12,7 +13,19 @@ from skorch import NeuralNetClassifier
 from model.dummy_dataset_class import DummyDataset
 import matplotlib.pyplot as plt
 
-#import torch.nn.functional as F
+#%%
+# Standard plotly imports
+import plotly
+import plotly.io as pio
+import plotly.plotly as py
+import plotly.graph_objs as go
+from plotly.offline import iplot, init_notebook_mode
+import plotly.figure_factory as ff
+# Using plotly + cufflinks in offline mode
+import cufflinks
+cufflinks.go_offline(connected=True)
+init_notebook_mode(connected=True)
+
 #%%
 
 ###### --------- define net ------------###########
@@ -63,7 +76,7 @@ class simple_fnn(nn.Module):
 # Utility function to report best scores (found online)
 def report(results, n_top=3):
     for i in range(1, n_top + 1):
-        candidates = np.flatnonzero(results['rank_test_f1_micro'] == i)
+        candidates = np.flatnonzero(results['rank_test_accuracy'] == i)
         for candidate in candidates:
             print("Model with rank: {0}".format(i))
             print("Mean validation score: {0:.3f} (std: {1:.3f})".format(
@@ -74,29 +87,40 @@ def report(results, n_top=3):
 
 #%%
 ####### --------- train ---------------###########
+
+#%% get data
 data_df = utils.load_object('pd_for_train.pkl')
-data = utils.load_object('pd_for_train.pkl')
-label = data['arousal'].values.astype(np.int64)
+arousals = utils.load_object('arousal.pkl')
+
+match_arousal_list = pu.match_with_sample(arousals,data_df['ori_idx'])
+data_df = data_df.reset_index(drop=True)
+data_df = data_df.drop(columns=['ori_idx'])
+data_df['arousal'] = match_arousal_list
+            
+label = data_df['arousal'].values.astype(np.int64)
 #data = data.drop(columns=['arousal']).values.astype(np.float32)
-data = data[['mean','median','max','min','skew']].values.astype(np.float32)
+data = data_df[['mean','median','max','min','skew']].values.astype(np.float32)
 
 # split train test data
 X_train , X_test, y_train, y_test = train_test_split(data,label,test_size=0.2,random_state=42)
 
-# calculate percentage of classes
-portion, _ = np.histogram(label)
-portion = (portion/portion.sum())*100
 
-#%%
-# visualize label
-plt.hist(y_train)
-plt.hist(y_test)
+#%% visualize data
+fig = data_df['arousal'].iplot(
+        kind='histogram',
+        title='arousal class',
+        yTitle='% of samples in each class',
+        xTitle='label',
+        asFigure=True)
+
+plotly.offline.plot(fig)
+
 #%%
 
 # configure the model dimension
 input_dim = data.shape[1]
 hidden_dim = 20
-output_dim = 5
+output_dim = 3
 
 # Instantiate neural net
 # Definition : NeuralNetClassifier(module, criterion=torch.nn.NLLLoss, 
@@ -119,23 +143,23 @@ net = NeuralNetClassifier(
 
 #%%
 # randomize hyperparameter search
-lr = [0.005,0.0005,0.00005]
+lr = [0.01,0.05,0.07]
 params = {
     'optimizer__lr': lr,
-    'max_epochs':[50,75,100],
+    'max_epochs':[150,200,250],
 #    'module__num_units': [14,20,28,36,42],
 #    'module__drop' : [0,.1,.2,.3,.4]
 }
 # micro average should be preferred over macro in case of imbalanced datasets
 # now what metric to use to choose the best classifier from grid search
-gs = GridSearchCV(net,params,cv=2,scoring=['accuracy','f1_micro'],
+gs = GridSearchCV(net,params,cv=2,scoring=['f1_micro','accuracy'],
                   refit='f1_micro',return_train_score=True)
 
 # fit model using randomizer
 gs.fit(X_train,y_train);
 #%%
 # review top 10 results and parameters associated
-report(gs.cv_results_,5)
+utils.report(gs.cv_results_,5)
 
 # get training and validation loss
 epochs = [i for i in range(len(gs.best_estimator_.history))]
