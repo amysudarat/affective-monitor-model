@@ -70,12 +70,12 @@ selected_samples = ppd.select_and_clean(pd_signals,norm=True,
                                         miss_threshold=0.25,
                                         sd_detect_remove=True,
                                         smooth=False,
-                                        fix_depth=depth_mean_df,
+                                        fix_depth=None,
                                         fix_illum=None,
                                         fix_illum_alt=illum_mean_df,
                                         align=True,
                                         alpha=0.08,
-                                        beta=-3)
+                                        beta=2)
 
 # slice to get area of interest
 final_samples = selected_samples

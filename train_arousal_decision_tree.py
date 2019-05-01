@@ -7,16 +7,15 @@ import preprocessing.pre_utils as pu
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import confusion_matrix, roc_curve, auc
-from sklearn.svm import SVC
+from sklearn.tree import DecisionTreeClassifier, export_graphviz
 import matplotlib.pyplot as plt
-
 
 
 #%% get data
 data_df = utils.load_object('pd_for_train.pkl')
 arousals = utils.load_object('arousal.pkl')
 
-match_arousal_list = pu.match_with_sample(arousals['arousal'],data_df['ori_idx'])
+match_arousal_list = pu.match_with_sample(arousals,data_df['ori_idx'])
 data_df = data_df.reset_index(drop=True)
 data_df = data_df.drop(columns=['ori_idx'])
 data_df['arousal'] = match_arousal_list
@@ -28,21 +27,22 @@ data = data_df[['mean','median','max','min','skew']].values.astype(np.float32)
 # split train test data
 X_train , X_test, y_train, y_test = train_test_split(data,label,test_size=0.2,random_state=42)
 
-#%% Feature Scaling
-sc = StandardScaler()
-X_train = sc.fit_transform(X_train)
-X_test = sc.transform(X_test)
-
-
 #%% train indepentdently
-classifier = SVC(kernel='rbf',C=1,random_state=0)
+classifier = DecisionTreeClassifier(criterion='entropy',random_state=0)
 classifier.fit(X_train,y_train)
 y_pred = classifier.predict(X_test)
 print(confusion_matrix(y_test, y_pred))
+
+#%%
+import graphviz 
+dot_data = export_graphviz(classifier, out_file=None) 
+graph = graphviz.Source(dot_data) 
+graph.render("pdf/arousal_tree")
+
 #%% Grid Search
-classifier = SVC(random_state = 0)
+classifier = DecisionTreeClassifier(random_state = 0)
 # randomize hyperparameter search
-parameters = {'kernel':('linear', 'rbf','poly','sigmoid'),
+parameters = {'criterion':('entropy', 'rbf','poly','sigmoid'),
               'C':[1,3,5,7,10]}
 # micro average should be preferred over macro in case of imbalanced datasets
 # now what metric to use to choose the best classifier from grid search
@@ -77,3 +77,5 @@ plt.ylabel('True Positive Rate')
 plt.title('Receiver operating characteristic example')
 plt.legend(loc="lower right")
 plt.show()
+
+

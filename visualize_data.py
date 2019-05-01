@@ -3,6 +3,7 @@ import utils
 import numpy as np
 import preprocessing.illum as pill
 from preprocessing.iaps import iaps
+from sklearn.preprocessing import StandardScaler
 
 #%%
 # Standard plotly imports
@@ -52,7 +53,20 @@ report_df = iaps_df.drop(columns=['testsubject_idx','file_name'])
 report_df = report_df.set_index('pic_idx')
 report_df['illum_record'] = mean_pic
 report_df['illum_record_manually'] = ill_lux_manual_df['illum_lux']
-report_df.to_excel('report.xlsx')
+report_df['illum_from_gimp'] = ill_lux_manual_df['illum_gimp']
+report_df.to_excel('report_with_gimp.xlsx')
+
+#%% plot one subject
+import pandas as pd
+sc = StandardScaler()
+illum_scaled = sc.fit_transform(ill_lux_manual_df.values)
+illum_scaled_df = pd.DataFrame(illum_scaled)
+illum_scaled_df.columns = ['lux','gimp']
+fig = illum_scaled_df.reset_index(drop=True).iplot(kind='scatter',mode='lines',
+                                 title='recorded illum',
+                                 xTitle='picIndex', yTitle= 'illuminance (LUX)',
+                                 asFigure=True)
+plotly.offline.plot(fig)
 
 #%%
 #pickle_file = "data_1_50_toTensor.pkl"

@@ -106,7 +106,7 @@ def select_and_clean(samples,norm=True,miss_percent=None,miss_threshold=0.4,sd_d
             depth_min = fix_depth[fix_depth.index.isin(ori_idx_list)]['min'].values
             pd_np = subject_df.drop('ori_idx',axis=1).values
             for row in range(pd_np.shape[0]):
-                pd_np[row] = pd_np[row]+2*(depth_mean[row]/depth_min[row])
+                pd_np[row] = pd_np[row]+(depth_mean[row]/depth_min[row])
             tmp_df = pd.DataFrame(pd_np)
             tmp_df['ori_idx'] = subject_df['ori_idx']
             subject_df = tmp_df

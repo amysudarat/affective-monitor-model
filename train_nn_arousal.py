@@ -72,20 +72,6 @@ class simple_fnn(nn.Module):
 
 
 #%%
-####### ---------- utility function ------ #########
-# Utility function to report best scores (found online)
-def report(results, n_top=3):
-    for i in range(1, n_top + 1):
-        candidates = np.flatnonzero(results['rank_test_accuracy'] == i)
-        for candidate in candidates:
-            print("Model with rank: {0}".format(i))
-            print("Mean validation score: {0:.3f} (std: {1:.3f})".format(
-                  results['mean_test_accuracy'][candidate],
-                  results['std_test_accuracy'][candidate]))
-            print("Parameters: {0}".format(results['params'][candidate]))
-            print("")
-
-#%%
 ####### --------- train ---------------###########
 
 #%% get data
@@ -99,10 +85,16 @@ data_df['arousal'] = match_arousal_list
             
 label = data_df['arousal'].values.astype(np.int64)
 #data = data.drop(columns=['arousal']).values.astype(np.float32)
-data = data_df[['mean','median','max','min','skew']].values.astype(np.float32)
+data = data_df[['mean','max','min']].values.astype(np.float32)
 
 # split train test data
 X_train , X_test, y_train, y_test = train_test_split(data,label,test_size=0.2,random_state=42)
+
+
+#%% Feature Scaling
+sc = StandardScaler()
+X_train = sc.fit_transform(X_train)
+X_test = sc.transform(X_test)
 
 
 #%% visualize data
@@ -161,19 +153,6 @@ gs.fit(X_train,y_train);
 # review top 10 results and parameters associated
 utils.report(gs.cv_results_,5)
 
-# get training and validation loss
-epochs = [i for i in range(len(gs.best_estimator_.history))]
-train_loss = gs.best_estimator_.history[:,'train_loss']
-valid_loss = gs.best_estimator_.history[:,'valid_loss']
-# plot learning curve
-plt.figure()
-plt.plot(epochs,train_loss,'g-');
-plt.plot(epochs,valid_loss,'r-');
-plt.title('Training Loss Curves');
-plt.xlabel('Epochs');
-plt.ylabel('Mean Squared Error');
-plt.legend(['Train','Validation']);
-plt.show()
 #%%
 ## predict
 #y_pred_prob = net.predict_proba(X_test)

@@ -25,6 +25,9 @@ def report(results, n_top=3):
             print("Mean validation score: {0:.3f} (std: {1:.3f})".format(
                   results['mean_test_accuracy'][candidate],
                   results['std_test_accuracy'][candidate]))
+            print("F1 validation score: {0:.3f} (std: {1:.3f})".format(
+                  results['mean_test_f1_micro'][candidate],
+                  results['std_test_f1_micro'][candidate]))
             print("Parameters: {0}".format(results['params'][candidate]))
             print("")
 

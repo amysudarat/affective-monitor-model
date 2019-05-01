@@ -13,7 +13,7 @@ def get_illum_lux(filepath):
 
 def get_illum_lux_manual(filepath):
     illum_lux_df = pd.read_csv(filepath,header=None)
-    illum_lux_df.columns = ['illum_lux']
+    illum_lux_df.columns = ['illum_lux','illum_gimp']
     return illum_lux_df
 
 
