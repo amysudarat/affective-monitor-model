@@ -2,6 +2,7 @@
 import utils
 import numpy as np
 import preprocessing.illum as pill
+import preprocessing.arousal as paro
 from preprocessing.iaps import iaps
 from sklearn.preprocessing import StandardScaler
 
@@ -18,9 +19,11 @@ cufflinks.go_offline(connected=True)
 init_notebook_mode(connected=True)
 
 #%%
-filepath = r"C:\Users\DSPLab\Research\affective-monitor-model\preprocessing\illum_lux_meter_record.txt"
+filepath = r"E:\Research\affective-monitor-model\preprocessing\illum_lux_meter_record.txt"
+#filepath = r"C:\Users\DSPLab\Research\affective-monitor-model\preprocessing\illum_lux_meter_record.txt"
 illum_lux_df = pill.get_illum_lux(filepath)
-filepath = r"C:\Users\DSPLab\Research\affective-monitor-model\preprocessing\lux_record_manual.csv"
+filepath = r"E:\Research\affective-monitor-model\preprocessing\lux_record_manual.csv"
+#filepath = r"C:\Users\DSPLab\Research\affective-monitor-model\preprocessing\illum_lux_meter_record.txt"
 ill_lux_manual_df = pill.get_illum_lux_manual(filepath)
 
 #%% find mean of illum
@@ -37,7 +40,18 @@ for i in range(70):
     mean_pic.append(np.mean(illum_lux_np[:15]))
     mean_total.append(np.mean(illum_lux_np[:15]))
     illum_lux_np = illum_lux_np[15:]
-    
+
+#%% find std of average subject rating
+path = "E:\\Research\\ExperimentData"
+n = 51
+subjects = [i for i in range(1,n+1)]
+arousals_avg = paro.get_arousal_df(path,subjects,source='subject_avg',fix=False,class_mode='default')
+arousal_avg_col = arousals_avg.iloc[0:70].reset_index(drop=True)
+arousals_df = paro.get_arousal_df(path,subjects,source='subject',fix=False,class_mode='default')
+arousal_sbj_std = []
+for sbj in range(1,71):
+    arousal_sbj_std.append(round(arousals_df.loc[sbj].std().values.tolist()[0],2))
+
 
 #%% plot one subject
 fig = illum_lux_df.reset_index(drop=True).iplot(kind='scatter',mode='lines',
@@ -47,14 +61,17 @@ fig = illum_lux_df.reset_index(drop=True).iplot(kind='scatter',mode='lines',
 plotly.offline.plot(fig)
 
 #%%
-iaps_class = iaps(r"C:\Users\DSPLab\Research\affective-monitor-model\preprocessing")
+#iaps_class = iaps(r"C:\Users\DSPLab\Research\affective-monitor-model\preprocessing")
+iaps_class = iaps(r"E:\Research\affective-monitor-model\preprocessing")
 iaps_df = iaps_class.iaps_df
 report_df = iaps_df.drop(columns=['testsubject_idx','file_name'])
 report_df = report_df.set_index('pic_idx')
 report_df['illum_record'] = mean_pic
 report_df['illum_record_manually'] = ill_lux_manual_df['illum_lux']
 report_df['illum_from_gimp'] = ill_lux_manual_df['illum_gimp']
-report_df.to_excel('report_with_gimp.xlsx')
+report_df['arousal_sbj_rate_avg'] = arousal_avg_col
+report_df['arousal_sbj_rate_std'] = arousal_sbj_std
+report_df.to_excel('pd_report.xlsx')
 
 #%% plot one subject
 import pandas as pd

@@ -178,6 +178,23 @@ def get_pds(pickle_file="data_1_50_fixPD_Label_False.pkl"):
         array_samples.append(face_dataset[i]['PD_avg_filtered'])
     return array_samples
 
+def get_raw_pd_df(samples,subjects):   
+    output_df = pd.DataFrame()
+    for subject_idx in range(1,52):
+        # [0,70,140,...]
+        start_idx = ((subject_idx*70)-70)
+        # [70,140,210,...]
+        stop_idx = (subject_idx*70)        
+        # create dataframe per test subject
+        pd_df = samples[start_idx:stop_idx]
+        pd_df = np.array(pd_df)                
+        pd_df = pd.DataFrame(pd_df)
+        # prepare each sbj df and append to output df
+        pd_df['index'] = subject_idx
+        pd_df = pd_df.set_index('index')
+        output_df = output_df.append(pd_df)
+    return output_df
+
 def get_depths(pickle_file="data_1_50_fixPD_Label_False.pkl"):
     face_dataset = utils.load_object(pickle_file)
     array_samples = []

@@ -28,15 +28,9 @@ def get_arousal_df(path,subjects,source='iaps',fix=False,class_mode='default'):
     elif source == 'subject_avg':
         arousal_df = arousal_df.drop(columns=['iaps'])
         # find mean of arousal per picture
-        arousal_sbj_std = []
-        for i in range(1,len(subjects)+1):
-            arousal_sbj_std.append(round(arousal_df.loc[i].std().values.tolist()[0],2))
+        for i in range(1,71):            
             arousal_df.loc[i] = arousal_df.loc[i].mean().values.tolist()[0]            
-#        for i in range(1,len(subjects)):
-#            arousal_sbj_std = arousal_sbj_std+arousal_sbj_std
     arousal_df.columns = ['arousal']
-    if source == 'subject_avg':
-        arousal_df['sbj_std'] = arousal_sbj_std
     # function to apply to each row if fix is True
     def convert_to_label(SAM,class_mode):
         # the first argument is an dataframe so make sure we choose column

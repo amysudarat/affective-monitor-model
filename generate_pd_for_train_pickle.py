@@ -27,8 +27,16 @@ init_notebook_mode(connected=True)
 pd_signals = ppd.get_pds(pickle_file='data_1_51.pkl')
 illum_mean_df = utils.load_object('illum_mean.pkl')
 depth_mean_df = utils.load_object('depth_mean.pkl')
+subjects = [i for i in range(1,52)]
 
-##%% visualize illum and depth mean
+
+#%% prepare data for dr.b
+pd_df = ppd.get_raw_pd_df(pd_signals,subjects)
+dr_b_data_df = pd_df.loc[51]
+dr_b_data_df.reset_index(drop=True).to_csv('dr_b_pd_data.csv',index=False,header=False)
+
+
+#%% visualize illum and depth mean
 #fig = depth_mean_df.reset_index(drop=True).iplot(kind='scatter',mode='lines',
 #                                 title='depth_mean_df',
 #                                 xTitle='sample', yTitle= 'mean of depth per frame and min per subject',
