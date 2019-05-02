@@ -5,8 +5,28 @@ import scipy.signal
 import matplotlib.pyplot as plt
 import utils
 import pandas as pd
+from sklearn.preprocessing import StandardScaler
 
-def get_faps(pickle_file="data_1_50_fixPD_Label_False.pkl"):
+
+def faps_preprocessing(faps_df,smooth=True,filter_miss=None,scaler=True):
+    
+    if filter_miss is not None:
+        faps_df['miss_ratio'] = filter_miss
+        faps_df = faps_df[faps_df['miss_ratio'] <= 25]
+        faps_df = faps_df.drop('miss_ratio',axis=1)
+    
+    if smooth:
+        for i in range(faps_df.shape[0]):
+            faps = np.array(faps_df.iloc[i]['faps'])
+            faps = scipy.signal.savgol_filter(faps,window_length=15,polyorder=2,axis=1)   
+            faps_df.iloc[i]['faps'] = faps
+    
+    if scaler
+    
+    return faps_df
+
+
+def get_faps_df(pickle_file="data_1_50_fixPD_Label_False.pkl"):
     face_dataset = utils.load_object(pickle_file)
     array_samples = []
     for i in range(len(face_dataset)):
@@ -25,7 +45,28 @@ def get_faps(pickle_file="data_1_50_fixPD_Label_False.pkl"):
         faps_df = faps_df.append(tmp_df)   
     return faps_df    
 
+def get_faps_np_df(pickle_file='data_1_51.pkl'):
+    face_dataset = utils.load_object(pickle_file)
+    faps_df = pd.DataFrame(face_dataset[:]['faceFAP'])
+    faps_df.columns = ['faps']
+    faps_df['ori_idx'] = [i for i in range(len(face_dataset))]
+    faps_df['faps'] = faps_df['faps'].apply(lambda x: np.array(x))
+    return faps_df
 
+def get_missing_percentage(faps_df):
+    miss_list = []
+    faps_df = faps_df.drop(columns=['ori_idx'])
+    for smp_idx in range(faps_df.shape[0]):
+        faps_np = np.array(faps_df.iloc[smp_idx]['faps'])
+        tmp = np.diff(faps_np[:,0])
+        miss_sum = 0
+        for i in tmp:
+            if i == 0:
+                miss_sum+=1
+        miss_list.append((miss_sum/faps_np.shape[0])*100)
+    return miss_list
+        
+    
 def savgol_filter(fap_signal,window=15,polyorder=2):
     """
         expect 2D array of faps shape (100,19)
