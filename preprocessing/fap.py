@@ -5,10 +5,14 @@ import scipy.signal
 import matplotlib.pyplot as plt
 import utils
 import pandas as pd
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
 
-def faps_preprocessing(faps_df,smooth=True,filter_miss=None,scaler=True):
+def faps_preprocessing(faps_df,smooth=True,filter_miss=None,fix_scaler='standard'):
+    
+    # reserve test subject idx
+    sbj_idx = [j for j in range(1,52) for i in range(70) ]
+    faps_df['sbj_idx'] = sbj_idx
     
     if filter_miss is not None:
         faps_df['miss_ratio'] = filter_miss
@@ -18,11 +22,27 @@ def faps_preprocessing(faps_df,smooth=True,filter_miss=None,scaler=True):
     if smooth:
         for i in range(faps_df.shape[0]):
             faps = np.array(faps_df.iloc[i]['faps'])
+            #####################3----------------- fix smooth ------------------###########3
             faps = scipy.signal.savgol_filter(faps,window_length=15,polyorder=2,axis=1)   
             faps_df.iloc[i]['faps'] = faps
     
-    if scaler
-    
+    if fix_scaler:
+        output_df = pd.DataFrame()
+        for subject_idx in range(1,52):
+            faps_per_sbj = faps_df[faps_df['sbj_idx']==subject_idx]
+            faps_block = faps_per_sbj['faps'].values
+            a_to_fit = faps_block[0]
+            for i in range(1,faps_per_sbj.shape[0]):
+                a_to_fit = np.concatenate([a_to_fit,faps_block[i]])
+            if fix_scaler == 'minmax':
+                sc = MinMaxScaler()
+            else:
+                sc = StandardScaler()
+            sc.fit(a_to_fit)
+            tmp_df = faps_per_sbj.copy()
+            tmp_df['faps'] = faps_per_sbj['faps'].apply(lambda x:sc.transform(x))
+            output_df = output_df.append(tmp_df)
+        faps_df = output_df
     return faps_df
 
 

@@ -27,11 +27,12 @@ faps_np_df = pfap.get_faps_np_df(pickle_file='data_1_51.pkl')
 #%% find missing percentage
 missing_percentage_list = pfap.get_missing_percentage(faps_np_df)
 faps_filtered = pfap.faps_preprocessing(faps_np_df,
-                                        smooth=True,
-                                        filter_miss=missing_percentage_list)
+                                        smooth=False,
+                                        filter_miss=missing_percentage_list,
+                                        fix_scaler='standard')
 
 #%% check by visualize
-plot_df = pd.DataFrame(faps_filtered.iloc[0]['faps'])
+plot_df = pd.DataFrame(faps_filtered.iloc[4]['faps'])
 fig = plot_df.reset_index(drop=True).iplot(kind='scatter',mode='lines',
                                  title='FAPS',
                                  xTitle='frame', yTitle= 'FAP changes',
@@ -39,7 +40,7 @@ fig = plot_df.reset_index(drop=True).iplot(kind='scatter',mode='lines',
 plotly.offline.plot(fig)
 
 #%% cut area of interest
-faps_aoi = 
+#faps_aoi = 
 
 #%% save to pickle file
 utils.save_object(samples,'faps_for_train.pkl')

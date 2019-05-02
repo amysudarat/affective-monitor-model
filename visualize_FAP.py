@@ -35,7 +35,7 @@ feel_df = iaps_class.get_feeling('happy')
 #%%
 #path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
 path = "E:\\Research\\ExperimentData"
-n = 4
+n = 1
 subjects = [i for i in range(1,n+1)]
 
 #%% get data
@@ -81,7 +81,7 @@ faps_adjusted_df = pd.DataFrame(faps_scaled,columns=FAP_index,index=faps_df.inde
 
 #%%
 # plot all test subject
-fig = faps_adjusted_df.loc[90].reset_index(drop=True).iplot(kind='scatter',mode='lines',
+fig = faps_adjusted_df.loc[3].reset_index(drop=True).iplot(kind='scatter',mode='lines',
                                  title='FAPS',
                                  xTitle='frame', yTitle= 'FAP changes',
                                  asFigure=True)
