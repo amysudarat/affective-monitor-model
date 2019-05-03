@@ -18,9 +18,11 @@ cufflinks.go_offline(connected=True)
 init_notebook_mode(connected=True)
 
 #%%
-##iaps_class = iaps(r"C:\Users\DSPLab\Research\affective-monitor-model\preprocessing\IAPSinfoFile_Final.txt")
+#iaps_class = iaps(r"C:\Users\DSPLab\Research\affective-monitor-model\preprocessing")
 #iaps_class = iaps(r"E:\Research\affective-monitor-model\preprocessing\IAPSinfoFile_Final.txt")
 #sample_list_from_pic_id = iaps_class.get_sample_idx(2141)
+
+#id_list = [iaps_class.get_pic_id(i) for i in idx_list]
 
 #%%
 # get samples
@@ -31,10 +33,23 @@ subjects = [i for i in range(1,52)]
 
 
 #%% prepare data for dr.b
-pd_df = ppd.get_raw_pd_df(pd_signals,subjects)
-dr_b_data_df = pd_df.loc[51]
-dr_b_data_df.reset_index(drop=True).to_csv('dr_b_pd_data.csv',index=False,header=False)
+#pd_df = ppd.get_raw_pd_df(pd_signals,subjects)
+#dr_b_data_df = pd_df.loc[51]
+#dr_b_data_df.reset_index(drop=True).to_csv('dr_b_pd_data.csv',index=False,header=False)
 
+
+#%% identify artifact
+pd_df = ppd.get_raw_pd_df(pd_signals,subjects)
+pd_df = ppd.identify_artifact(pd_df,16)
+
+ppd.pd_plot_pause(pd_df,2)
+
+# visualize pd
+fig = pd_df.loc[1].reset_index(drop=True).transpose().iplot(kind='scatter',mode='lines',
+                                 title='pd_df',
+                                 xTitle='frame', yTitle= 'pd',
+                                 asFigure=True)
+plotly.offline.plot(fig)
 
 #%% visualize illum and depth mean
 #fig = depth_mean_df.reset_index(drop=True).iplot(kind='scatter',mode='lines',
@@ -71,6 +86,12 @@ dr_b_data_df.reset_index(drop=True).to_csv('dr_b_pd_data.csv',index=False,header
 #%%
 # remove glitch
 pd_signals, _ = ppd.remove_glitch(pd_signals,threshold=0.2)
+
+#%% prepare data for dr.b
+pd_df = ppd.get_raw_pd_df(pd_signals,subjects)
+dr_b_data_df = pd_df.loc[51]
+dr_b_data_df.reset_index(drop=True).to_csv('dr_b_pd_data_after_remove_glitch.csv',index=False,header=False)
+#%%
 # find missing percentage list
 missing_percentage = ppd.get_missing_percentage(pd_signals)
 selected_samples = ppd.select_and_clean(pd_signals,norm=True,
@@ -80,11 +101,16 @@ selected_samples = ppd.select_and_clean(pd_signals,norm=True,
                                         smooth=False,
                                         fix_depth=None,
                                         fix_illum=None,
-                                        fix_illum_alt=illum_mean_df,
+                                        fix_illum_alt=None,
                                         align=True,
                                         alpha=0.08,
                                         beta=2)
 
+#%% prepare data for dr b
+dr_b_data_df = selected_samples.drop('ori_idx',axis=1).loc[51]
+dr_b_data_df.reset_index(drop=True).to_csv('dr_b_pd_data_after_norm_remove_corrupted_samples.csv',index=False,header=False)
+
+#%%
 # slice to get area of interest
 final_samples = selected_samples
 samples_aoi = ppd.get_aoi_df(final_samples,start=20,stop=40)

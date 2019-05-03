@@ -29,6 +29,40 @@ def generate_features_df(samples):
     return samples
 
 
+def pd_plot_pause(pd_df,sbj):
+    pd_np = pd_df.loc[sbj].values
+    plt.figure()
+    for i in range(pd_np.shape[0]):        
+        plt.clf()
+        plt.plot(pd_np[i])
+        plt.title(str(i))
+        plt.show()
+        plt.waitforbuttonpress()
+    return
+
+def identify_artifact(pd_df,n):
+    pd_np = pd_df.values
+    for row in range(pd_np.shape[0]):
+        signal = pd_np[row]
+        di = []        
+        # calculate dilation speed
+        for i in range(1,signal.shape[0]-1):
+            di.append(max(np.abs(signal[i]-signal[i-1]),np.abs(signal[i+1]-signal[i])))
+        # calculate MAD
+        di_med = np.median(di)
+        MAD = np.median(np.abs([i-di_med for i in di]))
+        # calculate threshold
+        threshold = np.median(di) + (n*MAD)
+        
+        # sample of di that is above the threshold is invalid
+        for i,elem in enumerate(di):
+            if elem > threshold:
+                signal[i] = np.nan
+        pd_np[row] = signal
+    output_df = pd.DataFrame(pd_np,index=pd_df.index,columns=pd_df.columns)    
+    return output_df
+
+
 def select_and_clean(samples,norm=True,miss_percent=None,miss_threshold=0.4,sd_detect_remove=True,smooth=False,align=True,fix_depth=None,fix_illum=None,fix_illum_alt=None,alpha=0.03,beta=-5):
     """
         filter and transform samples based on the method parameter set, 
