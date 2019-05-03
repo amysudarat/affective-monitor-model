@@ -42,8 +42,8 @@ subjects = [i for i in range(1,52)]
 pd_df = ppd.get_raw_pd_df(pd_signals,subjects)
 #pd_df = ppd.identify_artifact(pd_df,16)
 
-ppd.pd_plot_pause(pd_df,5,ylim=[1,4])
-
+ppd.pd_plot_pause(pd_df,9,ylim=[2.5,5])
+#%%
 # visualize pd
 fig = pd_df.loc[1].reset_index(drop=True).transpose().iplot(kind='scatter',mode='lines',
                                  title='pd_df',
