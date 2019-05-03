@@ -40,9 +40,9 @@ subjects = [i for i in range(1,52)]
 
 #%% identify artifact
 pd_df = ppd.get_raw_pd_df(pd_signals,subjects)
-pd_df = ppd.identify_artifact(pd_df,16)
+#pd_df = ppd.identify_artifact(pd_df,16)
 
-ppd.pd_plot_pause(pd_df,2)
+ppd.pd_plot_pause(pd_df,5,ylim=[1,4])
 
 # visualize pd
 fig = pd_df.loc[1].reset_index(drop=True).transpose().iplot(kind='scatter',mode='lines',

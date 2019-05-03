@@ -29,15 +29,21 @@ def generate_features_df(samples):
     return samples
 
 
-def pd_plot_pause(pd_df,sbj):
+def pd_plot_pause(pd_df,sbj,r=40,ylim=[1,4]):
     pd_np = pd_df.loc[sbj].values
-    plt.figure()
-    for i in range(pd_np.shape[0]):        
-        plt.clf()
+    pd_np = pd_np[:,:r]
+    
+    for i in range(pd_np.shape[0]): 
+        m = np.argmin(pd_np[i][5:21])
+        m = m+5
+        plt.figure()
+        plt.ylim(ylim[0],ylim[1])
         plt.plot(pd_np[i])
-        plt.title(str(i))
+        plt.plot(m,pd_np[i,m],'ro')
+        plt.title(str(i+1))
         plt.show()
         plt.waitforbuttonpress()
+        plt.close()
     return
 
 def identify_artifact(pd_df,n):
