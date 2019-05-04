@@ -5,17 +5,6 @@ import pandas as pd
 from preprocessing.iaps import iaps
 import preprocessing.illum as pill
 import preprocessing.depth as pdep
-#%%
-# Standard plotly imports
-import plotly
-import plotly.plotly as py
-import plotly.graph_objs as go
-from plotly.offline import iplot, init_notebook_mode
-import plotly.figure_factory as ff
-# Using plotly + cufflinks in offline mode
-import cufflinks
-cufflinks.go_offline(connected=True)
-init_notebook_mode(connected=True)
 
 
 #%% get samples
@@ -25,17 +14,32 @@ depth_mean_df = utils.load_object('depth_mean.pkl')
 subjects = [i for i in range(1,52)]
 pd_df = ppd.get_raw_pd_df(pd_signals,subjects)
 #%%
-ppd.pd_plot_pause(pd_df,51,ylim=[1,4])
+#ppd.pd_plot_pause(pd_df,51,ylim=[1,4])
          
 #%% identify PQR
 pd_filt_df = ppd.preprocessing_pd(pd_df,
                              aoi=40,
-                             loc_artf='diff',
+                             loc_artf='mad_filter',
                              diff_threshold=0.1,
-                             n_mad=5)
+                             n_mad=5,
+                             interpolate=True,
+                             miss_threshold=0.3,
+                             norm=False)
 
 #%% plot slide show
-ppd.pd_plot_pause(pd_filt_df,51,ylim=[1,4])
+ppd.pd_plot_pause(pd_filt_df,10,ylim=[2,5])
+
+#%%
+# Standard plotly imports
+#import plotly
+#import plotly.plotly as py
+#import plotly.graph_objs as go
+#from plotly.offline import iplot, init_notebook_mode
+#import plotly.figure_factory as ff
+## Using plotly + cufflinks in offline mode
+#import cufflinks
+#cufflinks.go_offline(connected=True)
+#init_notebook_mode(connected=True)
 
 #%%
 # visualize pd

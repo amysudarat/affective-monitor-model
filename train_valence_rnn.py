@@ -111,11 +111,10 @@ net = NeuralNetClassifier(
 
 #%%
 # randomize hyperparameter search
-lr = [0.001,0.01]
 params = {
-    'optimizer__lr': lr,
-    'max_epochs':[5,10],
-    'module_hidden_dim': [20,50]
+    'optimizer__lr': [0.01,0.1],
+    'max_epochs':[30,100],
+    'module_hidden_dim': [10,20]
 }
 
 # micro average should be preferred over macro in case of imbalanced datasets

@@ -5,13 +5,14 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import scipy.signal
 import preprocessing.pre_utils as pu
+from sklearn.preprocessing import MinMaxScaler
 import preprocessing.fap as pfap
 import utils
 
 #import warnings
 #warnings.filterwarnings("error")
 
-def preprocessing_pd(pd_df,aoi=40,loc_artf='diff',n_mad=16,diff_threshold=0.2):
+def preprocessing_pd(pd_df,aoi=40,loc_artf='diff',n_mad=16,diff_threshold=0.2,interpolate=True,miss_threshold=None,norm=False):
     
     # reserve test subject idx
     sbj_idx = [i for i in range(pd_df.shape[0])]
@@ -34,7 +35,33 @@ def preprocessing_pd(pd_df,aoi=40,loc_artf='diff',n_mad=16,diff_threshold=0.2):
             pd_df = tmp_df
             del tmp_df
         elif loc_artf == 'mad_filter':
-            pd_df = identify_artifact(pd_df,n=n_mad)
+            pd_df = identify_artifact(pd_df,n=n_mad,interpolate=True)
+            
+    if miss_threshold is not None:
+        pd_np = pd_df.drop('ori_idx',axis=1).values
+        miss = []
+        for row in range(pd_np.shape[0]):
+            pd_sg = pd_np[row]
+            pd_sg = np.diff(pd_sg)
+            count = 0
+            for i in pd_sg:
+                if i == 0:
+                    count+=1
+            count = count/len(pd_sg)
+            miss.append(count)
+        pd_df['miss'] = miss
+        pd_df = pd_df[pd_df['miss']<miss_threshold]
+        pd_df = pd_df.drop('miss',axis=1)
+    
+    if norm:
+        pd_np = pd_df.drop('ori_idx',axis=1).values
+        sc = MinMaxScaler()
+        pd_np = sc.fit_transform(pd_np.transpose())
+        pd_np = pd_np.transpose()
+        tmp_df = pd.DataFrame(pd_np)
+        tmp_df['ori_idx'] = pd_df['ori_idx'].reset_index(drop=True)
+        tmp_df.index = pd_df.index
+        pd_df = tmp_df
     return pd_df
 
 def generate_features_df(samples):
@@ -54,30 +81,31 @@ def generate_features_df(samples):
     return samples
 
 
-def pd_plot_pause(pd_df,sbj,r=40,ylim=[1,4]):
+def pd_plot_pause(pd_df,sbj,r=40,ylim=[1,4],label=None):
     pd_np = pd_df.loc[sbj].values
     pd_np = pd_np[:,:r]
+    ori_idx = pd_df['ori_idx'].values
     
     for i in range(pd_np.shape[0]): 
-        m = np.argmin(pd_np[i][5:21])
+        m = np.argmin(pd_np[i][5:10])
         m = m+5
         plt.figure()
         plt.ylim(ylim[0],ylim[1])
         plt.plot(pd_np[i])
         plt.plot(m,pd_np[i,m],'ro')
-        plt.title(str(i+1))
+        plt.title(str(ori_idx[i]))
         plt.show()
         plt.waitforbuttonpress()
         plt.close()
     return
 
-def identify_artifact(pd_df,n):
-    pd_np = pd_df.values
+def identify_artifact(pd_df,n,ignore=5,interpolate=True):
+    pd_np = pd_df.drop('ori_idx',axis=1).values
     for row in range(pd_np.shape[0]):
         signal = pd_np[row]
         di = []        
         # calculate dilation speed
-        for i in range(1,signal.shape[0]-1):
+        for i in range(ignore,signal.shape[0]-1):
             di.append(max(np.abs(signal[i]-signal[i-1]),np.abs(signal[i+1]-signal[i])))
         # calculate MAD
         di_med = np.median(di)
@@ -88,9 +116,16 @@ def identify_artifact(pd_df,n):
         # sample of di that is above the threshold is invalid
         for i,elem in enumerate(di):
             if elem > threshold:
-                signal[i] = np.nan
+                signal[i+ignore] = np.nan
         pd_np[row] = signal
-    output_df = pd.DataFrame(pd_np,index=pd_df.index,columns=pd_df.columns)    
+    output_df = pd.DataFrame(pd_np)
+    if interpolate:
+        output_df[output_df.columns] = output_df[output_df.columns].astype(float).apply(lambda x:x.interpolate(method='index'),axis=1)
+    output_df['ori_idx'] = pd_df['ori_idx'].reset_index(drop=True)
+    output_df.index = pd_df.index
+    output_df.columns = pd_df.columns
+
+        
     return output_df
 
 
