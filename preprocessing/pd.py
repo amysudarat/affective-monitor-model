@@ -5,7 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import scipy.signal
 import preprocessing.pre_utils as pu
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
 import preprocessing.fap as pfap
 import utils
 
@@ -16,10 +16,12 @@ def preprocessing_pd(pd_df,aoi=40,loc_artf='diff',n_mad=16,diff_threshold=0.2,in
     
     # reserve test subject idx
     sbj_idx = [i for i in range(pd_df.shape[0])]
-    pd_df['ori_idx'] = sbj_idx
+    
     
     if aoi is not None:
         pd_df = pd_df.drop(columns=[i for i in range(aoi,100)])
+    
+    pd_df['ori_idx'] = sbj_idx
     
     if loc_artf is not None:
         if loc_artf == 'diff':
@@ -53,12 +55,14 @@ def preprocessing_pd(pd_df,aoi=40,loc_artf='diff',n_mad=16,diff_threshold=0.2,in
         pd_df = pd_df[pd_df['miss']<miss_threshold]
         pd_df = pd_df.drop('miss',axis=1)
     
-    if norm:
-        pd_np = pd_df.drop('ori_idx',axis=1).values
+    if norm:        
+        tmp_df = pd.DataFrame()
         sc = MinMaxScaler()
-        pd_np = sc.fit_transform(pd_np.transpose())
-        pd_np = pd_np.transpose()
-        tmp_df = pd.DataFrame(pd_np)
+        for i in range(1,pd_df.index.max()+1):
+            pd_np = pd_df.loc[i].drop('ori_idx',axis=1).values
+            pd_np = sc.fit_transform(pd_np.transpose())
+            tmp_df = tmp_df.append(pd.DataFrame(pd_np.transpose()))
+        tmp_df = tmp_df.reset_index(drop=True)
         tmp_df['ori_idx'] = pd_df['ori_idx'].reset_index(drop=True)
         tmp_df.index = pd_df.index
         pd_df = tmp_df

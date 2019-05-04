@@ -21,13 +21,13 @@ pd_filt_df = ppd.preprocessing_pd(pd_df,
                              aoi=40,
                              loc_artf='mad_filter',
                              diff_threshold=0.1,
-                             n_mad=3,
+                             n_mad=2,
                              interpolate=True,
-                             miss_threshold=0.3,
+                             miss_threshold=0.2,
                              norm=True)
 
 #%% plot slide show
-ppd.pd_plot_pause(pd_filt_df,10,ylim=[0,1])
+ppd.pd_plot_pause(pd_filt_df,10,ylim=[-1,2])
 
 #%% Detect PQR
 
