@@ -14,7 +14,7 @@ depth_mean_df = utils.load_object('depth_mean.pkl')
 subjects = [i for i in range(1,52)]
 pd_df = ppd.get_raw_pd_df(pd_signals,subjects)
 #%%
-#ppd.pd_plot_pause(pd_df,51,ylim=[1,4])
+ppd.pd_plot_pause(pd_df,51,ylim=[1,4])
          
 #%% identify PQR
 pd_filt_df = ppd.preprocessing_pd(pd_df,
@@ -27,7 +27,7 @@ pd_filt_df = ppd.preprocessing_pd(pd_df,
                              norm=True)
 
 #%% plot slide show
-ppd.pd_plot_pause(pd_filt_df,10,ylim=[-1,2])
+ppd.pd_plot_pause(pd_filt_df,51,ylim=[-1,2])
 
 #%% Detect PQR
 

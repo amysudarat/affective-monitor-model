@@ -88,7 +88,10 @@ def generate_features_df(samples):
 def pd_plot_pause(pd_df,sbj,r=40,ylim=[1,4],label=None):
     pd_np = pd_df.loc[sbj].values
     pd_np = pd_np[:,:r]
-    ori_idx = pd_df.loc[sbj]['ori_idx'].values.tolist()
+    try:
+        ori_idx = pd_df.loc[sbj]['ori_idx'].values.tolist()
+    except:
+        ori_idx = [i for i in range(pd_df.shape[0])]
     
     for i in range(pd_np.shape[0]): 
         m = np.argmin(pd_np[i][5:10])
