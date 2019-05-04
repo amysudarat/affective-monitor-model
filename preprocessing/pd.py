@@ -11,6 +11,31 @@ import utils
 #import warnings
 #warnings.filterwarnings("error")
 
+def preprocessing_pd(pd_df,aoi=40,loc_artf='diff',n_mad=16,diff_threshold=0.2):
+    
+    # reserve test subject idx
+    sbj_idx = [i for i in range(pd_df.shape[0])]
+    pd_df['ori_idx'] = sbj_idx
+    
+    if aoi is not None:
+        pd_df = pd_df.drop(columns=[i for i in range(aoi,100)])
+    
+    if loc_artf is not None:
+        if loc_artf == 'diff':
+            pd_list = pd_df.drop('ori_idx',axis=1).values.tolist()
+            pd_filtered_list = []
+            pd_filtered_list, _ = remove_glitch(pd_list,threshold=diff_threshold)
+#            for elem in pd_list:
+#                pd_filtered, _ = remove_glitch(elem,threshold=0.2)
+#                pd_filtered_list.append(pd_filtered)
+            tmp_df = pd.DataFrame(np.array(pd_filtered_list))
+            tmp_df['ori_idx'] = pd_df['ori_idx'].reset_index(drop=True)
+            tmp_df.index = pd_df.index
+            pd_df = tmp_df
+            del tmp_df
+        elif loc_artf == 'mad_filter':
+            pd_df = identify_artifact(pd_df,n=n_mad)
+    return pd_df
 
 def generate_features_df(samples):
     """
@@ -234,70 +259,6 @@ def get_raw_pd_df(samples,subjects):
         pd_df = pd_df.set_index('index')
         output_df = output_df.append(pd_df)
     return output_df
-
-def get_depths(pickle_file="data_1_50_fixPD_Label_False.pkl"):
-    face_dataset = utils.load_object(pickle_file)
-    array_samples = []
-    for i in range(len(face_dataset)):
-        array_samples.append(face_dataset[i]['depth'])
-    return array_samples
-
-def get_illums(pickle_file="data_1_50_fixPD_Label_False.pkl"):
-    face_dataset = utils.load_object(pickle_file)
-    array_samples = []
-    for i in range(len(face_dataset)):
-        array_samples.append(face_dataset[i]['illuminance'])
-    return array_samples
-
-def get_arousal(pickle_file="data_1_50_fixPD_Label_False.pkl",fix=False,class_mode='default'):
-    face_dataset = utils.load_object(pickle_file)
-    
-    array_samples = []
-    
-    def convert_to_label(SAM,three_class):
-        scale = 1
-        target_scale = scale*((SAM-5)/4)
-        if class_mode=='three':
-            if target_scale < -0.125:
-                target_scale = 3
-            elif -0.125 <= target_scale <= 0.125:
-                target_scale = 2
-            elif 0.125 < target_scale:
-                target_scale = 1
-        elif class_mode=='two':
-            if target_scale > 0:
-                target_scale = 1
-            else:
-                target_scale = 2
-        else:
-            if -1.0 <= target_scale < -0.6:
-                target_scale = 5
-            elif -0.6 <= target_scale < -0.2:
-                target_scale = 4
-            elif -0.2 <= target_scale < 0.2:
-                target_scale = 3
-            elif 0.2 <= target_scale < 0.6:
-                target_scale = 2
-            elif 0.6 <= target_scale <= 1:
-                target_scale = 1
-        return target_scale
-   
-    for i in range(len(face_dataset)):
-        sample = face_dataset[i]['arousal']
-        if fix:
-            sample = convert_to_label(sample,class_mode)
-        array_samples.append(sample)
-    array_samples = np.array(array_samples)   
-    return array_samples
-
-def get_valence(pickle_file="data_1_50_fixPD_Label_False.pkl"):
-    face_dataset = utils.load_object(pickle_file)
-    array_samples = []
-    for i in range(len(face_dataset)):
-        array_samples.append(face_dataset[i]['valence'])
-    return array_samples
-
-
 
 def my_lms(d,r,L,mu):
     e = np.zeros(d.shape)

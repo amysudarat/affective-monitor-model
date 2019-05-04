@@ -120,8 +120,8 @@ params = {
 
 # micro average should be preferred over macro in case of imbalanced datasets
 # now what metric to use to choose the best classifier from grid search
-gs = GridSearchCV(net,params,cv=3,scoring=['accuracy','f1','roc_auc'],
-                  refit='roc_auc',return_train_score=True)
+gs = GridSearchCV(net,params,cv=3,scoring=['accuracy','f1_micro'],
+                  refit='f1_micro',return_train_score=True)
 
 # fit model using randomizer
 gs.fit(X_train,y_train);
