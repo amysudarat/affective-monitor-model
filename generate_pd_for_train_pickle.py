@@ -21,13 +21,19 @@ pd_filt_df = ppd.preprocessing_pd(pd_df,
                              aoi=40,
                              loc_artf='mad_filter',
                              diff_threshold=0.1,
-                             n_mad=5,
+                             n_mad=3,
                              interpolate=True,
                              miss_threshold=0.3,
-                             norm=False)
+                             norm=True)
 
 #%% plot slide show
-ppd.pd_plot_pause(pd_filt_df,10,ylim=[2,5])
+ppd.pd_plot_pause(pd_filt_df,10,ylim=[0,1])
+
+#%% Detect PQR
+
+#pd_pqr_df = 
+
+
 
 #%%
 # Standard plotly imports
