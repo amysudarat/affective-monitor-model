@@ -34,7 +34,7 @@ faps_filtered = pfap.faps_preprocessing(faps_np_df,
 samples = faps_filtered
 
 #%% check by visualize
-plot_df = pd.DataFrame(faps_filtered.iloc[55]['faps'])
+plot_df = pd.DataFrame(faps_filtered.iloc[1000]['faps'])
 fig = plot_df.reset_index(drop=True).iplot(kind='scatter',mode='lines',
                                  title='FAPS',
                                  xTitle='frame', yTitle= 'FAP changes',

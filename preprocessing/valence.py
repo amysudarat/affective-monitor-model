@@ -24,6 +24,11 @@ def get_valence_df(path,subjects,source='iaps',fix=False,class_mode='default'):
         valence_df = valence_df.drop(columns=['subject'])
     elif source == 'subject':
         valence_df = valence_df.drop(columns=['iaps'])
+    elif source == 'subject_avg':
+        valence_df = valence_df.drop(columns=['iaps'])
+        # find mean of arousal per picture
+        for i in range(1,71):            
+            valence_df.loc[i] = valence_df.loc[i].mean().values.tolist()[0]
     valence_df.columns = ['valence']
     # function to apply to each row if fix is True
     def convert_to_label(SAM,class_mode):

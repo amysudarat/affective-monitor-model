@@ -26,9 +26,9 @@ cufflinks.go_offline(connected=True)
 init_notebook_mode(connected=True)
 
 #%% define net
-class simple_fnn(nn.Module):
+class simple_rnn(nn.Module):
     def __init__(self, input_dim, hidden_dim, layer_dim, output_dim): 
-        super(simple_fnn, self).__init__()
+        super(simple_rnn, self).__init__()
         # hidden dim
         self.hidden_dim = hidden_dim 
         
@@ -90,7 +90,7 @@ output_dim = 3
 # Definition : NeuralNetClassifier(module, criterion=torch.nn.NLLLoss, 
 #                                train_split=CVSplit(5, stratified=True), *args, **kwargs)
 net = NeuralNetClassifier(
-        module=simple_fnn,
+        module=simple_rnn,
         module__input_dim=input_dim,
         module__hidden_dim=hidden_dim,
         module__output_dim=output_dim,

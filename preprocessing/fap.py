@@ -21,16 +21,8 @@ def faps_preprocessing(faps_df,smooth=True,filter_miss=None,fix_scaler='standard
         faps_df = faps_df.drop('miss_ratio',axis=1)
         
     if aoi is not None:
-        cut = []
-        for i in range(faps_df.shape[0]):
-            faps = np.array(faps_df.iloc[i]['faps'])
-            faps = faps[aoi[0]:aoi[1]]
-            cut.append(faps)
-        faps_df['tmp'] = cut
-        faps_df = faps_df.drop('faps',axis=1)
-        faps_df = faps_df[['tmp','ori_idx','sbj_idx']]
-        faps_df.columns = ['faps','ori_idx','sbj_idx']
-    
+        faps_df['faps'] = faps_df['faps'].apply(lambda x:x[aoi[0]:aoi[1]])
+
     if smooth:
         smoothed = []
         for i in range(faps_df.shape[0]):
@@ -61,6 +53,8 @@ def faps_preprocessing(faps_df,smooth=True,filter_miss=None,fix_scaler='standard
             tmp_df['faps'] = faps_per_sbj['faps'].apply(lambda x:sc.transform(x))
             output_df = output_df.append(tmp_df)
         faps_df = output_df
+        # set type of array
+        faps_df['faps'] = faps_df['faps'].apply(lambda x:x.astype(np.float64))
     return faps_df
 
 
