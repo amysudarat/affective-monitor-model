@@ -20,11 +20,11 @@ cufflinks.go_offline(connected=True)
 init_notebook_mode(connected=True)
 
 #%%
-#filepath = r"E:\Research\affective-monitor-model\preprocessing\illum_lux_meter_record.txt"
-filepath = r"C:\Users\DSPLab\Research\affective-monitor-model\preprocessing\illum_lux_meter_record.txt"
+filepath = r"E:\Research\affective-monitor-model\preprocessing\illum_lux_meter_record.txt"
+#filepath = r"C:\Users\DSPLab\Research\affective-monitor-model\preprocessing\illum_lux_meter_record.txt"
 illum_lux_df = pill.get_illum_lux(filepath)
-#filepath = r"E:\Research\affective-monitor-model\preprocessing\lux_record_manual.csv"
-filepath = r"C:\Users\DSPLab\Research\affective-monitor-model\preprocessing\lux_record_manual.csv"
+filepath = r"E:\Research\affective-monitor-model\preprocessing\lux_record_manual.csv"
+#filepath = r"C:\Users\DSPLab\Research\affective-monitor-model\preprocessing\lux_record_manual.csv"
 ill_lux_manual_df = pill.get_illum_lux_manual(filepath)
 
 #%% find mean of illum
@@ -43,8 +43,8 @@ for i in range(70):
     illum_lux_np = illum_lux_np[15:]
 
 #%% find std of average subject rating
-#path = "E:\\Research\\ExperimentData"
-path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
+path = "E:\\Research\\ExperimentData"
+#path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
 n = 51
 subjects = [i for i in range(1,n+1)]
 arousals_iaps = paro.get_arousal_df(path,subjects,source='iaps',fix=False)
@@ -72,7 +72,7 @@ arousal_df['illum_gimp'] = ill_lux_manual_df['illum_gimp'].values.tolist()
 arousal_df['illum_lux'] = ill_lux_manual_df['illum_lux'].values.tolist()
 # selection 1: high 7 samples, low 7 samples
 #collide_df = arousal_df[((arousal_df['diff']<=0.35)&(arousal_df['sbj_avg']<4.1)) | ((arousal_df['diff']<=0.6)&(arousal_df['sbj_avg']>=6))]
-collide_df = arousal_df[((arousal_df['diff']<=0.35)&(arousal_df['sbj_avg']<4.1)) | ((arousal_df['diff']<=0.6)&(arousal_df['sbj_avg']>=6))]
+collide_df = arousal_df[((arousal_df['diff']<=0.455)&(arousal_df['sbj_avg']<4)) | ((arousal_df['diff']<=0.6)&(arousal_df['sbj_avg']>=5.5))]
 
 sc = StandardScaler()
 collide_scaled = sc.fit_transform(collide_df[['iaps','sbj_avg','illum_gimp']])
@@ -86,10 +86,11 @@ fig = collide_scaled_df[['iaps','sbj_avg','illum_gimp']].reset_index(drop=True).
                                  text=text,
                                  xTitle='picIndex', yTitle= 'arousal rating',
                                  asFigure=True)
-plotly.offline.plot(fig)
+plotly.offline.plot(fig,filename='selected_label.html')
 
 # generate picture id
-iaps_class = iaps(r"C:\Users\DSPLab\Research\affective-monitor-model\preprocessing")
+#iaps_class = iaps(r"C:\Users\DSPLab\Research\affective-monitor-model\preprocessing")
+iaps_class = iaps(r"E:\Research\affective-monitor-model\preprocessing")
 selected_sample_idx = collide_scaled_df.index.tolist()
 selected_sample_idx = [i-1 for i in selected_sample_idx]
 selected_sample_id = [iaps_class.get_pic_id(i) for i in selected_sample_idx]

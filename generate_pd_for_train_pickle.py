@@ -17,12 +17,6 @@ import cufflinks
 cufflinks.go_offline(connected=True)
 init_notebook_mode(connected=True)
 
-#%%
-#iaps_class = iaps(r"C:\Users\DSPLab\Research\affective-monitor-model\preprocessing")
-#iaps_class = iaps(r"E:\Research\affective-monitor-model\preprocessing\IAPSinfoFile_Final.txt")
-#sample_list_from_pic_id = iaps_class.get_sample_idx(2141)
-
-#id_list = [iaps_class.get_pic_id(i) for i in idx_list]
 
 #%%
 # get samples
@@ -40,8 +34,8 @@ subjects = [i for i in range(1,52)]
 
 #%% identify artifact
 pd_df = ppd.get_raw_pd_df(pd_signals,subjects)
-#pd_df = ppd.identify_artifact(pd_df,16)
 
+#%% plot slide show
 ppd.pd_plot_pause(pd_df,9,ylim=[2.5,5])
 #%%
 # visualize pd
@@ -87,8 +81,10 @@ plotly.offline.plot(fig)
 # remove glitch
 pd_signals, _ = ppd.remove_glitch(pd_signals,threshold=0.2)
 
+
 #%% prepare data for dr.b
 pd_df = ppd.get_raw_pd_df(pd_signals,subjects)
+ppd.pd_plot_pause(pd_df,51,ylim=[1,4])
 dr_b_data_df = pd_df.loc[51]
 dr_b_data_df.reset_index(drop=True).to_csv('dr_b_pd_data_after_remove_glitch.csv',index=False,header=False)
 #%%
@@ -108,6 +104,7 @@ selected_samples = ppd.select_and_clean(pd_signals,norm=True,
 
 #%% prepare data for dr b
 dr_b_data_df = selected_samples.drop('ori_idx',axis=1).loc[51]
+ppd.pd_plot_pause(selected_samples,51,ylim=[0,1])
 dr_b_data_df.reset_index(drop=True).to_csv('dr_b_pd_data_after_norm_remove_corrupted_samples.csv',index=False,header=False)
 
 #%%

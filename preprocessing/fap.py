@@ -8,25 +8,43 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
 
-def faps_preprocessing(faps_df,smooth=True,filter_miss=None,fix_scaler='standard'):
+def faps_preprocessing(faps_df,smooth=True,filter_miss=None,fix_scaler='standard',aoi=None):
     
     # reserve test subject idx
-    sbj_idx = [j for j in range(1,52) for i in range(70) ]
+    total_sbj = int((faps_df.index.max()+1)/70)
+    sbj_idx = [j for j in range(1,total_sbj+1) for i in range(70) ]
     faps_df['sbj_idx'] = sbj_idx
     
     if filter_miss is not None:
         faps_df['miss_ratio'] = filter_miss
         faps_df = faps_df[faps_df['miss_ratio'] <= 25]
         faps_df = faps_df.drop('miss_ratio',axis=1)
-    
-    if smooth:
+        
+    if aoi is not None:
+        cut = []
         for i in range(faps_df.shape[0]):
             faps = np.array(faps_df.iloc[i]['faps'])
-            #####################3----------------- fix smooth ------------------###########3
-            faps = scipy.signal.savgol_filter(faps,window_length=15,polyorder=2,axis=1)   
-            faps_df.iloc[i]['faps'] = faps
+            faps = faps[aoi[0]:aoi[1]]
+            cut.append(faps)
+        faps_df['tmp'] = cut
+        faps_df = faps_df.drop('faps',axis=1)
+        faps_df = faps_df[['tmp','ori_idx','sbj_idx']]
+        faps_df.columns = ['faps','ori_idx','sbj_idx']
     
-    if fix_scaler:
+    if smooth:
+        smoothed = []
+        for i in range(faps_df.shape[0]):
+            faps = np.array(faps_df.iloc[i]['faps'])
+#            faps = scipy.signal.savgol_filter(faps,window_length=15,polyorder=2,axis=1)   
+            for col in range(faps.shape[1]):
+                faps[:,col] = scipy.signal.savgol_filter(faps[:,col],window_length=15,polyorder=2)   
+            smoothed.append(faps)
+        faps_df['tmp'] = smoothed
+        faps_df = faps_df.drop('faps',axis=1)
+        faps_df = faps_df[['tmp','ori_idx','sbj_idx']]
+        faps_df.columns = ['faps','ori_idx','sbj_idx']
+    
+    if fix_scaler is not None:
         output_df = pd.DataFrame()
         for subject_idx in range(1,52):
             faps_per_sbj = faps_df[faps_df['sbj_idx']==subject_idx]

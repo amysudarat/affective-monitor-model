@@ -27,12 +27,13 @@ faps_np_df = pfap.get_faps_np_df(pickle_file='data_1_51.pkl')
 #%% find missing percentage
 missing_percentage_list = pfap.get_missing_percentage(faps_np_df)
 faps_filtered = pfap.faps_preprocessing(faps_np_df,
-                                        smooth=False,
+                                        aoi=[0,50],
+                                        smooth=True,
                                         filter_miss=missing_percentage_list,
-                                        fix_scaler='standard')
+                                        fix_scaler='minmax')
 
 #%% check by visualize
-plot_df = pd.DataFrame(faps_filtered.iloc[4]['faps'])
+plot_df = pd.DataFrame(faps_filtered.iloc[55]['faps'])
 fig = plot_df.reset_index(drop=True).iplot(kind='scatter',mode='lines',
                                  title='FAPS',
                                  xTitle='frame', yTitle= 'FAP changes',
