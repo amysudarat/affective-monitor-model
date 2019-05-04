@@ -48,14 +48,14 @@ utils.save_object(arousals, "arousal.pkl")
 
 #%% valence pickle
 #path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
-##path = "E:\\Research\\ExperimentData"
-#n = 51
-#subjects = [i for i in range(1,n+1)]
-#
-#valence = pval.get_valence_df(path,subjects,source='iaps',fix=True,class_mode='three')
-#
-## save to pickle file
-#utils.save_object(arousals, "valence.pkl")
+path = "E:\\Research\\ExperimentData"
+n = 51
+subjects = [i for i in range(1,n+1)]
+
+valence = pval.get_valence_df(path,subjects,source='iaps',fix=True,class_mode='two')
+
+# save to pickle file
+utils.save_object(valence, "valence.pkl")
 
 #%% Depth
 #path = "C:\\Users\\DSPLab\\Research\\ExperimentData"

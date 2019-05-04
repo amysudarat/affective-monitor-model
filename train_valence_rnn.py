@@ -7,10 +7,9 @@ import numpy as np
 import preprocessing.pre_utils as pu
 #import pandas as pd
 from sklearn.model_selection import train_test_split, GridSearchCV
-from sklearn.preprocessing import StandardScaler, MinMaxScaler
+#from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.metrics import confusion_matrix, roc_curve, auc
 from skorch import NeuralNetClassifier
-from model.dummy_dataset_class import DummyDataset
 import matplotlib.pyplot as plt
 
 #%%
@@ -54,10 +53,6 @@ class simple_fnn(nn.Module):
         
         return out
 
-
-#%%
-####### --------- train ---------------###########
-
 #%% get data
 data_df = utils.load_object('faps_for_train.pkl')
 valence = utils.load_object('valence.pkl')
@@ -65,26 +60,19 @@ valence = utils.load_object('valence.pkl')
 match_valence_list = pu.match_with_sample(valence,data_df['ori_idx'])
 data_df = data_df.reset_index(drop=True)
 data_df = data_df.drop(columns=['ori_idx'])
-data_df['arousal'] = match_arousal_list
+data_df['valence'] = match_valence_list
             
-label = data_df['arousal'].values.astype(np.int64)
+label = data_df['valence'].values.astype(np.int64)
 #data = data.drop(columns=['arousal']).values.astype(np.float32)
-data = data_df[['mean','max','min']].values.astype(np.float32)
+data = data_df['faps'].values.astype(np.float32)
 
 # split train test data
 X_train , X_test, y_train, y_test = train_test_split(data,label,test_size=0.2,random_state=42)
 
-
-#%% Feature Scaling
-sc = StandardScaler()
-X_train = sc.fit_transform(X_train)
-X_test = sc.transform(X_test)
-
-
 #%% visualize data
-fig = data_df['arousal'].iplot(
+fig = data_df['valence'].iplot(
         kind='histogram',
-        title='arousal class',
+        title='valence class',
         yTitle='% of samples in each class',
         xTitle='label',
         asFigure=True)

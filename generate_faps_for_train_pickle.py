@@ -31,6 +31,7 @@ faps_filtered = pfap.faps_preprocessing(faps_np_df,
                                         smooth=True,
                                         filter_miss=missing_percentage_list,
                                         fix_scaler='minmax')
+samples = faps_filtered
 
 #%% check by visualize
 plot_df = pd.DataFrame(faps_filtered.iloc[55]['faps'])
@@ -39,9 +40,6 @@ fig = plot_df.reset_index(drop=True).iplot(kind='scatter',mode='lines',
                                  xTitle='frame', yTitle= 'FAP changes',
                                  asFigure=True)
 plotly.offline.plot(fig)
-
-#%% cut area of interest
-#faps_aoi = 
 
 #%% save to pickle file
 utils.save_object(samples,'faps_for_train.pkl')
