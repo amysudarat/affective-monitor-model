@@ -85,7 +85,7 @@ data_df['arousal'] = match_arousal_list
             
 label = data_df['arousal'].values.astype(np.int64)
 #data = data.drop(columns=['arousal']).values.astype(np.float32)
-data = data_df[['mean','max','min']].values.astype(np.float32)
+data = data_df[['delta_pq','delta_qr','slope_qr']].values.astype(np.float32)
 
 # split train test data
 X_train , X_test, y_train, y_test = train_test_split(data,label,test_size=0.2,random_state=42)
@@ -112,7 +112,7 @@ plotly.offline.plot(fig)
 # configure the model dimension
 input_dim = data.shape[1]
 hidden_dim = 20
-output_dim = 3
+output_dim = 2
 
 # Instantiate neural net
 # Definition : NeuralNetClassifier(module, criterion=torch.nn.NLLLoss, 
@@ -127,7 +127,7 @@ net = NeuralNetClassifier(
         optimizer__lr=0.005,
 #        warm_start=True,
         max_epochs=30,
-        batch_size=32,
+        batch_size=10,
         device='cuda')
 
 ## fit model
@@ -135,23 +135,24 @@ net = NeuralNetClassifier(
 
 #%%
 # randomize hyperparameter search
-lr = [0.01,0.05,0.07]
+lr = [0.005,0.05,0.5]
 params = {
     'optimizer__lr': lr,
-    'max_epochs':[150,200,250],
+    'max_epochs':[35,100,150],
+    'module__hidden_dim':[45,50,55]
 #    'module__num_units': [14,20,28,36,42],
 #    'module__drop' : [0,.1,.2,.3,.4]
 }
 # micro average should be preferred over macro in case of imbalanced datasets
 # now what metric to use to choose the best classifier from grid search
-gs = GridSearchCV(net,params,cv=2,scoring=['f1_micro','accuracy'],
-                  refit='f1_micro',return_train_score=True)
+gs = GridSearchCV(net,params,cv=3,scoring=['f1_micro','accuracy'],
+                  refit='accuracy',return_train_score=True)
 
 # fit model using randomizer
 gs.fit(X_train,y_train);
 #%%
 # review top 10 results and parameters associated
-utils.report(gs.cv_results_,5)
+utils.report(gs.cv_results_,3)
 
 #%%
 ## predict

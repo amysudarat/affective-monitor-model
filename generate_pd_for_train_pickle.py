@@ -31,6 +31,9 @@ pd_filt_df = ppd.preprocessing_pd(pd_df,
 #%% get PQR
 pd_pqr_df = ppd.get_pqr_feature(pd_filt_df)
 
+#%% get stat features
+pd_pqr_df = ppd.generate_features_df(pd_pqr_df)
+
 #%% visualize pqr
 #ppd.plot_pqr_slideshow(pd_pqr_df,42,smooth=True)
 

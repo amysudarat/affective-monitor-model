@@ -15,45 +15,48 @@ import matplotlib.pyplot as plt
 #%% get data
 data_df = utils.load_object('pd_for_train.pkl')
 arousals = utils.load_object('arousal.pkl')
+valence = utils.load_object('valence.pkl')
 
 match_arousal_list = pu.match_with_sample(arousals['arousal'],data_df['ori_idx'])
+match_valence_list = pu.match_with_sample(valence['valence'],data_df['ori_idx'])
 data_df = data_df.reset_index(drop=True)
 data_df = data_df.drop(columns=['ori_idx'])
 data_df['arousal'] = match_arousal_list
+data_df['valence'] = match_valence_list
             
 label = data_df['arousal'].values.astype(np.int64)
 #data = data.drop(columns=['arousal']).values.astype(np.float32)
-data = data_df[['delta_pq','delta_qr','slope_qr','arousal']].values.astype(np.float32)
+data = data_df[['delta_pq','delta_qr','mean','median','slope_qr','valence']].values.astype(np.float32)
 
 # split train test data
-X_train , X_test, y_train, y_test = train_test_split(data,label,test_size=0.2,random_state=42)
+#X_train , X_test, y_train, y_test = train_test_split(data,label,test_size=0.2)
+X_train , X_test, y_train, y_test = train_test_split(data,label,test_size=0.4,random_state=42)
 
 #%% Feature Scaling
 sc = StandardScaler()
 X_train = sc.fit_transform(X_train)
 X_test = sc.transform(X_test)
 
-
 #%% train indepentdently
-classifier = SVC(kernel='rbf',C=1,random_state=0)
-classifier.fit(X_train,y_train)
-y_pred = classifier.predict(X_test)
-print(confusion_matrix(y_test, y_pred))
+#classifier = SVC(kernel='rbf',C=1,random_state=0)
+#classifier.fit(X_train,y_train)
+#y_pred = classifier.predict(X_test)
+#print(confusion_matrix(y_test, y_pred))
 #%% Grid Search
 classifier = SVC(random_state = 0)
 # randomize hyperparameter search
 parameters = {'kernel':('linear', 'rbf','poly','sigmoid'),
-              'C':[1,3,5,7,10]}
+              'C':[1,3,7,10]}
 # micro average should be preferred over macro in case of imbalanced datasets
 # now what metric to use to choose the best classifier from grid search
-gs = GridSearchCV(classifier,parameters,cv=2,scoring=['accuracy','f1_micro'],
-                  refit='f1_micro',return_train_score=True)
+gs = GridSearchCV(classifier,parameters,cv=5,scoring=['accuracy','f1_micro'],
+                  refit='accuracy',return_train_score=True)
 
 # fit model using randomizer
 gs.fit(X_train,y_train);
 
 #%% report
-utils.report(gs.cv_results_,5)
+utils.report(gs.cv_results_,3)
 
 #%%
 # Predicting the Test set results

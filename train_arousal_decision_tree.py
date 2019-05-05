@@ -14,18 +14,22 @@ import matplotlib.pyplot as plt
 #%% get data
 data_df = utils.load_object('pd_for_train.pkl')
 arousals = utils.load_object('arousal.pkl')
+valence = utils.load_object('valence.pkl')
 
-match_arousal_list = pu.match_with_sample(arousals,data_df['ori_idx'])
+match_arousal_list = pu.match_with_sample(arousals['arousal'],data_df['ori_idx'])
+match_valence_list = pu.match_with_sample(valence['valence'],data_df['ori_idx'])
 data_df = data_df.reset_index(drop=True)
 data_df = data_df.drop(columns=['ori_idx'])
 data_df['arousal'] = match_arousal_list
+data_df['valence'] = match_valence_list
             
 label = data_df['arousal'].values.astype(np.int64)
 #data = data.drop(columns=['arousal']).values.astype(np.float32)
-data = data_df[['mean','median','max','min','skew']].values.astype(np.float32)
+data = data_df[['delta_pq','delta_qr','mean','median','slope_qr','valence']].values.astype(np.float32)
 
 # split train test data
-X_train , X_test, y_train, y_test = train_test_split(data,label,test_size=0.2,random_state=42)
+#X_train , X_test, y_train, y_test = train_test_split(data,label,test_size=0.2)
+X_train , X_test, y_train, y_test = train_test_split(data,label,test_size=0.4,random_state=42)
 
 #%% train indepentdently
 classifier = DecisionTreeClassifier(criterion='entropy',random_state=0)
@@ -34,16 +38,16 @@ y_pred = classifier.predict(X_test)
 print(confusion_matrix(y_test, y_pred))
 
 #%%
-import graphviz 
-dot_data = export_graphviz(classifier, out_file=None) 
-graph = graphviz.Source(dot_data) 
-graph.render("pdf/arousal_tree")
+#import graphviz 
+#dot_data = export_graphviz(classifier, out_file=None) 
+#graph = graphviz.Source(dot_data) 
+#graph.render("pdf/arousal_tree")
 
 #%% Grid Search
 classifier = DecisionTreeClassifier(random_state = 0)
 # randomize hyperparameter search
-parameters = {'criterion':('entropy', 'rbf','poly','sigmoid'),
-              'C':[1,3,5,7,10]}
+parameters = {'criterion':('gini', 'entropy'),
+              'splitter':('best','random')}
 # micro average should be preferred over macro in case of imbalanced datasets
 # now what metric to use to choose the best classifier from grid search
 gs = GridSearchCV(classifier,parameters,cv=2,scoring=['accuracy','f1_micro'],
@@ -61,6 +65,7 @@ y_pred = gs.best_estimator_.predict(X_test)
 
 # confusion metrix
 print(confusion_matrix(y_test, y_pred))
+#%%
 # ROC curve
 fpr, tpr, thresholds = roc_curve(y_test, y_pred, pos_label=2) 
 

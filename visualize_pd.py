@@ -29,7 +29,7 @@ data_df = data_df.drop(columns=['ori_idx'])
 data_df['arousal'] = match_arousal_list
 
 #%% box plot of mean grouped by arousal
-fig = data_df.reset_index(drop=True).pivot(columns='arousal', values='slope_qr').iplot(
+fig = data_df.reset_index(drop=True).pivot(columns='arousal', values='delta_qr').iplot(
         kind='box',
         title='slope_qr compare two group of arousal',
         yTitle='mean',
@@ -39,6 +39,38 @@ fig = data_df.reset_index(drop=True).pivot(columns='arousal', values='slope_qr')
 plotly.offline.plot(fig)
 #pio.write_image(fig,'fap_plot/test.pdf')
 
+#%% box plot of mean grouped by arousal
+tmp_df = data_df.copy()
+tmp_df['arousal_str'] = tmp_df['arousal'].apply(lambda x:str(x))
+fig = tmp_df.iplot(x='delta_qr',               
+                    y='slope_qr',
+                    # Specify the category
+                    categories='arousal_str',
+                    xTitle='delta_qr',
+                    yTitle='slope_qr',
+                    title='delta_pq vs slope_qr',
+                    asFigure=True)
+
+plotly.offline.plot(fig)
+#pio.write_image(fig,'fap_plot/test.pdf')
+
+#%% box plot of mean grouped by arousal
+tmp_df = data_df.copy()
+tmp_df['arousal_str'] = tmp_df['arousal'].apply(lambda x:str(x))
+fig = tmp_df.iplot( kind='scatter3d',
+                    x='slope_qr',               
+                    y='delta_qr',
+                    z='delta_pq',
+                    # Specify the category
+                    categories='arousal_str',
+                    xTitle='slope_qr',
+                    yTitle='delta_qr',
+                    zTitle='delta_pq',
+                    title='delta_pq vs slope_qr vs delta_qr',
+                    asFigure=True)
+
+plotly.offline.plot(fig)
+#pio.write_image(fig,'fap_plot/test.pdf')
 #%%
 # scatter plot matrix
 #fig = data_df[['mean','max','median','min','skew']].reset_index(drop=True).scatter_matrix(asFigure=True)
