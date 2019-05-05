@@ -23,7 +23,7 @@ data_df['arousal'] = match_arousal_list
             
 label = data_df['arousal'].values.astype(np.int64)
 #data = data.drop(columns=['arousal']).values.astype(np.float32)
-data = data_df[['mean','median','max','min','skew']].values.astype(np.float32)
+data = data_df[['delta_pq','delta_qr','slope_qr','arousal']].values.astype(np.float32)
 
 # split train test data
 X_train , X_test, y_train, y_test = train_test_split(data,label,test_size=0.2,random_state=42)

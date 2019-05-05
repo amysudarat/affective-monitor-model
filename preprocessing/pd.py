@@ -42,7 +42,7 @@ def get_pqr(sig,smooth=False):
     r = q+5
     
     # calculate delta_pq
-    delta_pq = sig[q]-sig[p]
+    delta_pq = sig[p]-sig[q]
     delta_qr = sig[r]-sig[q]
     slope_qr = delta_qr/(r-q)
     return p,q,r,delta_pq,delta_qr,slope_qr

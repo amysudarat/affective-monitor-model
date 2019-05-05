@@ -29,15 +29,30 @@ data_df = data_df.drop(columns=['ori_idx'])
 data_df['arousal'] = match_arousal_list
 
 #%% box plot of mean grouped by arousal
-fig = data_df.reset_index(drop=True).pivot(columns='arousal', values='mean').iplot(
+fig = data_df.reset_index(drop=True).pivot(columns='arousal', values='slope_qr').iplot(
         kind='box',
-        title='illum alter and depth adjustment with beta=-3 , label=iaps',
+        title='slope_qr compare two group of arousal',
         yTitle='mean',
         xTitle='label',
         asFigure=True)
 
 plotly.offline.plot(fig)
 #pio.write_image(fig,'fap_plot/test.pdf')
+
+#%%
+# scatter plot matrix
+#fig = data_df[['mean','max','median','min','skew']].reset_index(drop=True).scatter_matrix(asFigure=True)
+#plotly.offline.plot(fig)
+
+fig = ff.create_scatterplotmatrix(
+    data_df[['delta_pq','delta_qr','slope_qr','arousal']],
+    diag='histogram',
+    index='arousal',
+    height=1000, width=1000)
+
+plotly.offline.plot(fig)
+
+
 #%%
 # box plot of mean grouped by median
 fig = data_df.reset_index(drop=True).pivot(columns='arousal', values='median').iplot(

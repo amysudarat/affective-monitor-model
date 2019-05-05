@@ -32,7 +32,11 @@ pd_filt_df = ppd.preprocessing_pd(pd_df,
 pd_pqr_df = ppd.get_pqr_feature(pd_filt_df)
 
 #%% visualize pqr
-ppd.plot_pqr_slideshow(pd_pqr_df,42,smooth=True)
+#ppd.plot_pqr_slideshow(pd_pqr_df,42,smooth=True)
+
+#%% data selection
+sel_pic_list = utils.load_object('selected_idx_list.pkl')
+pd_pqr_df = pd_pqr_df[pd_pqr_df['ori_idx'].isin(sel_pic_list)]
 
 #%%
 # save to pickle
