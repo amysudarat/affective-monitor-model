@@ -6,7 +6,6 @@ from preprocessing.iaps import iaps
 import preprocessing.illum as pill
 import preprocessing.depth as pdep
 
-
 #%% get samples
 pd_signals = ppd.get_pds(pickle_file='data_1_51.pkl')
 illum_mean_df = utils.load_object('illum_mean.pkl')
@@ -14,7 +13,7 @@ depth_mean_df = utils.load_object('depth_mean.pkl')
 subjects = [i for i in range(1,52)]
 pd_df = ppd.get_raw_pd_df(pd_signals,subjects)
 #%%
-ppd.pd_plot_pause(pd_df,51,ylim=[1,4])
+#ppd.pd_plot_pause(pd_df,51,ylim=[1,4])
          
 #%% identify PQR
 pd_filt_df = ppd.preprocessing_pd(pd_df,
@@ -27,13 +26,80 @@ pd_filt_df = ppd.preprocessing_pd(pd_df,
                              norm=True)
 
 #%% plot slide show
-ppd.pd_plot_pause(pd_filt_df,51,ylim=[-1,2])
+#ppd.pd_plot_pause(pd_filt_df,51,ylim=[-1,2])
+   
 
-#%% Detect PQR
+#%% function testing
 
-#pd_pqr_df = 
+import numpy as np
+import matplotlib.pyplot as plt
 
 
+def plot_sample(sig,p,q,r,text):
+    fig, axes = plt.subplots(nrows=1,ncols=1)
+    axes.plot(sig)
+    axes.grid(True)
+    axes.plot(p,sig[p],'ro')
+    axes.plot(q,sig[q],'go')  
+    axes.plot(r,sig[r],'mo') 
+    axes.legend(['sig','p','q','r'])
+    fig.suptitle(text)
+    plt.show()
+
+def get_pqr(sig):
+    # find peak
+    p = np.argmax(sig[:5])
+    # observe slope
+    sig_diff = np.diff(sig)
+    sig_diff = [1 if i>0 else -1 for i in sig_diff]
+    # find r by the first index that the slope is positive
+    for i in range(p,len(sig)):
+        if sig_diff[i] > 0:
+            q = p+i
+            break
+    # find r by just observe the ten samples behind q
+    r = q+10
+    
+    # calculate delta_pq
+    delta_pq = sig[q]-sig[p]
+    delta_qr = sig[r]-sig[q]
+    slope_qr = delta_qr/(r-q)
+    return p,q,r,delta_pq,delta_qr,slope_qr
+
+def get_pqr_feature(pd_df):
+    pd_np = pd_df.drop('ori_idx',axis=1).values
+    delta_pq_list = []
+    delta_qr_list = []
+    slope_qr_list = []
+    for row in range(pd_np.shape[0]):        
+        p,q,r,delta_pq,delta_qr,slope_qr = get_pqr(pd_np[row])
+        # calculate delta_pq
+        delta_pq_list.append(delta_pq)
+        delta_qr_list.append(delta_qr)
+        slope_qr_list.append(slope_qr)
+        
+    tmp_df = pd.DataFrame(pd_np)
+    tmp_df['delta_pq'] = delta_pq_list
+    tmp_df['delta_qr'] = delta_qr_list
+    tmp_df['slope_qr'] = slope_qr_list
+    tmp_df['ori_idx'] = pd_df['ori_idx'].reset_index(drop=True)
+    tmp_df.index = pd_df.index
+    return tmp_df
+
+def plot_pqr_slideshow(pd_df,sbj):
+    pd_np = pd_df.loc[sbj].drop(columns=['delta_pq','delta_qr','slope_qr','ori_idx']).values  
+    for row in range(pd_df.shape[0]):
+        p,q,r,delta_pq,delta_qr,slope_qr = get_pqr(pd_np[row])
+        text = "delta_pq: {0:.2f}\t,delta_qr: {0:.2f}\t,slope_qr: {0:.2f}".format(delta_pq,delta_qr,slope_qr)
+        plot_sample(pd_np[row],p,q,r,text)
+        plt.waitforbuttonpress()
+        plt.close()
+
+#%% get PQR
+pd_pqr_df = get_pqr_feature(pd_filt_df)
+
+#%% visualize pqr
+plot_pqr_slideshow(pd_pqr_df,51)
 
 #%%
 # Standard plotly imports
@@ -62,10 +128,8 @@ ppd.pd_plot_pause(pd_filt_df,51,ylim=[-1,2])
 
 
 #%% prepare data for dr.b
-#pd_df = ppd.get_raw_pd_df(pd_signals,subjects)
-#ppd.pd_plot_pause(pd_df,51,ylim=[1,4])
-#dr_b_data_df = pd_df.loc[51]
-#dr_b_data_df.reset_index(drop=True).to_csv('dr_b_pd_data_after_remove_glitch.csv',index=False,header=False)
+dr_b_data_df = pd_filt_df.loc[51]
+dr_b_data_df.reset_index(drop=True).to_csv('pd_data_after_cleaning.csv',index=False,header=False)
 #%%
 # find missing percentage list
 #missing_percentage = ppd.get_missing_percentage(pd_signals)

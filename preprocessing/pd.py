@@ -12,12 +12,23 @@ import utils
 #import warnings
 #warnings.filterwarnings("error")
 
+def detect_pqr(pd_df):
+    pd_np = pd_df.drop('ori_idx',axis=1).values
+    # find p,q,r and calculate delta_pq, delta_qr, m_qr
+    for row in range(pd_np.shape[0]):
+        # get signal
+        sig = pd_np[row]
+        # find peak
+        p = scipy.signal.find_peaks(sig[:7])[0][0]
+        q = np.argmin(sig[p:p+10])
+        sig_diff = np.diff(sig)
+        
+        
+
 def preprocessing_pd(pd_df,aoi=40,loc_artf='diff',n_mad=16,diff_threshold=0.2,interpolate=True,miss_threshold=None,norm=False):
     
     # reserve test subject idx
-    sbj_idx = [i for i in range(pd_df.shape[0])]
-    
-    
+    sbj_idx = [i for i in range(pd_df.shape[0])]   
     if aoi is not None:
         pd_df = pd_df.drop(columns=[i for i in range(aoi,100)])
     
