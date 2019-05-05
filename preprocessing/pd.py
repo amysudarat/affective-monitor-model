@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import scipy.signal
+from scipy.signal import savgol_filter
 import preprocessing.pre_utils as pu
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 import preprocessing.fap as pfap
@@ -12,18 +13,68 @@ import utils
 #import warnings
 #warnings.filterwarnings("error")
 
-def detect_pqr(pd_df):
+
+def plot_sample(sig,p,q,r,text):
+    fig, axes = plt.subplots(nrows=1,ncols=1)
+    axes.plot(sig)
+    axes.grid(True)
+    axes.plot(p,sig[p],'ro')
+    axes.plot(q,sig[q],'go')  
+    axes.plot(r,sig[r],'mo') 
+    axes.legend(['sig','p','q','r'])
+    fig.suptitle(text)
+    plt.show()
+
+def get_pqr(sig,smooth=False):
+    # find peak
+    p = np.argmax(sig[:5])
+    if smooth:
+        sig = savgol_filter(sig,5,3)
+    # observe slope
+    sig_diff = np.diff(sig)
+    sig_diff = [1 if i>0 else -1 for i in sig_diff]
+    # find r by the first index that the slope is positive
+    for i in range(p+1,len(sig)):
+        if sig_diff[i] > 0:
+            q = i
+            break
+    # find r by just observe the ten samples behind q
+    r = q+5
+    
+    # calculate delta_pq
+    delta_pq = sig[q]-sig[p]
+    delta_qr = sig[r]-sig[q]
+    slope_qr = delta_qr/(r-q)
+    return p,q,r,delta_pq,delta_qr,slope_qr
+
+def get_pqr_feature(pd_df,smooth=False):
     pd_np = pd_df.drop('ori_idx',axis=1).values
-    # find p,q,r and calculate delta_pq, delta_qr, m_qr
+    delta_pq_list = []
+    delta_qr_list = []
+    slope_qr_list = []
+    for row in range(pd_np.shape[0]):        
+        p,q,r,delta_pq,delta_qr,slope_qr = get_pqr(pd_np[row],smooth=smooth)
+        # calculate delta_pq
+        delta_pq_list.append(delta_pq)
+        delta_qr_list.append(delta_qr)
+        slope_qr_list.append(slope_qr)
+        
+    tmp_df = pd.DataFrame(pd_np)
+    tmp_df['delta_pq'] = delta_pq_list
+    tmp_df['delta_qr'] = delta_qr_list
+    tmp_df['slope_qr'] = slope_qr_list
+    tmp_df['ori_idx'] = pd_df['ori_idx'].reset_index(drop=True)
+    tmp_df.index = pd_df.index
+    return tmp_df
+
+def plot_pqr_slideshow(pd_df,sbj,smooth=False):
+    pd_np = pd_df.loc[sbj].drop(columns=['delta_pq','delta_qr','slope_qr','ori_idx']).values  
     for row in range(pd_np.shape[0]):
-        # get signal
-        sig = pd_np[row]
-        # find peak
-        p = scipy.signal.find_peaks(sig[:7])[0][0]
-        q = np.argmin(sig[p:p+10])
-        sig_diff = np.diff(sig)
-        
-        
+        p,q,r,delta_pq,delta_qr,slope_qr = get_pqr(pd_np[row],smooth=smooth)
+        text = "delta_pq: {:.2f},delta_qr: {:.2f} ,slope_qr: {:.2f}".format(delta_pq,delta_qr,slope_qr)
+        plot_sample(pd_np[row],p,q,r,text)
+        plt.waitforbuttonpress()
+        plt.close()        
 
 def preprocessing_pd(pd_df,aoi=40,loc_artf='diff',n_mad=16,diff_threshold=0.2,interpolate=True,miss_threshold=None,norm=False):
     
