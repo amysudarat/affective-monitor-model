@@ -58,14 +58,14 @@ plotly.offline.plot(fig)
 tmp_df = data_df.copy()
 tmp_df['arousal_str'] = tmp_df['arousal'].apply(lambda x:str(x))
 fig = tmp_df.iplot( kind='scatter3d',
-                    x='slope_qr',               
-                    y='delta_qr',
-                    z='delta_pq',
+                    x='delta_pq',               
+                    y='median',
+                    z='ratio_pqr',
                     # Specify the category
                     categories='arousal_str',
-                    xTitle='slope_qr',
+                    xTitle='delta_pq',
                     yTitle='delta_qr',
-                    zTitle='delta_pq',
+                    zTitle='ratio_pqr',
                     title='delta_pq vs slope_qr vs delta_qr',
                     asFigure=True)
 

@@ -25,11 +25,11 @@ data_df['valence'] = match_valence_list
             
 label = data_df['arousal'].values.astype(np.int64)
 #data = data.drop(columns=['arousal']).values.astype(np.float32)
-data = data_df[['delta_pq','delta_qr','median']].values.astype(np.float32)
+data = data_df[['delta_pq','delta_qr','ratio_pqr']].values.astype(np.float32)
 
 # split train test data
 #X_train , X_test, y_train, y_test = train_test_split(data,label,test_size=0.1)
-X_train , X_test, y_train, y_test = train_test_split(data,label,test_size=0.1,random_state=42)
+X_train , X_test, y_train, y_test = train_test_split(data,label,test_size=0.2,random_state=42)
 
 #%% Feature Scaling
 sc = StandardScaler()
@@ -44,8 +44,9 @@ X_test = sc.transform(X_test)
 #%% Grid Search
 classifier = SVC(random_state = 0)
 # randomize hyperparameter search
-parameters = {'kernel':('linear', 'rbf','poly','sigmoid'),
-              'C':[1,3,7,10]}
+parameters = {'kernel':('linear', 'rbf','poly'),
+              'C':[8],
+              'gamma':[1,'auto']}
 # micro average should be preferred over macro in case of imbalanced datasets
 # now what metric to use to choose the best classifier from grid search
 gs = GridSearchCV(classifier,parameters,cv=10,scoring=['accuracy','f1_micro'],

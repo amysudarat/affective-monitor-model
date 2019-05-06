@@ -16,8 +16,8 @@ cufflinks.go_offline(connected=True)
 init_notebook_mode(connected=True)
 
 #%% get data
-#path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
-path = "E:\\Research\\ExperimentData"
+path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
+#path = "E:\\Research\\ExperimentData"
 n = 51
 subjects = [i for i in range(1,n+1)]
 
@@ -27,7 +27,7 @@ faps_np_df = pfap.get_faps_np_df(pickle_file='data_1_51.pkl')
 #%% find missing percentage
 missing_percentage_list = pfap.get_missing_percentage(faps_np_df)
 faps_filtered = pfap.faps_preprocessing(faps_np_df,
-                                        aoi=[0,50],
+                                        aoi=[0,100],
                                         smooth=True,
                                         filter_miss=missing_percentage_list,
                                         fix_scaler='minmax')
@@ -35,8 +35,8 @@ samples = faps_filtered
 
 #%% visualize sandbox
 # generate picture id
-#iaps_class = iaps(r"C:\Users\DSPLab\Research\affective-monitor-model\preprocessing")
-iaps_class = iaps(r"E:\Research\affective-monitor-model\preprocessing")
+iaps_class = iaps(r"C:\Users\DSPLab\Research\affective-monitor-model\preprocessing")
+#iaps_class = iaps(r"E:\Research\affective-monitor-model\preprocessing")
 samples_idx = iaps_class.get_sample_idx(2070)
 
 # get samples based on pic_id

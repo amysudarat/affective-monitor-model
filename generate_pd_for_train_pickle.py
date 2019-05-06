@@ -32,7 +32,18 @@ pd_filt_df = ppd.preprocessing_pd(pd_df,
 pd_pqr_df = ppd.get_pqr_feature(pd_filt_df)
 
 #%% filter corrupted data
-#pd_pqr_df = ppd.filter_pqr_corrupt(pd_pqr_df)
+pd_pqr_df = ppd.filter_pqr_corrupt(pd_pqr_df)
+
+#%% illum compensation
+import preprocessing.illum as pill
+import preprocessing.pre_utils as pu
+#filepath = r"E:\Research\affective-monitor-model\preprocessing\lux_record_manual.csv"
+filepath = r"C:\Users\DSPLab\Research\affective-monitor-model\preprocessing\lux_record_manual.csv"
+ill_lux_manual_df = pill.get_illum_lux_manual_df(filepath,'illum_gimp')
+
+ill_match = pu.match_with_sample(ill_lux_manual_df['illum_gimp'],pd_pqr_df['ori_idx'])
+pd_pqr_df = ppd.illum_delta_pq_compensate(pd_pqr_df,ill_lux_manual_df)
+
 
 #%% get stat features
 pd_pqr_df = ppd.generate_features_df(pd_pqr_df)
@@ -47,7 +58,7 @@ pd_pqr_df = pd_pqr_df[pd_pqr_df['ori_idx'].isin(sel_pic_list)]
 import preprocessing.pre_utils as pu
 arousals = utils.load_object('arousal.pkl')
 match_arousal_list = pu.match_with_sample(arousals['arousal'],pd_pqr_df['ori_idx'])
-#ppd.plot_pqr_slideshow(pd_pqr_df,1,smooth=True,label=match_arousal_list)
+#ppd.plot_pqr_slideshow(pd_pqr_df,51,smooth=True,label=match_arousal_list)
 #%%
 # save to pickle
 utils.save_object(pd_pqr_df,'pd_for_train.pkl')

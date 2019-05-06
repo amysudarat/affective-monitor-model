@@ -13,6 +13,9 @@ import utils
 #import warnings
 #warnings.filterwarnings("error")
 
+def illum_delta_pq_compensate(pd_df,illum_list):
+    pass
+    
 
 
 def plot_sample(sig,p,q,r,text):
@@ -33,25 +36,25 @@ def get_pqr(sig,smooth=False):
         sig = savgol_filter(sig,19,3)
     # observe slope
     sig_diff = np.diff(sig)
-    sig_diff = [1 if i>0 else -1 for i in sig_diff]
+    sig_diff = [1 if i>=0 else -1 for i in sig_diff]
     # find r by the first index that the slope is positive
-    for i in range(p+1,len(sig)):
+    for i in range(p+2,len(sig_diff)):
         if sig_diff[i] > 0:
             q = i
             break
-        q = i-5
+        q = p+5
     # find r by just observe the ten samples behind q
-    for i in range(q+1,len(sig)):
+    for i in range(q+1,len(sig_diff)):
         if sig_diff[i] != sig_diff[q]:
             r = i
             break
-        r = i
+        r = q+5
 #    r = q+8
     
     # calculate delta_pq
-    delta_pq = sig[p]-sig[q]
-    delta_qr = sig[r]-sig[q]
-    slope_qr = delta_qr/(r-q)
+    delta_pq = round(sig[p]-sig[q],3)
+    delta_qr = round(sig[r]-sig[q],3)
+    slope_qr = round(delta_qr/(r-q),3)
     return p,q,r,delta_pq,delta_qr,slope_qr
 
 def get_pqr_feature(pd_df,smooth=False):
@@ -59,23 +62,33 @@ def get_pqr_feature(pd_df,smooth=False):
     delta_pq_list = []
     delta_qr_list = []
     slope_qr_list = []
+    ratio_pqr_list=[]
     for row in range(pd_np.shape[0]):        
         p,q,r,delta_pq,delta_qr,slope_qr = get_pqr(pd_np[row],smooth=smooth)
         # calculate delta_pq
         delta_pq_list.append(delta_pq)
         delta_qr_list.append(delta_qr)
         slope_qr_list.append(slope_qr)
+        # calculate ratio between delta_qr and delta_pq
+        if delta_pq == 0:
+            ratio_pqr = round(delta_qr/delta_qr,3)
+        else:
+            ratio_pqr = round(delta_qr/delta_pq,3)
+        ratio_pqr_list.append(ratio_pqr)
+        
         
     tmp_df = pd.DataFrame(pd_np)
     tmp_df['delta_pq'] = delta_pq_list
     tmp_df['delta_qr'] = delta_qr_list
     tmp_df['slope_qr'] = slope_qr_list
+    tmp_df['ratio_pqr'] = ratio_pqr_list
     tmp_df['ori_idx'] = pd_df['ori_idx'].reset_index(drop=True)
     tmp_df.index = pd_df.index
     return tmp_df
 
 def filter_pqr_corrupt(pd_df):
-    pd_df = pd_df[pd_df['delta_qr']<=pd_df['delta_pq']]
+    pd_df = pd_df.dropna(how='any')
+    pd_df = pd_df[abs(pd_df['ratio_pqr']) < 3]
     return pd_df
 
 
