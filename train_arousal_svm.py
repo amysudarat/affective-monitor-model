@@ -9,8 +9,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import confusion_matrix, roc_curve, auc
 from sklearn.svm import SVC
 import matplotlib.pyplot as plt
-
-
+from sklearn.metrics import accuracy_score
 
 #%% get data
 data_df = utils.load_object('pd_for_train.pkl')
@@ -26,11 +25,11 @@ data_df['valence'] = match_valence_list
             
 label = data_df['arousal'].values.astype(np.int64)
 #data = data.drop(columns=['arousal']).values.astype(np.float32)
-data = data_df[['delta_pq','delta_qr','mean','median','slope_qr','valence']].values.astype(np.float32)
+data = data_df[['delta_pq','delta_qr','median']].values.astype(np.float32)
 
 # split train test data
 #X_train , X_test, y_train, y_test = train_test_split(data,label,test_size=0.2)
-X_train , X_test, y_train, y_test = train_test_split(data,label,test_size=0.4,random_state=42)
+X_train , X_test, y_train, y_test = train_test_split(data,label,test_size=0.1,random_state=42)
 
 #%% Feature Scaling
 sc = StandardScaler()
@@ -49,7 +48,7 @@ parameters = {'kernel':('linear', 'rbf','poly','sigmoid'),
               'C':[1,3,7,10]}
 # micro average should be preferred over macro in case of imbalanced datasets
 # now what metric to use to choose the best classifier from grid search
-gs = GridSearchCV(classifier,parameters,cv=5,scoring=['accuracy','f1_micro'],
+gs = GridSearchCV(classifier,parameters,cv=10,scoring=['accuracy','f1_micro'],
                   refit='accuracy',return_train_score=True)
 
 # fit model using randomizer
@@ -64,6 +63,7 @@ y_pred = gs.best_estimator_.predict(X_test)
 
 # confusion metrix
 print(confusion_matrix(y_test, y_pred))
+print('accuracy: {:.2f}'.format(accuracy_score(y_test, y_pred)))
 # ROC curve
 fpr, tpr, thresholds = roc_curve(y_test, y_pred, pos_label=2) 
 
@@ -80,3 +80,12 @@ plt.ylabel('True Positive Rate')
 plt.title('Receiver operating characteristic example')
 plt.legend(loc="lower right")
 plt.show()
+
+#%% model persistence
+from sklearn.externals import joblib
+filename = 'save_model/arousal_svm.pkl'
+joblib.dump(gs.best_estimator_, filename , compress = 1)
+# load the model from disk
+loaded_model = joblib.load(filename)
+acc = loaded_model.score(X_test, y_test)
+print(acc)

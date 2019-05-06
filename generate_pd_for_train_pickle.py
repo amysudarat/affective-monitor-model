@@ -40,7 +40,11 @@ pd_pqr_df = ppd.generate_features_df(pd_pqr_df)
 #%% data selection
 sel_pic_list = utils.load_object('selected_idx_list.pkl')
 pd_pqr_df = pd_pqr_df[pd_pqr_df['ori_idx'].isin(sel_pic_list)]
-
+#%%
+import preprocessing.pre_utils as pu
+arousals = utils.load_object('arousal.pkl')
+match_arousal_list = pu.match_with_sample(arousals['arousal'],pd_pqr_df['ori_idx'])
+ppd.plot_pqr_slideshow(pd_pqr_df,51,smooth=True,label=match_arousal_list)
 #%%
 # save to pickle
 utils.save_object(pd_pqr_df,'pd_for_train.pkl')

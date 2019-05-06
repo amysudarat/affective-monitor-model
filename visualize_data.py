@@ -66,7 +66,7 @@ fig = arousal_df.reset_index(drop=True).iplot(kind='scatter',mode='lines+markers
                                  asFigure=True)
 plotly.offline.plot(fig)
 
-#%% find collide sample
+#%% find collide sample arousal
 arousal_df['diff'] = abs(arousal_df['iaps']-arousal_df['sbj_avg'])
 arousal_df['illum_gimp'] = ill_lux_manual_df['illum_gimp'].values.tolist()
 arousal_df['illum_lux'] = ill_lux_manual_df['illum_lux'].values.tolist()

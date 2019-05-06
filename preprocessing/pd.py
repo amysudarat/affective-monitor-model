@@ -29,7 +29,7 @@ def get_pqr(sig,smooth=False):
     # find peak
     p = np.argmax(sig[:5])
     if smooth:
-        sig = savgol_filter(sig,5,3)
+        sig = savgol_filter(sig,19,3)
     # observe slope
     sig_diff = np.diff(sig)
     sig_diff = [1 if i>0 else -1 for i in sig_diff]
@@ -39,7 +39,12 @@ def get_pqr(sig,smooth=False):
             q = i
             break
     # find r by just observe the ten samples behind q
-    r = q+5
+    for i in range(q+1,len(sig)):
+        if sig_diff[i] != sig_diff[q]:
+            r = i
+            break
+        r = i
+#    r = q+8
     
     # calculate delta_pq
     delta_pq = sig[p]-sig[q]
@@ -67,11 +72,23 @@ def get_pqr_feature(pd_df,smooth=False):
     tmp_df.index = pd_df.index
     return tmp_df
 
-def plot_pqr_slideshow(pd_df,sbj,smooth=False):
-    pd_np = pd_df.loc[sbj].drop(columns=['delta_pq','delta_qr','slope_qr','ori_idx']).values  
+def plot_pqr_slideshow(pd_df,sbj,smooth=False,label=None):
+    if label is not None:
+        idx = pd_df.index
+        pd_df = pd_df.reset_index(drop=True)
+        pd_df['label'] = label
+        pd_df.index = idx
+    if sbj == 'all':
+        pd_np = pd_df[[i for i in range(40)]].values
+        label = label
+    else:
+        pd_np = pd_df[[i for i in range(40)]]
+        pd_np = pd_np.loc[sbj].values  
+        label = pd_df.loc[sbj]['label'].values
     for row in range(pd_np.shape[0]):
         p,q,r,delta_pq,delta_qr,slope_qr = get_pqr(pd_np[row],smooth=smooth)
-        text = "delta_pq: {:.2f},delta_qr: {:.2f} ,slope_qr: {:.2f}".format(delta_pq,delta_qr,slope_qr)
+#        text = "delta_pq: {:.2f},delta_qr: {:.2f} ,slope_qr: {:.2f}".format(delta_pq,delta_qr,slope_qr)
+        text = str(label[row])
         plot_sample(pd_np[row],p,q,r,text)
         plt.waitforbuttonpress()
         plt.close()        

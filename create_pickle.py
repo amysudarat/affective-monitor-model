@@ -8,7 +8,20 @@ import preprocessing.valence as pval
 import preprocessing.arousal as paro
 import preprocessing.illum as pill
 import preprocessing.pre_utils as pu
+from preprocessing.iaps import iaps
 import utils
+
+#%%
+# Standard plotly imports
+import plotly
+import plotly.plotly as py
+import plotly.graph_objs as go
+from plotly.offline import iplot, init_notebook_mode
+import plotly.figure_factory as ff
+# Using plotly + cufflinks in offline mode
+import cufflinks
+cufflinks.go_offline(connected=True)
+init_notebook_mode(connected=True)
 
 #%% face_dataset pickle
 #n = 51
@@ -40,11 +53,57 @@ import utils
 path = "E:\\Research\\ExperimentData"
 n = 51
 subjects = [i for i in range(1,n+1)]
-arousals = paro.get_arousal_df(path,subjects,source='subject_avg',fix=True,class_mode='two')
+arousals = paro.get_arousal_df(path,subjects,source='subject',fix=True,class_mode='two')
 
 # save to pickle file
 utils.save_object(arousals, "arousal.pkl")
 
+#%% generate list of selected samples valence
+from sklearn.preprocessing import StandardScaler
+path = "E:\\Research\\ExperimentData"
+#path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
+n = 51
+subjects = [i for i in range(1,n+1)]
+arousals_iaps = paro.get_arousal_df(path,subjects,source='iaps',fix=False)
+arousals_iaps_col = arousals_iaps.iloc[0:70].reset_index(drop=True)
+arousals_avg = paro.get_arousal_df(path,subjects,source='subject_avg',fix=False,class_mode='default')
+arousals_avg_col = arousals_avg.iloc[0:70].reset_index(drop=True)
+# plot arousal from 
+arousal_df = pd.DataFrame({'iaps':arousals_iaps_col['arousal'],'sbj_avg':arousals_avg_col['arousal']},
+                            index=[i for i in range(70)])
+arousal_df.index = [i for i in range(1,71)]
+# find collide sample
+arousal_df['diff'] = abs(arousal_df['iaps']-arousal_df['sbj_avg'])
+# selection 1: high 7 samples, low 7 samples
+#collide_df = arousal_df[((arousal_df['diff']<=0.35)&(arousal_df['sbj_avg']<4.1)) | ((arousal_df['diff']<=0.6)&(arousal_df['sbj_avg']>=6))]
+collide_df = arousal_df[((arousal_df['diff']<=0.455)&(arousal_df['sbj_avg']<4)) | ((arousal_df['diff']<=0.6)&(arousal_df['sbj_avg']>=5.5))]
+
+sc = StandardScaler()
+collide_scaled = sc.fit_transform(collide_df[['iaps','sbj_avg']])
+collide_scaled_df = pd.DataFrame(collide_scaled,columns=collide_df[['iaps','sbj_avg']].columns,index=collide_df.index)
+text = collide_scaled_df.index.tolist()
+text = [str(i) for i in text]
+
+# plot arousal from 
+fig = collide_scaled_df[['iaps','sbj_avg']].reset_index(drop=True).iplot(kind='scatter',mode='lines+markers+text',
+                                 title='compare selected samples arousals',
+                                 text=text,
+                                 xTitle='picIndex', yTitle= 'arousal rating',
+                                 asFigure=True)
+plotly.offline.plot(fig,filename='selected_label.html')
+
+# generate picture id
+#iaps_class = iaps(r"C:\Users\DSPLab\Research\affective-monitor-model\preprocessing")
+iaps_class = iaps(r"E:\Research\affective-monitor-model\preprocessing")
+selected_sample_idx = collide_scaled_df.index.tolist()
+selected_sample_idx = [i-1 for i in selected_sample_idx]
+selected_sample_id = [iaps_class.get_pic_id(i) for i in selected_sample_idx]
+# get sample idx from list of pic_id
+sample_idx_list = []
+for pic_id in selected_sample_id:
+    sample_idx_list = sample_idx_list + iaps_class.get_sample_idx(pic_id)
+
+utils.save_object(sample_idx_list,'selected_idx_list_arousal.pkl')
 
 #%% valence pickle
 #path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
@@ -57,6 +116,52 @@ valence = pval.get_valence_df(path,subjects,source='subject_avg',fix=True,class_
 # save to pickle file
 utils.save_object(valence, "valence.pkl")
 
+#%% generate selected list for valence
+from sklearn.preprocessing import StandardScaler
+path = "E:\\Research\\ExperimentData"
+#path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
+n = 51
+subjects = [i for i in range(1,n+1)]
+valence_iaps = pval.get_valence_df(path,subjects,source='iaps',fix=False)
+valence_iaps_col = valence_iaps.iloc[0:70].reset_index(drop=True)
+valence_avg = pval.get_valence_df(path,subjects,source='subject_avg',fix=False,class_mode='default')
+valence_avg_col = valence_avg.iloc[0:70].reset_index(drop=True)
+# plot arousal from 
+valence_df = pd.DataFrame({'iaps':valence_iaps_col['valence'],'sbj_avg':valence_avg_col['valence']},
+                            index=[i for i in range(70)])
+valence_df.index = [i for i in range(1,71)]
+# find collide sample
+valence_df['diff'] = abs(valence_df['iaps']-valence_df['sbj_avg'])
+# selection 1: high 7 samples, low 7 samples
+#collide_df = arousal_df[((arousal_df['diff']<=0.35)&(arousal_df['sbj_avg']<4.1)) | ((arousal_df['diff']<=0.6)&(arousal_df['sbj_avg']>=6))]
+collide_df = valence_df[((valence_df['diff']<=0.455)&(valence_df['sbj_avg']<4)) | ((valence_df['diff']<=0.6)&(valence_df['sbj_avg']>=5.5))]
+
+sc = StandardScaler()
+collide_scaled = sc.fit_transform(collide_df[['iaps','sbj_avg']])
+collide_scaled_df = pd.DataFrame(collide_scaled,columns=collide_df[['iaps','sbj_avg']].columns,index=collide_df.index)
+text = collide_scaled_df.index.tolist()
+text = [str(i) for i in text]
+
+# plot arousal from 
+fig = collide_scaled_df[['iaps','sbj_avg']].reset_index(drop=True).iplot(kind='scatter',mode='lines+markers+text',
+                                 title='compare selected samples valence',
+                                 text=text,
+                                 xTitle='picIndex', yTitle= 'arousal rating',
+                                 asFigure=True)
+plotly.offline.plot(fig,filename='selected_label.html')
+
+# generate picture id
+#iaps_class = iaps(r"C:\Users\DSPLab\Research\affective-monitor-model\preprocessing")
+iaps_class = iaps(r"E:\Research\affective-monitor-model\preprocessing")
+selected_sample_idx = collide_scaled_df.index.tolist()
+selected_sample_idx = [i-1 for i in selected_sample_idx]
+selected_sample_id = [iaps_class.get_pic_id(i) for i in selected_sample_idx]
+# get sample idx from list of pic_id
+sample_idx_list = []
+for pic_id in selected_sample_id:
+    sample_idx_list = sample_idx_list + iaps_class.get_sample_idx(pic_id)
+
+utils.save_object(sample_idx_list,'selected_idx_list_valence.pkl')
 #%% Depth
 #path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
 ##path = "E:\\Research\\ExperimentData"

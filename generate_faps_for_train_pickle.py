@@ -33,6 +33,10 @@ faps_filtered = pfap.faps_preprocessing(faps_np_df,
                                         fix_scaler='minmax')
 samples = faps_filtered
 
+#%% visualize sandbox
+
+
+
 #%% check by visualize
 plot_df = pd.DataFrame(faps_filtered.iloc[120]['faps'])
 fig = plot_df.reset_index(drop=True).iplot(kind='scatter',mode='lines',
