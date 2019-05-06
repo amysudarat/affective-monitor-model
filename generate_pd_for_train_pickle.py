@@ -39,10 +39,11 @@ import preprocessing.illum as pill
 import preprocessing.pre_utils as pu
 #filepath = r"E:\Research\affective-monitor-model\preprocessing\lux_record_manual.csv"
 filepath = r"C:\Users\DSPLab\Research\affective-monitor-model\preprocessing\lux_record_manual.csv"
-ill_lux_manual_df = pill.get_illum_lux_manual_df(filepath,'illum_gimp')
+ill_list = pill.get_illum_lux_manual(filepath)
+ill_list = ill_list['illum_gimp'].tolist()
+pd_pqr_df = pu.match_illum_with_sample(pd_pqr_df,ill_list)
 
-ill_match = pu.match_with_sample(ill_lux_manual_df['illum_gimp'],pd_pqr_df['ori_idx'])
-pd_pqr_df = ppd.illum_delta_pq_compensate(pd_pqr_df,ill_lux_manual_df)
+pd_pqr_df = ppd.illum_delta_pq_compensate(pd_pqr_df)
 
 
 #%% get stat features

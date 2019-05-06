@@ -20,11 +20,10 @@ def get_illum_lux_manual_df(filepath,col_name):
     illum_lux_df = pd.read_csv(filepath,header=None)
     illum_lux_df.columns = ['illum_lux','illum_gimp']
     col_idx = [j for j in range(1,52) for i in range(70)]
-    tmp = illum_lux_df[col_name].values.tolist()
     for i in range(50):
-        tmp.extend(tmp)
-    out_df = pd.DataFrame(tmp,columns=[col_name],index=col_idx)
-    return out_df
+        illum_lux_df = illum_lux_df.append(illum_lux_df)
+    illum_lux_df.index = col_idx
+    return illum_lux_df
 
 
 #%%
