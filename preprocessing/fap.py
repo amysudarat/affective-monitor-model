@@ -29,7 +29,7 @@ def faps_preprocessing(faps_df,smooth=True,filter_miss=None,fix_scaler='standard
             faps = np.array(faps_df.iloc[i]['faps'])
 #            faps = scipy.signal.savgol_filter(faps,window_length=15,polyorder=2,axis=1)   
             for col in range(faps.shape[1]):
-                faps[:,col] = scipy.signal.savgol_filter(faps[:,col],window_length=15,polyorder=2)   
+                faps[:,col] = scipy.signal.savgol_filter(faps[:,col],window_length=19,polyorder=3)   
             smoothed.append(faps)
         faps_df['tmp'] = smoothed
         faps_df = faps_df.drop('faps',axis=1)

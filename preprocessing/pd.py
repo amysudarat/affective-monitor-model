@@ -14,6 +14,7 @@ import utils
 #warnings.filterwarnings("error")
 
 
+
 def plot_sample(sig,p,q,r,text):
     fig, axes = plt.subplots(nrows=1,ncols=1)
     axes.plot(sig)
@@ -38,6 +39,7 @@ def get_pqr(sig,smooth=False):
         if sig_diff[i] > 0:
             q = i
             break
+        q = i-5
     # find r by just observe the ten samples behind q
     for i in range(q+1,len(sig)):
         if sig_diff[i] != sig_diff[q]:
@@ -71,6 +73,11 @@ def get_pqr_feature(pd_df,smooth=False):
     tmp_df['ori_idx'] = pd_df['ori_idx'].reset_index(drop=True)
     tmp_df.index = pd_df.index
     return tmp_df
+
+def filter_pqr_corrupt(pd_df):
+    pd_df = pd_df[pd_df['delta_qr']<=pd_df['delta_pq']]
+    return pd_df
+
 
 def plot_pqr_slideshow(pd_df,sbj,smooth=False,label=None):
     if label is not None:

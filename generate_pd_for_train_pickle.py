@@ -31,6 +31,9 @@ pd_filt_df = ppd.preprocessing_pd(pd_df,
 #%% get PQR
 pd_pqr_df = ppd.get_pqr_feature(pd_filt_df)
 
+#%% filter corrupted data
+#pd_pqr_df = ppd.filter_pqr_corrupt(pd_pqr_df)
+
 #%% get stat features
 pd_pqr_df = ppd.generate_features_df(pd_pqr_df)
 
@@ -44,7 +47,7 @@ pd_pqr_df = pd_pqr_df[pd_pqr_df['ori_idx'].isin(sel_pic_list)]
 import preprocessing.pre_utils as pu
 arousals = utils.load_object('arousal.pkl')
 match_arousal_list = pu.match_with_sample(arousals['arousal'],pd_pqr_df['ori_idx'])
-ppd.plot_pqr_slideshow(pd_pqr_df,51,smooth=True,label=match_arousal_list)
+#ppd.plot_pqr_slideshow(pd_pqr_df,1,smooth=True,label=match_arousal_list)
 #%%
 # save to pickle
 utils.save_object(pd_pqr_df,'pd_for_train.pkl')
@@ -76,8 +79,8 @@ utils.save_object(pd_pqr_df,'pd_for_train.pkl')
 
 
 #%% prepare data for dr.b
-dr_b_data_df = pd_filt_df.loc[51]
-dr_b_data_df.reset_index(drop=True).to_csv('pd_data_after_cleaning.csv',index=False,header=False)
+#dr_b_data_df = pd_filt_df.loc[51]
+#dr_b_data_df.reset_index(drop=True).to_csv('pd_data_after_cleaning.csv',index=False,header=False)
 #%%
 # find missing percentage list
 #missing_percentage = ppd.get_missing_percentage(pd_signals)

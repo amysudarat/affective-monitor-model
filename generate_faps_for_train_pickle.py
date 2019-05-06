@@ -34,11 +34,17 @@ faps_filtered = pfap.faps_preprocessing(faps_np_df,
 samples = faps_filtered
 
 #%% visualize sandbox
+# generate picture id
+#iaps_class = iaps(r"C:\Users\DSPLab\Research\affective-monitor-model\preprocessing")
+iaps_class = iaps(r"E:\Research\affective-monitor-model\preprocessing")
+samples_idx = iaps_class.get_sample_idx(2070)
 
+# get samples based on pic_id
+faps_selected = faps_filtered[faps_filtered['ori_idx'].isin(samples_idx)]
 
 
 #%% check by visualize
-plot_df = pd.DataFrame(faps_filtered.iloc[120]['faps'])
+plot_df = pd.DataFrame(faps_filtered.loc[3506]['faps'])
 fig = plot_df.reset_index(drop=True).iplot(kind='scatter',mode='lines',
                                  title='FAPS',
                                  xTitle='frame', yTitle= 'FAP changes',
