@@ -79,7 +79,7 @@ samples = pd.concat([pd_ar_df,pd_nar_df],ignore_index=True)
 match_arousal_list = pu.match_with_sample(arousals['arousal'],samples['ori_idx'])
 samples = samples.drop('arousal',axis=1)
 
-#ppd.plot_pqr_slideshow(samples,'all',smooth=False,label=match_arousal_list)
+#ppd.plot_pqr_slideshow(sampsles,'all',smooth=False,label=match_arousal_list)
 
 # save pickle
 utils.save_object(samples,'pd_for_train.pkl')
