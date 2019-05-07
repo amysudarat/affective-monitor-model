@@ -8,10 +8,10 @@ def match_with_sample(original_df,filtered_idx):
 
 def match_illum_with_sample(original_df,illum_list):
     
-    idx_col = original_df.index
+#    idx_col = original_df.index
     original_df = original_df.reset_index(drop=True)
     original_df['illum'] = original_df['ori_idx']
-    original_df['illum'] = original_df['illum'].apply(lambda x:illum_list[x%70])
-    original_df.index = idx_col
+    ill_list = original_df['ori_idx'].apply(lambda x:illum_list[x%70]).tolist()
+#    original_df.index = idx_col
     
-    return original_df
+    return ill_list

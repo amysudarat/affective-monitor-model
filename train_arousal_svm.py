@@ -25,11 +25,11 @@ data_df['valence'] = match_valence_list
             
 label = data_df['arousal'].values.astype(np.int64)
 #data = data.drop(columns=['arousal']).values.astype(np.float32)
-data = data_df[['delta_pq','delta_qr','ratio_pqr','slope_qr']].values.astype(np.float32)
+data = data_df[['slope_qr','delta_pq','delta_qr']].values.astype(np.float32)
 
 # split train test data
 #X_train , X_test, y_train, y_test = train_test_split(data,label,test_size=0.1)
-X_train , X_test, y_train, y_test = train_test_split(data,label,test_size=0.2,random_state=42)
+X_train , X_test, y_train, y_test = train_test_split(data,label,test_size=0.5,random_state=42)
 
 #%% Feature Scaling
 sc = StandardScaler()

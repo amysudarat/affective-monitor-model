@@ -14,7 +14,18 @@ import utils
 #warnings.filterwarnings("error")
 
 def illum_delta_pq_compensate(pd_df,illum_list):
-    pass
+    delta_pq_list = pd_df['delta_pq'].tolist()
+    delta_pq_comp_list = []
+    illum_max = max(illum_list)
+    for d,i in zip(delta_pq_list,illum_list):
+        comp = d - ( (d/2) * (illum_max/i) )
+        delta_pq_comp_list.append(comp)
+    col_idx = pd_df.index
+    pd_df = pd_df.reset_index(drop=True)
+    pd_df['delta_pq_comp'] = delta_pq_comp_list
+    pd_df.index = col_idx
+    
+    return pd_df
     
 
 
@@ -31,25 +42,24 @@ def plot_sample(sig,p,q,r,text):
 
 def get_pqr(sig,smooth=False):
     # find peak
-    p = np.argmax(sig[:5])
+    p = np.argmax(sig[:7])
     if smooth:
-        sig = savgol_filter(sig,19,3)
+        sig = savgol_filter(sig,5,3)
     # observe slope
     sig_diff = np.diff(sig)
-    sig_diff = [1 if i>=0 else -1 for i in sig_diff]
+    sig_diff = [1 if i>0 else -1 for i in sig_diff]
     # find r by the first index that the slope is positive
-    for i in range(p+2,len(sig_diff)):
+    for i in range(p+2,len(sig_diff)-6):
         if sig_diff[i] > 0:
             q = i
             break
         q = p+5
     # find r by just observe the ten samples behind q
-    for i in range(q+1,len(sig_diff)):
+    for i in range(q+5,len(sig_diff)):
         if sig_diff[i] != sig_diff[q]:
             r = i
             break
-        r = q+5
-#    r = q+8
+        r = min(i,len(sig)-1)
     
     # calculate delta_pq
     delta_pq = round(sig[p]-sig[q],3)
@@ -57,38 +67,80 @@ def get_pqr(sig,smooth=False):
     slope_qr = round(delta_qr/(r-q),3)
     return p,q,r,delta_pq,delta_qr,slope_qr
 
-def get_pqr_feature(pd_df,smooth=False):
+def get_pqr_feature(pd_df,smooth=False,filt_corrupt=True,illum_comp=None):
     pd_np = pd_df.drop('ori_idx',axis=1).values
     delta_pq_list = []
     delta_qr_list = []
     slope_qr_list = []
-    ratio_pqr_list=[]
+    q_list = []
+    p_list = []
+    
     for row in range(pd_np.shape[0]):        
         p,q,r,delta_pq,delta_qr,slope_qr = get_pqr(pd_np[row],smooth=smooth)
         # calculate delta_pq
-        delta_pq_list.append(delta_pq)
-        delta_qr_list.append(delta_qr)
-        slope_qr_list.append(slope_qr)
+        delta_pq_list.append(round(delta_pq,4))
+        delta_qr_list.append(round(delta_qr,4))
+        slope_qr_list.append(round(slope_qr,4))
+        q_list.append(q)
+        p_list.append(p)
         # calculate ratio between delta_qr and delta_pq
-        if delta_pq == 0:
-            ratio_pqr = round(delta_qr/delta_qr,3)
-        else:
-            ratio_pqr = round(delta_qr/delta_pq,3)
-        ratio_pqr_list.append(ratio_pqr)
-        
-        
+
     tmp_df = pd.DataFrame(pd_np)
     tmp_df['delta_pq'] = delta_pq_list
     tmp_df['delta_qr'] = delta_qr_list
     tmp_df['slope_qr'] = slope_qr_list
-    tmp_df['ratio_pqr'] = ratio_pqr_list
+    tmp_df['q'] = q_list
+    tmp_df['p'] = p_list
+    # get pd_df
     tmp_df['ori_idx'] = pd_df['ori_idx'].reset_index(drop=True)
     tmp_df.index = pd_df.index
+    
+    # filter out when delta_pq is zero
+    tmp_df = tmp_df[tmp_df['delta_pq']!=0]
+    
+    if illum_comp is not None:
+        delta_pq_list = tmp_df['delta_pq'].tolist()
+        delta_pq_comp_list = []
+        illum_max = max(illum_comp)
+        for d,i in zip(delta_pq_list,illum_comp):
+            comp = d - ( (d/2) * (illum_max/i) )
+            delta_pq_comp_list.append(comp)
+        tmp_df['delta_pq'] = delta_pq_comp_list
+    
+    # get ratio_pqr
+    tmp_df['ratio_pqr'] = round(tmp_df['delta_qr']/tmp_df['delta_pq'],4)
+    
+    if filt_corrupt:
+        tmp_df = tmp_df.dropna(how='any')
+        tmp_df = tmp_df[abs(tmp_df['ratio_pqr']) <= 1]
+        # get rid of data that is corrupted by depth
+        p_list = tmp_df['p'].tolist()
+        pd_np = tmp_df[[i for i in range(40)]].values
+        corrupt_bool_col = []
+        for row in range(pd_np.shape[0]):
+            p_mag = pd_np[row][p_list[row]]
+            after_p = pd_np[row,p_list[row]+1:]
+            for elem in after_p:
+                if elem >= p_mag:
+                    val = False
+                    break
+                val = True
+            corrupt_bool_col.append(val)
+        tmp_df = tmp_df[corrupt_bool_col]
+    
+    # get area ql (l is the point 15 samples from p) 
+#    pd_np = tmp_df[[i for i in range(40)]].values
+    
+    
+    # drop p and q column    
+    tmp_df= tmp_df.drop(columns=['p','q'])
+    
+    
+    
     return tmp_df
 
 def filter_pqr_corrupt(pd_df):
-    pd_df = pd_df.dropna(how='any')
-    pd_df = pd_df[abs(pd_df['ratio_pqr']) < 3]
+    
     return pd_df
 
 

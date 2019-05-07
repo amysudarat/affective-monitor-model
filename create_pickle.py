@@ -49,8 +49,8 @@ init_notebook_mode(connected=True)
 #utils.save_object(face_dataset, "data_1_51.pkl")
 
 #%% arousal pickle
-path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
-#path = "E:\\Research\\ExperimentData"
+#path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
+path = "E:\\Research\\ExperimentData"
 n = 51
 subjects = [i for i in range(1,n+1)]
 arousals = paro.get_arousal_df(path,subjects,source='subject_avg',fix=True,class_mode='two')

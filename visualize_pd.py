@@ -29,7 +29,7 @@ data_df = data_df.drop(columns=['ori_idx'])
 data_df['arousal'] = match_arousal_list
 
 #%% box plot of mean grouped by arousal
-fig = data_df.reset_index(drop=True).pivot(columns='arousal', values='delta_qr').iplot(
+fig = data_df.reset_index(drop=True).pivot(columns='arousal', values='slope_qr').iplot(
         kind='box',
         title='slope_qr compare two group of arousal',
         yTitle='mean',
