@@ -31,8 +31,8 @@ pd_filt_df = ppd.preprocessing_pd(pd_df,
 #%% illum compensation
 import preprocessing.illum as pill
 import preprocessing.pre_utils as pu
-filepath = r"E:\Research\affective-monitor-model\preprocessing\lux_record_manual.csv"
-#filepath = r"C:\Users\DSPLab\Research\affective-monitor-model\preprocessing\lux_record_manual.csv"
+#filepath = r"E:\Research\affective-monitor-model\preprocessing\lux_record_manual.csv"
+filepath = r"C:\Users\DSPLab\Research\affective-monitor-model\preprocessing\lux_record_manual.csv"
 ill_list = pill.get_illum_lux_manual(filepath)
 ill_list = ill_list['illum_gimp'].tolist()
 ill_list = pu.match_illum_with_sample(pd_filt_df,ill_list)
@@ -40,8 +40,8 @@ ill_list = pu.match_illum_with_sample(pd_filt_df,ill_list)
 #%% get PQR
 pd_pqr_df = ppd.get_pqr_feature(pd_filt_df,
                                 smooth=True,
-                                filt_corrupt=False,
-                                illum_comp=None)
+                                filt_corrupt=True,
+                                illum_comp=ill_list)
 
 #%% get stat features
 pd_pqr_df = ppd.generate_features_df(pd_pqr_df)
@@ -53,36 +53,30 @@ pd_pqr_df = ppd.generate_features_df(pd_pqr_df)
 #sel_pic_list = utils.load_object('selected_idx_list.pkl')
 #pd_pqr_df = pd_pqr_df[pd_pqr_df['ori_idx'].isin(sel_pic_list)]
 
-
-
-#%%
-import preprocessing.pre_utils as pu
-arousals = utils.load_object('arousal.pkl')
-match_arousal_list = pu.match_with_sample(arousals['arousal'],pd_pqr_df['ori_idx'])
-#ppd.plot_pqr_slideshow(pd_pqr_df,'all',smooth=False,label=match_arousal_list)
-
 #%% data selection
 import preprocessing.pre_utils as pu
 import pandas as pd
 arousals = utils.load_object('arousal.pkl')
-match_arousal_list = pu.match_with_sample(arousals['arousal'],pd_pqr_df['ori_idx'])
-pd_sel_df = pd_pqr_df.copy().reset_index(drop=True)
-pd_sel_df['arousal'] = match_arousal_list
-pd_sel_df.index = pd_pqr_df.index
+arousals_list = arousals['arousal'].tolist()
 
-pd_ar_df = pd_sel_df[((pd_sel_df['arousal']==1) & (pd_sel_df['slope_qr']>0.1))]
-pd_nar_df = pd_sel_df[((pd_sel_df['arousal']==2) & (pd_sel_df['slope_qr']<=0))]
+pd_sel_df = pd_pqr_df.copy()
+pd_sel_df = pu.match_label_with_sample(pd_sel_df,arousals_list)
+
+pd_ar_df = pd_sel_df[((pd_sel_df['label']==1) & (pd_sel_df['area_ql']>22))]
+pd_nar_df = pd_sel_df[((pd_sel_df['label']==2) & (pd_sel_df['area_ql']<=22))]
 pd_nar_df = pd_nar_df.sample(pd_ar_df.shape[0])
 
 samples = pd.concat([pd_ar_df,pd_nar_df],ignore_index=True)
-#samples = samples.sample(frac=1).reset_index(drop=True)
-match_arousal_list = pu.match_with_sample(arousals['arousal'],samples['ori_idx'])
-samples = samples.drop('arousal',axis=1)
+samples = samples.sample(frac=1)
+samples = samples.drop('label',axis=1)
+
+
 
 #ppd.plot_pqr_slideshow(sampsles,'all',smooth=False,label=match_arousal_list)
 
 # save pickle
 utils.save_object(samples,'pd_for_train.pkl')
+utils.save_object(pd_pqr_df,'pd_for_test.pkl')
 
 #%%
 from scipy.integrate import simps

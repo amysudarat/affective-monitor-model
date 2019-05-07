@@ -45,7 +45,7 @@ def get_arousal_df(path,subjects,source='iaps',fix=False,class_mode='default'):
             elif 0.15 < target_scale:
                 target_scale = 1
         elif class_mode=='two':
-            if target_scale > 0:
+            if target_scale >= 0:
                 target_scale = 1
             else:
                 target_scale = 2

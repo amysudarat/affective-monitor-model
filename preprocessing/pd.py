@@ -40,7 +40,7 @@ def plot_sample(sig,p,q,r,text):
     fig.suptitle(text)
     plt.show()
 
-def get_pqr(sig,smooth=False):
+def get_pqr(sig,smooth=False,illum_comp=None,ill_max=None):
     # find peak
     p = np.argmax(sig[:7])
     if smooth:
@@ -62,25 +62,42 @@ def get_pqr(sig,smooth=False):
         r = min(i,len(sig)-1)
     
     # calculate delta_pq
-    delta_pq = round(sig[p]-sig[q],3)
-    delta_qr = round(sig[r]-sig[q],3)
+    if illum_comp is not None:
+        delta_qr = sig[p]-sig[q]
+        q_mag = sig[q] - ( (delta_qr/2) * (ill_max/illum_comp) )
+    else:
+        q_mag = sig[q]
+    
+    # calculate pqr features
+    delta_pq = round(sig[p]-q_mag,3)
+    delta_qr = round(sig[r]-q_mag,3)
     slope_qr = round(delta_qr/(r-q),3)
-    return p,q,r,delta_pq,delta_qr,slope_qr
+    
+    # calculate area_ql
+    ql = sig[q:q+25]
+    ql = np.subtract(ql,q_mag)
+    area_ql = np.trapz(ql)
+    
+    return p,q,r,delta_pq,delta_qr,slope_qr,area_ql
 
 def get_pqr_feature(pd_df,smooth=False,filt_corrupt=True,illum_comp=None):
     pd_np = pd_df.drop('ori_idx',axis=1).values
     delta_pq_list = []
     delta_qr_list = []
     slope_qr_list = []
+    area_ql_list = []
     q_list = []
     p_list = []
-    
+    ill_max = max(illum_comp)
     for row in range(pd_np.shape[0]):        
-        p,q,r,delta_pq,delta_qr,slope_qr = get_pqr(pd_np[row],smooth=smooth)
+        p,q,r,delta_pq,delta_qr,slope_qr,area_ql = get_pqr(pd_np[row],smooth=smooth,
+                                                   illum_comp=illum_comp[row],
+                                                   ill_max=ill_max)
         # calculate delta_pq
         delta_pq_list.append(round(delta_pq,4))
         delta_qr_list.append(round(delta_qr,4))
         slope_qr_list.append(round(slope_qr,4))
+        area_ql_list.append(round(area_ql,4))
         q_list.append(q)
         p_list.append(p)
         # calculate ratio between delta_qr and delta_pq
@@ -89,6 +106,7 @@ def get_pqr_feature(pd_df,smooth=False,filt_corrupt=True,illum_comp=None):
     tmp_df['delta_pq'] = delta_pq_list
     tmp_df['delta_qr'] = delta_qr_list
     tmp_df['slope_qr'] = slope_qr_list
+    tmp_df['area_ql'] = area_ql_list
     tmp_df['q'] = q_list
     tmp_df['p'] = p_list
     # get pd_df
@@ -98,14 +116,14 @@ def get_pqr_feature(pd_df,smooth=False,filt_corrupt=True,illum_comp=None):
     # filter out when delta_pq is zero
     tmp_df = tmp_df[tmp_df['delta_pq']!=0]
     
-    if illum_comp is not None:
-        delta_pq_list = tmp_df['delta_pq'].tolist()
-        delta_pq_comp_list = []
-        illum_max = max(illum_comp)
-        for d,i in zip(delta_pq_list,illum_comp):
-            comp = d - ( (d/2) * (illum_max/i) )
-            delta_pq_comp_list.append(comp)
-        tmp_df['delta_pq'] = delta_pq_comp_list
+#    if illum_comp is not None:
+#        delta_pq_list = tmp_df['delta_pq'].tolist()
+#        delta_pq_comp_list = []
+#        illum_max = max(illum_comp)
+#        for d,i in zip(delta_pq_list,illum_comp):
+#            comp = d + ( (d/2) * (illum_max/i) )
+#            delta_pq_comp_list.append(comp)
+#        tmp_df['delta_pq'] = delta_pq_comp_list
     
     # get ratio_pqr
     tmp_df['ratio_pqr'] = round(tmp_df['delta_qr']/tmp_df['delta_pq'],4)
@@ -133,10 +151,7 @@ def get_pqr_feature(pd_df,smooth=False,filt_corrupt=True,illum_comp=None):
     
     
     # drop p and q column    
-    tmp_df= tmp_df.drop(columns=['p','q'])
-    
-    
-    
+    tmp_df= tmp_df.drop(columns=['p','q'])   
     return tmp_df
 
 def filter_pqr_corrupt(pd_df):
