@@ -88,11 +88,17 @@ def get_pqr_feature(pd_df,smooth=False,filt_corrupt=True,illum_comp=None):
     area_ql_list = []
     q_list = []
     p_list = []
-    ill_max = max(illum_comp)
+    if illum_comp is not None:
+        ill_max = max(illum_comp)
+    else:
+        ill_max = None
     for row in range(pd_np.shape[0]):        
-        p,q,r,delta_pq,delta_qr,slope_qr,area_ql = get_pqr(pd_np[row],smooth=smooth,
-                                                   illum_comp=illum_comp[row],
-                                                   ill_max=ill_max)
+        if illum_comp is not None:
+            p,q,r,delta_pq,delta_qr,slope_qr,area_ql = get_pqr(pd_np[row],smooth=smooth,
+                                                       illum_comp=illum_comp[row],
+                                                       ill_max=ill_max)
+        else:
+            p,q,r,delta_pq,delta_qr,slope_qr,area_ql = get_pqr(pd_np[row],smooth=smooth)
         # calculate delta_pq
         delta_pq_list.append(round(delta_pq,4))
         delta_qr_list.append(round(delta_qr,4))
@@ -173,8 +179,7 @@ def plot_pqr_slideshow(pd_df,sbj,smooth=False,label=None):
         pd_np = pd_np.loc[sbj].values  
         label = pd_df.loc[sbj]['label'].values
     for row in range(pd_np.shape[0]):
-        p,q,r,delta_pq,delta_qr,slope_qr = get_pqr(pd_np[row],smooth=smooth)
-#        text = "delta_pq: {:.2f},delta_qr: {:.2f} ,slope_qr: {:.2f}".format(delta_pq,delta_qr,slope_qr)
+        p,q,r,delta_pq,delta_qr,slope_qr,area_ql = get_pqr(pd_np[row],smooth=smooth)
         text = str(label[row])
         plot_sample(pd_np[row],p,q,r,text)
         plt.waitforbuttonpress()

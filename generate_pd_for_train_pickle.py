@@ -41,7 +41,7 @@ ill_list = pu.match_illum_with_sample(pd_filt_df,ill_list)
 pd_pqr_df = ppd.get_pqr_feature(pd_filt_df,
                                 smooth=True,
                                 filt_corrupt=True,
-                                illum_comp=ill_list)
+                                illum_comp=None)
 
 #%% get stat features
 pd_pqr_df = ppd.generate_features_df(pd_pqr_df)
@@ -68,34 +68,18 @@ pd_nar_df = pd_nar_df.sample(pd_ar_df.shape[0])
 
 samples = pd.concat([pd_ar_df,pd_nar_df],ignore_index=True)
 samples = samples.sample(frac=1)
+
+# plot slide show of data
+#ppd.plot_pqr_slideshow(samples,'all',smooth=False,label=samples['label'].tolist())
+
+# drop label before save it to pickle
 samples = samples.drop('label',axis=1)
-
-
-
-#ppd.plot_pqr_slideshow(sampsles,'all',smooth=False,label=match_arousal_list)
 
 # save pickle
 utils.save_object(samples,'pd_for_train.pkl')
 utils.save_object(pd_pqr_df,'pd_for_test.pkl')
 
 #%%
-from scipy.integrate import simps
-from numpy import trapz
-
-a = [1,1,1,-1,-1,-1]
-area = simps(a)
-print(area)
-
-#%%
-import matplotlib.pyplot as plt
-
-plt.hist(match_arousal_list, bins='auto')  # arguments are passed to np.histogram
-plt.title("Histogram with 'auto' bins")
-plt.show()
-
-
-#%%
-# save to pickle
 utils.save_object(pd_pqr_df,'pd_for_train.pkl')
 
 #%%

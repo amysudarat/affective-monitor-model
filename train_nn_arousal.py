@@ -70,22 +70,16 @@ class simple_fnn(nn.Module):
 #        out = self.fc4(out)
         return out
 
-
-#%%
-####### --------- train ---------------###########
-
 #%% get data
 data_df = utils.load_object('pd_for_train.pkl')
 arousals = utils.load_object('arousal.pkl')
+arousals_list = arousals['arousal'].tolist()
 
-match_arousal_list = pu.match_with_sample(arousals,data_df['ori_idx'])
-data_df = data_df.reset_index(drop=True)
-data_df = data_df.drop(columns=['ori_idx'])
-data_df['arousal'] = match_arousal_list
-            
-label = data_df['arousal'].values.astype(np.int64)
-#data = data.drop(columns=['arousal']).values.astype(np.float32)
-data = data_df[['delta_pq','delta_qr','slope_qr']].values.astype(np.float32)
+data_df = pu.match_label_with_sample(data_df,arousals_list)
+           
+label = data_df['label'].values.astype(np.int64)
+data = data_df[['slope_qr','delta_pq','delta_qr']].values.astype(np.float32)
+
 
 # split train test data
 X_train , X_test, y_train, y_test = train_test_split(data,label,test_size=0.2,random_state=42)
@@ -98,7 +92,7 @@ X_test = sc.transform(X_test)
 
 
 #%% visualize data
-fig = data_df['arousal'].iplot(
+fig = data_df['label'].iplot(
         kind='histogram',
         title='arousal class',
         yTitle='% of samples in each class',

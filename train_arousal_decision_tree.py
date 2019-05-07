@@ -10,22 +10,15 @@ from sklearn.metrics import confusion_matrix, roc_curve, auc
 from sklearn.tree import DecisionTreeClassifier, export_graphviz
 import matplotlib.pyplot as plt
 
-
 #%% get data
 data_df = utils.load_object('pd_for_train.pkl')
 arousals = utils.load_object('arousal.pkl')
-valence = utils.load_object('valence.pkl')
+arousals_list = arousals['arousal'].tolist()
 
-match_arousal_list = pu.match_with_sample(arousals['arousal'],data_df['ori_idx'])
-match_valence_list = pu.match_with_sample(valence['valence'],data_df['ori_idx'])
-data_df = data_df.reset_index(drop=True)
-data_df = data_df.drop(columns=['ori_idx'])
-data_df['arousal'] = match_arousal_list
-data_df['valence'] = match_valence_list
-            
-label = data_df['arousal'].values.astype(np.int64)
-#data = data.drop(columns=['arousal']).values.astype(np.float32)
-data = data_df[['delta_pq','delta_qr','mean','median','slope_qr','valence']].values.astype(np.float32)
+data_df = pu.match_label_with_sample(data_df,arousals_list)
+           
+label = data_df['label'].values.astype(np.int64)
+data = data_df[['slope_qr','delta_pq','delta_qr']].values.astype(np.float32)
 
 # split train test data
 #X_train , X_test, y_train, y_test = train_test_split(data,label,test_size=0.2)
