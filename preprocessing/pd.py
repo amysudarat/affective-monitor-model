@@ -28,7 +28,6 @@ def illum_delta_pq_compensate(pd_df,illum_list):
     return pd_df
     
 
-
 def plot_sample(sig,p,q,r,text):
     fig, axes = plt.subplots(nrows=1,ncols=1)
     axes.plot(sig)

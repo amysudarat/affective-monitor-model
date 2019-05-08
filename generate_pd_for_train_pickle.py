@@ -31,8 +31,8 @@ pd_filt_df = ppd.preprocessing_pd(pd_df,
 #%% illum compensation
 import preprocessing.illum as pill
 import preprocessing.pre_utils as pu
-#filepath = r"E:\Research\affective-monitor-model\preprocessing\lux_record_manual.csv"
-filepath = r"C:\Users\DSPLab\Research\affective-monitor-model\preprocessing\lux_record_manual.csv"
+filepath = r"E:\Research\affective-monitor-model\preprocessing\lux_record_manual.csv"
+#filepath = r"C:\Users\DSPLab\Research\affective-monitor-model\preprocessing\lux_record_manual.csv"
 ill_list = pill.get_illum_lux_manual(filepath)
 ill_list = ill_list['illum_gimp'].tolist()
 ill_list = pu.match_illum_with_sample(pd_filt_df,ill_list)
@@ -62,8 +62,8 @@ arousals_list = arousals['arousal'].tolist()
 pd_sel_df = pd_pqr_df.copy()
 pd_sel_df = pu.match_label_with_sample(pd_sel_df,arousals_list)
 
-pd_ar_df = pd_sel_df[((pd_sel_df['label']==1) & (pd_sel_df['area_ql']>22))]
-pd_nar_df = pd_sel_df[((pd_sel_df['label']==2) & (pd_sel_df['area_ql']<=22))]
+pd_ar_df = pd_sel_df[((pd_sel_df['label']==1) & (pd_sel_df['area_ql']>5))]
+pd_nar_df = pd_sel_df[((pd_sel_df['label']==2) & (pd_sel_df['area_ql']<=5))]
 pd_nar_df = pd_nar_df.sample(pd_ar_df.shape[0])
 
 samples = pd.concat([pd_ar_df,pd_nar_df],ignore_index=True)

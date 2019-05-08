@@ -7,6 +7,24 @@ import utils
 import pandas as pd
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
+def get_features(faps_df,window_width=10):
+    
+    def find_peak(x,w):
+        # change shape to (19,100) from (100,19)
+        x = x.transpose()
+        L = x.shape[1]     
+        # find each cov for each sliding window
+        for i in range(w,L-w):
+            x_w = x[:,i:i+w]
+            cov_m = np.cov(x_w)
+            cov_m_norm = (cov_m-np.min(np.min(cov_m))/(np.max(np.max(cov_m))-np.min(np.min(cov_m))))
+        return cov_m_norm
+    
+    # apply faps_df['faps'] with find peak function 
+    faps_df['peak'] = faps_df['faps'].apply(find_peak,w=window_width)
+    
+    return faps_df
+
 
 def faps_preprocessing(faps_df,smooth=True,filter_miss=None,fix_scaler='standard',aoi=None):
     

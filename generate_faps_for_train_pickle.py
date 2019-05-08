@@ -33,6 +33,9 @@ faps_filtered = pfap.faps_preprocessing(faps_np_df,
                                         fix_scaler='minmax')
 samples = faps_filtered
 
+#%% get features
+faps_feat_df = pfap.get_features(faps_filtered)
+cov_m = faps_feat_df.loc[1]['peak']
 #%% visualize sandbox
 # generate picture id
 iaps_class = iaps(r"C:\Users\DSPLab\Research\affective-monitor-model\preprocessing")
