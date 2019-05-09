@@ -19,13 +19,13 @@ arousals_list = arousals['arousal'].tolist()
 data_df = pu.match_label_with_sample(data_df,arousals_list)
            
 label = data_df['label'].values.astype(np.int64)
-data = data_df[['slope_qr','delta_pq','delta_qr','area_ql']].values.astype(np.float32)
+data = data_df[['slope_qr','delta_pq','delta_qr']].values.astype(np.float32)
 
 test_df = utils.load_object('pd_for_test.pkl')
 test_df = pu.match_label_with_sample(test_df,arousals_list)
 
 label_test = test_df['label'].values.astype(np.int64)
-data_test = test_df[['slope_qr','delta_pq','delta_qr','area_ql']].values.astype(np.float32)
+data_test = test_df[['slope_qr','delta_pq','delta_qr']].values.astype(np.float32)
 
 # split train test data
 #X_train , X_test, y_train, y_test = train_test_split(data,label,test_size=0.1)

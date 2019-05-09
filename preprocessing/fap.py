@@ -7,7 +7,7 @@ import utils
 import pandas as pd
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
-def get_features(faps_df,window_width=10):
+def get_peak(faps_df,window_width=10):
     
     def find_peak(x,w):
         # change shape to (19,100) from (100,19)
@@ -15,19 +15,21 @@ def get_features(faps_df,window_width=10):
         L = x.shape[1]     
         # find each cov for each sliding window
         diff_cov = []
-        for i in range(w,L-w):
+        for i in range(w,L-w,int(w/2)):
             x_w = x[:,i:i+w]
             cov_m = np.cov(x_w)
-            cov_m_norm = (cov_m - cov_m.min()) / (cov_m.max()-cov_m.min())
             # map the positive           
             pos = 0
             neg = 0
-            for row in range(cov_m_norm.shape[0]):
-                for col in range(row+1,cov_m_norm.shape[1]):
-                    if cov_m_norm[row,col] >= 0:
-                        pos = pos+cov_m_norm[row,col]
+            for row in range(cov_m.shape[0]):
+                for col in range(row+1,cov_m.shape[1]):
+                    # normalize covarience by this formula 
+                    # cov(x1,x2) / (std(x1)*std(x2))
+                    cov_m[row,col] = cov_m[row,col]/(np.sqrt(cov_m[row,row])*np.sqrt(cov_m[col,col]))
+                    if cov_m[row,col] >= 0:
+                        pos = pos+cov_m[row,col]
                     else:
-                        neg = neg+cov_m_norm[row,col]
+                        neg = neg+cov_m[row,col]
             diff_val = pos - neg
             diff_cov.append(diff_val)
         # peak should be at the maximum different + size of window

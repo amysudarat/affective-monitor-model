@@ -34,9 +34,34 @@ faps_filtered = pfap.faps_preprocessing(faps_np_df,
 samples = faps_filtered
 
 #%% get features
-faps_feat_df = pfap.get_features(faps_filtered)
-cov_m = faps_feat_df.loc[1]['peak']
-#%% visualize sandbox
+faps_feat_df = pfap.get_peak(faps_filtered)
+cov_m = faps_feat_df.loc[1]['peak_pos']
+
+
+#%% slide plot
+import matplotlib.pyplot as plt
+
+def faps_slide_plot(faps_feat_df,sbj):
+    if sbj == 'all':
+        faps_feat_df = faps_feat_df[faps_feat_df['sbj_idx']==sbj] 
+    
+    # prepare faps that will be plotted
+    faps = faps_feat_df['faps'].tolist()
+    peaks = faps_feat_df['peak_pos'].tolist()
+    # slide show
+    for fap, p in zip(faps,peaks):
+        plt.figure()
+        for col in range(fap.shape[1]):
+            plt.plot(fap[:,col])
+        plt.axvline(p,color='red',lw=1)
+        plt.show()
+        plt.waitforbuttonpress()
+        plt.close()
+    return
+
+faps_slide_plot(faps_feat_df,1)
+
+ #%% visualize sandbox
 # generate picture id
 iaps_class = iaps(r"C:\Users\DSPLab\Research\affective-monitor-model\preprocessing")
 #iaps_class = iaps(r"E:\Research\affective-monitor-model\preprocessing")

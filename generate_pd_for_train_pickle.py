@@ -31,8 +31,8 @@ pd_filt_df = ppd.preprocessing_pd(pd_df,
 #%% illum compensation
 import preprocessing.illum as pill
 import preprocessing.pre_utils as pu
-filepath = r"E:\Research\affective-monitor-model\preprocessing\lux_record_manual.csv"
-#filepath = r"C:\Users\DSPLab\Research\affective-monitor-model\preprocessing\lux_record_manual.csv"
+#filepath = r"E:\Research\affective-monitor-model\preprocessing\lux_record_manual.csv"
+filepath = r"C:\Users\DSPLab\Research\affective-monitor-model\preprocessing\lux_record_manual.csv"
 ill_list = pill.get_illum_lux_manual(filepath)
 ill_list = ill_list['illum_gimp'].tolist()
 ill_list = pu.match_illum_with_sample(pd_filt_df,ill_list)
@@ -45,7 +45,8 @@ pd_pqr_df = ppd.get_pqr_feature(pd_filt_df,
 
 #%% get stat features
 pd_pqr_df = ppd.generate_features_df(pd_pqr_df)
-
+import matplotlib.pyplot as plt
+plt.hist(pd_pqr_df['area_ql'])
 #%% visualize pqr
 #ppd.plot_pqr_slideshow(pd_pqr_df,42,smooth=True)
 
