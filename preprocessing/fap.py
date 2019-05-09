@@ -14,14 +14,28 @@ def get_features(faps_df,window_width=10):
         x = x.transpose()
         L = x.shape[1]     
         # find each cov for each sliding window
+        diff_cov = []
         for i in range(w,L-w):
             x_w = x[:,i:i+w]
             cov_m = np.cov(x_w)
-            cov_m_norm = (cov_m-np.min(np.min(cov_m))/(np.max(np.max(cov_m))-np.min(np.min(cov_m))))
-        return cov_m_norm
+            cov_m_norm = (cov_m - cov_m.min()) / (cov_m.max()-cov_m.min())
+            # map the positive           
+            pos = 0
+            neg = 0
+            for row in range(cov_m_norm.shape[0]):
+                for col in range(row+1,cov_m_norm.shape[1]):
+                    if cov_m_norm[row,col] >= 0:
+                        pos = pos+cov_m_norm[row,col]
+                    else:
+                        neg = neg+cov_m_norm[row,col]
+            diff_val = pos - neg
+            diff_cov.append(diff_val)
+        # peak should be at the maximum different + size of window
+        peak_position = w + np.argmax(diff_cov)
+        return peak_position
     
     # apply faps_df['faps'] with find peak function 
-    faps_df['peak'] = faps_df['faps'].apply(find_peak,w=window_width)
+    faps_df['peak_pos'] = faps_df['faps'].apply(find_peak,w=window_width)
     
     return faps_df
 

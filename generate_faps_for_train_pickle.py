@@ -16,8 +16,8 @@ cufflinks.go_offline(connected=True)
 init_notebook_mode(connected=True)
 
 #%% get data
-path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
-#path = "E:\\Research\\ExperimentData"
+#path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
+path = "E:\\Research\\ExperimentData"
 n = 51
 subjects = [i for i in range(1,n+1)]
 
