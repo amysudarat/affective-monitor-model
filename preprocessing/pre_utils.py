@@ -6,14 +6,14 @@ def match_with_sample(original_df,filtered_idx):
     output = original_df[original_df.index.isin(filtered_idx.tolist())]
     return output.reset_index(drop=True)
 
-def match_label_with_sample(data_df,label_list):
+def match_label_with_sample(data_df,label_list,col_name='label'):
     ori_idx_col = data_df['ori_idx'].tolist()
     label_sel_list = []
     for idx in ori_idx_col:
         label_sel_list.append(label_list[idx])
     idx_col = data_df.index
     data_df = data_df.reset_index(drop=True)
-    data_df['label'] = label_sel_list
+    data_df[col_name] = label_sel_list
     data_df.index = idx_col
     
     return data_df

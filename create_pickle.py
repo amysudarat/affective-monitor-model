@@ -108,8 +108,8 @@ utils.save_object(sample_idx_list,'selected_idx_list_arousal.pkl')
 
 #%% valence pickle
 import preprocessing.valence as pval
-path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
-#path = "E:\\Research\\ExperimentData"
+#path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
+path = "E:\\Research\\ExperimentData"
 n = 51
 subjects = [i for i in range(1,n+1)]
 

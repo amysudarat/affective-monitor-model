@@ -8,7 +8,6 @@ from preprocessing.iaps import iaps
 import matplotlib.pyplot as plt
 import matplotlib.backends.backend_pdf
 import preprocessing.valence as pval
-import preprocessing.fap as pfap
 
 #%%
 # Standard plotly imports
@@ -25,6 +24,40 @@ init_notebook_mode(connected=True)
 
 #%%
 from sklearn.preprocessing import StandardScaler
+
+#%% get data
+import utils
+import preprocessing.pre_utils as pu
+data_df = utils.load_object('faps_for_train.pkl')
+valence = utils.load_object('valence.pkl')
+arousals = utils.load_object('arousal.pkl')
+valence_list = valence['valence'].tolist()
+arousal_list = arousals['arousal'].tolist()
+
+data_df = pu.match_label_with_sample(data_df,valence_list)
+data_df = pu.match_label_with_sample(data_df,arousal_list,col_name='arousal')
+           
+
+#%% plot faps with peak
+import preprocessing.fap as pfap
+
+pfap.faps_slide_plot(data_df,51,label=True)
+
+#%% plot dir vector with stem
+import preprocessing.fap as pfap
+
+pfap.dir_vector_slide_plot(data_df,51,label=True)
+
+#%% plot scatter matrix
+
+fig = ff.create_scatterplotmatrix(
+    data_df[['p_width','p_height','label']],
+    diag='histogram',
+    index='label',
+    height=1000, width=1000)
+
+plotly.offline.plot(fig)
+
 
 #%%
 ##iaps_class = iaps(r"C:\Users\DSPLab\Research\affective-monitor-model\preprocessing\IAPSinfoFile_Final.txt")

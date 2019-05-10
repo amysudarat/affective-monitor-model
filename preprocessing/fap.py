@@ -9,6 +9,54 @@ import peakutils
 import pandas as pd
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
+def faps_slide_plot(faps_feat_df,sbj,label=False):
+    if sbj != 'all':
+        faps_feat_df = faps_feat_df[faps_feat_df['sbj_idx']==sbj] 
+    
+    # prepare faps that will be plotted
+    faps = faps_feat_df['faps'].tolist()
+    peaks = faps_feat_df['peak_pos'].tolist()
+    if label:
+        labels = faps_feat_df['label'].tolist()
+    # slide show
+    i = 0
+    for fap, p in zip(faps,peaks):
+        plt.figure()
+        try:
+            for col in range(fap.shape[1]):
+                plt.plot(fap[:,col])
+        except:
+            plt.plot(fap)
+        plt.axvline(p,color='red',lw=1)
+        if label:
+            plt.title(str(labels[i]))
+        i += 1
+        plt.show()
+        plt.waitforbuttonpress()
+        plt.close()
+    return
+
+def dir_vector_slide_plot(faps_df,sbj,label=False):
+    if sbj != 'all':
+        faps_df = faps_df[faps_df['sbj_idx']==sbj]     
+    # prepare faps that will be plotted
+    sel_col = [str(i) for i in range(19)]
+    faps = faps_df[sel_col].values
+    if label:
+        labels = faps_df['label'].tolist()
+    # slide show
+    i = 0
+    for row in range(faps.shape[0]):
+        plt.figure()
+        plt.stem(faps[row])
+        if label:
+            plt.title(str(labels[i]))
+        i += 1
+        plt.show()
+        plt.waitforbuttonpress()
+        plt.close()
+    return
+
 def get_peak(faps_df,mode='peak',window_width=20,sliding_step=10):
     
     def find_peak_cov(x,w):

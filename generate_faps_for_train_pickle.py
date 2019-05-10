@@ -29,7 +29,7 @@ faps_peak_df = pfap.get_peak(faps_filtered,
 faps_feat_df = pfap.get_feature(faps_peak_df)
 
 #%% save to pickle
-samples = faps_feat_df.drop(columns=['faps','sbj_idx'])
+samples = faps_feat_df
 utils.save_object(samples,'faps_for_train.pkl')
 
 #%% slide plot
