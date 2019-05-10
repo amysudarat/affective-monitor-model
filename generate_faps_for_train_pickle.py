@@ -22,12 +22,15 @@ faps_filtered = pfap.faps_preprocessing(faps_np_df,
                                         fix_scaler='standard')
 
 #%% get peak
-faps_feat_df = pfap.get_peak(faps_filtered,
-                             window_width=10,
-                             sliding_step=3)
+faps_peak_df = pfap.get_peak(faps_filtered,
+                             mode='peak')
 
 #%% get feature
-faps_window_df = pfap.get_feature(faps_feat_df)
+faps_feat_df = pfap.get_feature(faps_peak_df)
+
+#%% save to pickle
+samples = faps_feat_df.drop(columns=['faps','sbj_idx'])
+utils.save_object(samples,'faps_for_train.pkl')
 
 #%% slide plot
 import matplotlib.pyplot as plt
@@ -53,7 +56,7 @@ def faps_slide_plot(faps_feat_df,sbj):
         plt.close()
     return
 
-faps_slide_plot(faps_feat_df,2)
+faps_slide_plot(faps_feat_df,51)
 
 #%% visualize sandbox
 # generate picture id
@@ -86,6 +89,6 @@ fig = plot_df.reset_index(drop=True).iplot(kind='scatter',mode='lines',
                                  asFigure=True)
 plotly.offline.plot(fig)
 
-#%% save to pickle file
-utils.save_object(samples,'faps_for_train.pkl')
+
+
 

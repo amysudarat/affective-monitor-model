@@ -2,13 +2,14 @@
 
 import numpy as np
 import scipy.signal
+from scipy.signal import peak_widths
 import matplotlib.pyplot as plt
 import utils
 import peakutils
 import pandas as pd
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
-def get_peak(faps_df,,mode='peak',window_width=20,sliding_step=10):
+def get_peak(faps_df,mode='peak',window_width=20,sliding_step=10):
     
     def find_peak_cov(x,w):
         # change shape to (19,100) from (100,19)
@@ -55,24 +56,34 @@ def get_peak(faps_df,,mode='peak',window_width=20,sliding_step=10):
     
     return faps_df
 
-def get_feature(faps_df,window_width=20):
+def get_feature(faps_df):
     
-    def get_window(row,w):
+    def get_peak_prop(row):
+        fap = row['faps']
+        peak = row['peak_pos']
+        fap = np.abs(fap)
+        fap_sum = np.sum(fap,axis=1)
+        p_prop = peak_widths(fap_sum,[peak],rel_height=1)
+        row['p_width'] = p_prop[0][0]
+        row['p_height'] = p_prop[1][0]
+        return row
+    
+    def get_dir_vector(row):
         fap = row['faps']
         p = row['peak_pos']
-        start = p-int(w/2)
-        stop = p+int(w/2)
-        fap = fap[start:stop,:]       
-        return fap
-    
-    def get_dir_vector(fap):
-        # absolute each row
-        fap = np.abs(fap)
-        return fap
-        
-#        return dir_vector
+        # find dir of each fap
+        for col in range(fap.shape[1]):
+            median = np.median(fap[:,col])
+            if fap[p,col] > median:
+                dir_val = 1
+            else:
+                dir_val = 0
+            # create new column with name of index contain direction
+            row[str(col)] = dir_val     
+        return row
             
-    faps_df['faps'] = faps_df.apply(get_window,w=window_width,axis=1)
+    faps_df = faps_df.apply(get_peak_prop,axis=1)
+    faps_df = faps_df.apply(get_dir_vector,axis=1)
     return faps_df
     
 
