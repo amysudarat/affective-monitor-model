@@ -4,18 +4,19 @@ import numpy as np
 import scipy.signal
 import matplotlib.pyplot as plt
 import utils
+import peakutils
 import pandas as pd
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
-def get_peak(faps_df,window_width=20):
+def get_peak(faps_df,,mode='peak',window_width=20,sliding_step=10):
     
-    def find_peak(x,w):
+    def find_peak_cov(x,w):
         # change shape to (19,100) from (100,19)
         x = x.transpose()
         L = x.shape[1]     
         # find each cov for each sliding window
         diff_cov = []
-        for i in range(w,L-w):
+        for i in range(w,L-w,sliding_step):
             x_w = x[:,i:i+w]
             cov_m = np.cov(x_w)
             # map the positive           
@@ -36,14 +37,43 @@ def get_peak(faps_df,window_width=20):
         peak_position = w + np.argmax(diff_cov)
         return peak_position
     
+    def find_peak_peakutils(x,min_dist,thres):
+        # use peak detection and find the maximum peak
+        x = np.abs(x)
+        x = np.sum(x,axis=1)
+        p = peakutils.indexes(x,min_dist=min_dist,thres=thres)
+        p_mag = [x[i] for i in p]
+        idx_max = np.argmax(p_mag)
+        
+        return p[idx_max]
+    
     # apply faps_df['faps'] with find peak function 
-    faps_df['peak_pos'] = faps_df['faps'].apply(find_peak,w=window_width)
+    if mode == 'cov':
+        faps_df['peak_pos'] = faps_df['faps'].apply(find_peak_cov,w=window_width)
+    elif mode == 'peak':
+        faps_df['peak_pos'] = faps_df['faps'].apply(find_peak_peakutils,min_dist=10,thres=0)
     
     return faps_df
 
-def get_feature(faps_df):
+def get_feature(faps_df,window_width=20):
     
-    pass
+    def get_window(row,w):
+        fap = row['faps']
+        p = row['peak_pos']
+        start = p-int(w/2)
+        stop = p+int(w/2)
+        fap = fap[start:stop,:]       
+        return fap
+    
+    def get_dir_vector(fap):
+        # absolute each row
+        fap = np.abs(fap)
+        return fap
+        
+#        return dir_vector
+            
+    faps_df['faps'] = faps_df.apply(get_window,w=window_width,axis=1)
+    return faps_df
     
 
 def faps_preprocessing(faps_df,smooth=True,filter_miss=None,fix_scaler='standard',aoi=None):
@@ -67,7 +97,7 @@ def faps_preprocessing(faps_df,smooth=True,filter_miss=None,fix_scaler='standard
             faps = np.array(faps_df.iloc[i]['faps'])
 #            faps = scipy.signal.savgol_filter(faps,window_length=15,polyorder=2,axis=1)   
             for col in range(faps.shape[1]):
-                faps[:,col] = scipy.signal.savgol_filter(faps[:,col],window_length=19,polyorder=3)   
+                faps[:,col] = scipy.signal.savgol_filter(faps[:,col],window_length=21,polyorder=5)   
             smoothed.append(faps)
         faps_df['tmp'] = smoothed
         faps_df = faps_df.drop('faps',axis=1)

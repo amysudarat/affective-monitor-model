@@ -11,23 +11,23 @@ n = 51
 subjects = [i for i in range(1,n+1)]
 
 #faps_df = pfap.get_faps_df(pickle_file='data_1_51.pkl')
-faps_np_df = pfap.get_faps_np_df(pickle_file='data_1_51.pkl')
+faps_np_df = pfap.get_faps_np_df(pickle_file='data_1_51_fix_distance.pkl')
 
 #%% find missing percentage
 missing_percentage_list = pfap.get_missing_percentage(faps_np_df)
 faps_filtered = pfap.faps_preprocessing(faps_np_df,
-                                        aoi=[0,60],
+                                        aoi=[0,50],
                                         smooth=True,
                                         filter_miss=missing_percentage_list,
-                                        fix_scaler='minmax')
-samples = faps_filtered
+                                        fix_scaler='standard')
 
 #%% get peak
 faps_feat_df = pfap.get_peak(faps_filtered,
-                             window_width=10)
+                             window_width=10,
+                             sliding_step=3)
 
 #%% get feature
-faps_feat_df = pfap.get_feature(faps_feat_df)
+faps_window_df = pfap.get_feature(faps_feat_df)
 
 #%% slide plot
 import matplotlib.pyplot as plt
@@ -42,15 +42,18 @@ def faps_slide_plot(faps_feat_df,sbj):
     # slide show
     for fap, p in zip(faps,peaks):
         plt.figure()
-        for col in range(fap.shape[1]):
-            plt.plot(fap[:,col])
+        try:
+            for col in range(fap.shape[1]):
+                plt.plot(fap[:,col])
+        except:
+            plt.plot(fap)
         plt.axvline(p,color='red',lw=1)
         plt.show()
         plt.waitforbuttonpress()
         plt.close()
     return
 
-faps_slide_plot(faps_feat_df,6)
+faps_slide_plot(faps_feat_df,2)
 
 #%% visualize sandbox
 # generate picture id
