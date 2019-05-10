@@ -16,7 +16,7 @@ faps_np_df = pfap.get_faps_np_df(pickle_file='data_1_51.pkl')
 #%% find missing percentage
 missing_percentage_list = pfap.get_missing_percentage(faps_np_df)
 faps_filtered = pfap.faps_preprocessing(faps_np_df,
-                                        aoi=[0,100],
+                                        aoi=[0,60],
                                         smooth=True,
                                         filter_miss=missing_percentage_list,
                                         fix_scaler='minmax')
@@ -24,7 +24,7 @@ samples = faps_filtered
 
 #%% get peak
 faps_feat_df = pfap.get_peak(faps_filtered,
-                             window_width=20)
+                             window_width=10)
 
 #%% get feature
 faps_feat_df = pfap.get_feature(faps_feat_df)
@@ -50,9 +50,9 @@ def faps_slide_plot(faps_feat_df,sbj):
         plt.close()
     return
 
-faps_slide_plot(faps_feat_df,2)
+faps_slide_plot(faps_feat_df,6)
 
- #%% visualize sandbox
+#%% visualize sandbox
 # generate picture id
 iaps_class = iaps(r"C:\Users\DSPLab\Research\affective-monitor-model\preprocessing")
 #iaps_class = iaps(r"E:\Research\affective-monitor-model\preprocessing")
