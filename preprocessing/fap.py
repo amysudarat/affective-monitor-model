@@ -7,7 +7,7 @@ import utils
 import pandas as pd
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
-def get_peak(faps_df,window_width=10):
+def get_peak(faps_df,window_width=20):
     
     def find_peak(x,w):
         # change shape to (19,100) from (100,19)
@@ -15,7 +15,7 @@ def get_peak(faps_df,window_width=10):
         L = x.shape[1]     
         # find each cov for each sliding window
         diff_cov = []
-        for i in range(w,L-w,int(w/2)):
+        for i in range(w,L-w):
             x_w = x[:,i:i+w]
             cov_m = np.cov(x_w)
             # map the positive           
@@ -30,7 +30,7 @@ def get_peak(faps_df,window_width=10):
                         pos = pos+cov_m[row,col]
                     else:
                         neg = neg+cov_m[row,col]
-            diff_val = pos - neg
+            diff_val = abs(pos) - abs(neg)
             diff_cov.append(diff_val)
         # peak should be at the maximum different + size of window
         peak_position = w + np.argmax(diff_cov)
@@ -41,6 +41,10 @@ def get_peak(faps_df,window_width=10):
     
     return faps_df
 
+def get_feature(faps_df):
+    
+    pass
+    
 
 def faps_preprocessing(faps_df,smooth=True,filter_miss=None,fix_scaler='standard',aoi=None):
     

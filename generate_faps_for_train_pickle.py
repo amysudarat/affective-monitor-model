@@ -3,17 +3,6 @@ import utils
 import pandas as pd
 from preprocessing.iaps import iaps
 import preprocessing.fap as pfap
-#%%
-# Standard plotly imports
-import plotly
-import plotly.plotly as py
-import plotly.graph_objs as go
-from plotly.offline import iplot, init_notebook_mode
-import plotly.figure_factory as ff
-# Using plotly + cufflinks in offline mode
-import cufflinks
-cufflinks.go_offline(connected=True)
-init_notebook_mode(connected=True)
 
 #%% get data
 #path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
@@ -33,16 +22,18 @@ faps_filtered = pfap.faps_preprocessing(faps_np_df,
                                         fix_scaler='minmax')
 samples = faps_filtered
 
-#%% get features
-faps_feat_df = pfap.get_peak(faps_filtered)
-cov_m = faps_feat_df.loc[1]['peak_pos']
+#%% get peak
+faps_feat_df = pfap.get_peak(faps_filtered,
+                             window_width=20)
 
+#%% get feature
+faps_feat_df = pfap.get_feature(faps_feat_df)
 
 #%% slide plot
 import matplotlib.pyplot as plt
 
 def faps_slide_plot(faps_feat_df,sbj):
-    if sbj == 'all':
+    if sbj != 'all':
         faps_feat_df = faps_feat_df[faps_feat_df['sbj_idx']==sbj] 
     
     # prepare faps that will be plotted
@@ -59,7 +50,7 @@ def faps_slide_plot(faps_feat_df,sbj):
         plt.close()
     return
 
-faps_slide_plot(faps_feat_df,1)
+faps_slide_plot(faps_feat_df,2)
 
  #%% visualize sandbox
 # generate picture id
@@ -69,6 +60,19 @@ samples_idx = iaps_class.get_sample_idx(2070)
 
 # get samples based on pic_id
 faps_selected = faps_filtered[faps_filtered['ori_idx'].isin(samples_idx)]
+
+
+#%%
+# Standard plotly imports
+import plotly
+import plotly.plotly as py
+import plotly.graph_objs as go
+from plotly.offline import iplot, init_notebook_mode
+import plotly.figure_factory as ff
+# Using plotly + cufflinks in offline mode
+import cufflinks
+cufflinks.go_offline(connected=True)
+init_notebook_mode(connected=True)
 
 
 #%% check by visualize

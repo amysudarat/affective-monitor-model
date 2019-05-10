@@ -23,29 +23,30 @@ cufflinks.go_offline(connected=True)
 init_notebook_mode(connected=True)
 
 #%% face_dataset pickle
-#n = 51
-#subjects = [i for i in range(1,n+1)]
-#
-###############--------- Generate face_dataset getting raw PD ----------##########
-##face_dataset = AffectiveMonitorDataset("C:\\Users\\dspcrew\\affective-monitor-model\\data",
-##                                           subjects=subjects,
-##                                           transform=ToTensor())
-#    
+n = 51
+subjects = [i for i in range(1,n+1)]
+
+##############--------- Generate face_dataset getting raw PD ----------##########
+#face_dataset = AffectiveMonitorDataset("C:\\Users\\dspcrew\\affective-monitor-model\\data",
+#                                           subjects=subjects,
+#                                           transform=ToTensor())
+    
 #face_dataset = AffectiveMonitorDataset("C:\\Users\\DSPLab\\Research\\ExperimentData",
 #                                       subjects=subjects,
 #                                       fix_PD=False,
 #                                       convert_label=False)
-#    
-##face_dataset = AffectiveMonitorDataset("E:\\Research\\ExperimentData",
-##                                           subjects=subjects,
-##                                           fix_PD=False,
-##                                           convert_label=False)
-#
-## raw face dataset sandbox
-##face_df = face_dataset.face_df
-#
-## save to pickle file
-#utils.save_object(face_dataset, "data_1_51.pkl")
+
+face_dataset = AffectiveMonitorDataset("E:\\Research\\ExperimentData",
+                                           subjects=subjects,
+                                           fix_distance=True,
+                                           fix_PD=False,
+                                           convert_label=False)
+
+# raw face dataset sandbox
+#face_df = face_dataset.face_df
+
+# save to pickle file
+utils.save_object(face_dataset, "data_1_51_fix_distance.pkl")
 
 #%% arousal pickle
 import preprocessing.arousal as paro

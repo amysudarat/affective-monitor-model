@@ -305,8 +305,7 @@ class AffectiveMonitorDataset(Dataset):
             for i in range(face_df.shape[0]):
                 # adjust fapu based on distance
                 fapu_per_frame = face_df.iloc[i,21:26]
-                depth = face_df.iloc[i,26]
-                 # convert data to fap unit using global fapu
+                 # convert data to fap unit using fapu per frame
                 face_df.iloc[i,face_df.columns.get_loc("31")] = face_df.iloc[i,face_df.columns.get_loc("31")]/fapu_per_frame['ENS']
                 face_df.iloc[i,face_df.columns.get_loc("32")] = face_df.iloc[i,face_df.columns.get_loc("32")]/fapu_per_frame['ENS']
                 face_df.iloc[i,face_df.columns.get_loc("35")] = face_df.iloc[i,face_df.columns.get_loc("35")]/fapu_per_frame['ENS']
