@@ -32,7 +32,8 @@ subjects = [i for i in range(1,n+1)]
 #                                           transform=ToTensor())
     
 face_dataset = AffectiveMonitorDataset("C:\\Users\\DSPLab\\Research\\ExperimentData",
-                                       subjects=subjects,
+                                       subjects=[88],
+#                                       fix_distance=True,
                                        fix_PD=False,
                                        convert_label=False)
 #
@@ -46,7 +47,7 @@ face_dataset = AffectiveMonitorDataset("C:\\Users\\DSPLab\\Research\\ExperimentD
 #face_df = face_dataset.face_df
 
 # save to pickle file
-utils.save_object(face_dataset, "data_1_51_fix_distance.pkl")
+utils.save_object(face_dataset, "data_88.pkl")
 
 #%% arousal pickle
 import preprocessing.arousal as paro
@@ -59,7 +60,7 @@ arousals = paro.get_arousal_df(path,subjects,source='subject_avg',fix=True,class
 # save to pickle file
 utils.save_object(arousals, "arousal.pkl")
 
-#%% generate list of selected samples valence
+#%% generate list of selected samples arousal
 from sklearn.preprocessing import StandardScaler
 path = "E:\\Research\\ExperimentData"
 #path = "C:\\Users\\DSPLab\\Research\\ExperimentData"

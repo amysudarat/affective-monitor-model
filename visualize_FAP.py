@@ -41,14 +41,14 @@ data_df = pu.match_label_with_sample(data_df,arousal_list,col_name='arousal')
 #%% plot faps with peak
 import preprocessing.fap as pfap
 
-pfap.faps_slide_plot(data_df,51,label=True)
+pfap.faps_slide_plot(data_df,30,label=True)
 
-#%% plot dir vector with stem
+ #%% plot dir vector with stem
 import preprocessing.fap as pfap
 
-pfap.dir_vector_slide_plot(data_df,51,label=True)
+pfap.dir_vector_slide_plot(data_df,30,label=True)                                   
 
-#%% plot scatter matrix
+#%% plot scatter matrix  
 
 fig = ff.create_scatterplotmatrix(
     data_df[['p_width','p_height','label']],

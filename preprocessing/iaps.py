@@ -27,7 +27,7 @@ class iaps(object):
         """
             return sample index corresponding to the group of feeling
         """
-        filepath = self.filepath+'\\IAPS_selectedList_Mild.csv'
+        filepath = self.filepath+'\\IAPS_selectedList_Final.csv'
         feel_df = pd.read_csv(filepath,index_col=0)
         return feel_df
     

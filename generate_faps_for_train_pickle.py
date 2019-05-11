@@ -11,7 +11,7 @@ n = 51
 subjects = [i for i in range(1,n+1)]
 
 #faps_df = pfap.get_faps_df(pickle_file='data_1_51.pkl')
-faps_np_df = pfap.get_faps_np_df(pickle_file='data_1_51.pkl')
+faps_np_df = pfap.get_faps_np_df(pickle_file='data_88_fix_distance.pkl')
 
 #%% find missing percentage
 missing_percentage_list = pfap.get_missing_percentage(faps_np_df)
