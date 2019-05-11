@@ -31,16 +31,16 @@ subjects = [i for i in range(1,n+1)]
 #                                           subjects=subjects,
 #                                           transform=ToTensor())
     
-#face_dataset = AffectiveMonitorDataset("C:\\Users\\DSPLab\\Research\\ExperimentData",
-#                                       subjects=subjects,
-#                                       fix_PD=False,
-#                                       convert_label=False)
-
-face_dataset = AffectiveMonitorDataset("E:\\Research\\ExperimentData",
-                                           subjects=subjects,
-                                           fix_distance=True,
-                                           fix_PD=False,
-                                           convert_label=False)
+face_dataset = AffectiveMonitorDataset("C:\\Users\\DSPLab\\Research\\ExperimentData",
+                                       subjects=subjects,
+                                       fix_PD=False,
+                                       convert_label=False)
+#
+#face_dataset = AffectiveMonitorDataset("E:\\Research\\ExperimentData",
+#                                           subjects=subjects,
+#                                           fix_distance=True,
+#                                           fix_PD=False,
+#                                           convert_label=False)
 
 # raw face dataset sandbox
 #face_df = face_dataset.face_df
