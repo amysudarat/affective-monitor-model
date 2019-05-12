@@ -27,7 +27,8 @@ def faps_slide_plot(faps_feat_df,sbj,label=False):
                 plt.plot(fap[:,col])
         except:
             plt.plot(fap)
-        plt.axvline(p,color='red',lw=1)
+        for p in peaks:
+            plt.axvline(p,color='red',lw=1)
         if label:
             plt.title(str(labels[i]))
         i += 1
@@ -57,7 +58,7 @@ def dir_vector_slide_plot(faps_df,sbj,label=False):
         plt.close()
     return
 
-def get_peak(faps_df,mode='peak',window_width=20,sliding_step=10):
+def get_peak(faps_df,mode='peak',window_width=10,sliding_step=3):
     
     def find_peak_cov(x,w):
         # change shape to (19,100) from (100,19)
@@ -84,17 +85,14 @@ def get_peak(faps_df,mode='peak',window_width=20,sliding_step=10):
             diff_cov.append(diff_val)
         # peak should be at the maximum different + size of window
         peak_position = w + np.argmax(diff_cov)
-        return peak_position
+        return [peak_position]
     
     def find_peak_peakutils(x,min_dist,thres):
         # use peak detection and find the maximum peak
         x = np.abs(x)
         x = np.sum(x,axis=1)
-        p = peakutils.indexes(x,min_dist=min_dist,thres=thres)
-        p_mag = [x[i] for i in p]
-        idx_max = np.argmax(p_mag)
-        
-        return p[idx_max]
+        p = peakutils.indexes(x,min_dist=min_dist,thres=thres)               
+        return p
     
     # apply faps_df['faps'] with find peak function 
     if mode == 'cov':
@@ -108,17 +106,39 @@ def get_feature(faps_df):
     
     def get_peak_prop(row):
         fap = row['faps']
-        peak = row['peak_pos']
+        peak = row['peak_pos']        
         fap = np.abs(fap)
         fap_sum = np.sum(fap,axis=1)
-        p_prop = peak_widths(fap_sum,[peak],rel_height=1)
-        row['p_width'] = p_prop[0][0]
-        row['p_height'] = p_prop[1][0]
+        
+        # return value [width,height,left_ips,right_ips]
+        p_width, p_height, p_lb, p_rb = peak_widths(fap_sum,peak,rel_height=1)
+        
+        # peak selection
+        # criteria: width > 7
+#        pop_idx = []
+#        for i,w in enumerate(p_width):
+#            if (w < 7 or w > 30) and len(p_width) > 2:
+#                pop_idx.append(i)
+#        pop_idx = sorted(pop_idx,reverse=True)
+#        p_width = np.delete(p_width,pop_idx)
+#        p_height = np.delete(p_height,pop_idx)
+#        p_lb = np.delete(p_lb,pop_idx)
+#        p_rb = np.delete(p_rb,pop_idx)
+#        
+        # criteria: big width, big height
+#        criteria = np.add(p_width,p_height)
+        criteria = np.divide(p_height,p_width)
+        crit_idx = np.argmax(criteria)
+        row['p_sel'] = peak[crit_idx]
+        row['p_width'] = p_width[crit_idx]
+        row['p_height'] = p_height[crit_idx]
+        row['p_lb'] = p_lb[crit_idx]
+        row['p_rb'] = p_rb[crit_idx]
         return row
     
     def get_dir_vector(row):
         fap = row['faps']
-        p = row['peak_pos']
+        p = row['p_sel']
         # find dir of each fap
         for col in range(fap.shape[1]):
             median = np.median(fap[:,col])

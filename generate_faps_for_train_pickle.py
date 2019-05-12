@@ -5,13 +5,13 @@ from preprocessing.iaps import iaps
 import preprocessing.fap as pfap
 
 #%% get data
-path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
-#path = "E:\\Research\\ExperimentData"
+#path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
+path = "E:\\Research\\ExperimentData"
 n = 51
 subjects = [i for i in range(1,n+1)]
 
 #faps_df = pfap.get_faps_df(pickle_file='data_1_51.pkl')
-faps_np_df = pfap.get_faps_np_df(pickle_file='data_88_fix_distance.pkl')
+faps_np_df = pfap.get_faps_np_df(pickle_file='data_1_51_fix_distance.pkl')
 
 #%% find missing percentage
 missing_percentage_list = pfap.get_missing_percentage(faps_np_df)
@@ -26,37 +26,54 @@ faps_peak_df = pfap.get_peak(faps_filtered,
                              mode='peak')
 
 #%% get feature
-faps_feat_df = pfap.get_feature(faps_peak_df)
+faps_peak_sel_df = pfap.get_feature(faps_peak_df)
 
 #%% save to pickle
-samples = faps_feat_df
+samples = faps_peak_sel_df
 utils.save_object(samples,'faps_for_train.pkl')
 
 #%% slide plot
 import matplotlib.pyplot as plt
 
-def faps_slide_plot(faps_feat_df,sbj):
+def faps_slide_plot(faps_feat_df,sbj,label=False):
     if sbj != 'all':
         faps_feat_df = faps_feat_df[faps_feat_df['sbj_idx']==sbj] 
     
     # prepare faps that will be plotted
     faps = faps_feat_df['faps'].tolist()
     peaks = faps_feat_df['peak_pos'].tolist()
+    try:
+        p_selects = faps_feat_df['p_sel'].tolist()
+        p_lbs = faps_feat_df['p_lb'].tolist()
+        p_rbs = faps_feat_df['p_rb'].tolist()
+    except:
+        pass
+    if label:
+        labels = faps_feat_df['label'].tolist()
     # slide show
-    for fap, p in zip(faps,peaks):
+    for i in range(len(faps)):
         plt.figure()
         try:
-            for col in range(fap.shape[1]):
-                plt.plot(fap[:,col])
+            for col in range(faps[i].shape[1]):
+                plt.plot(faps[i][:,col])
         except:
-            plt.plot(fap)
-        plt.axvline(p,color='red',lw=1)
+            plt.plot(faps[i])
+        try:
+            for p in peaks[i]:
+                plt.axvline(p,color='black',lw=1)
+            plt.axvline(p_selects[i],color='black',lw=3)
+            plt.axvline(p_lbs[i],color='black',lw=3)
+            plt.axvline(p_rbs[i],color='black',lw=3)
+        except:
+            plt.axvline(peaks[i],color='black',lw=3)           
+        if label:
+            plt.title(str(labels[i]))
         plt.show()
         plt.waitforbuttonpress()
         plt.close()
     return
 
-faps_slide_plot(faps_feat_df,51)
+faps_slide_plot(faps_peak_df,31)  
 
 #%% visualize sandbox
 # generate picture id
