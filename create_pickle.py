@@ -33,7 +33,7 @@ subjects = [i for i in range(1,n+1)]
     
 face_dataset = AffectiveMonitorDataset("C:\\Users\\DSPLab\\Research\\ExperimentData",
                                        subjects=[88],
-#                                       fix_distance=True,
+                                       fix_distance=True,
                                        fix_PD=False,
                                        convert_label=False)
 #
@@ -48,6 +48,70 @@ face_dataset = AffectiveMonitorDataset("C:\\Users\\DSPLab\\Research\\ExperimentD
 
 # save to pickle file
 utils.save_object(face_dataset, "data_88.pkl")
+
+#%% create fap template for pickle
+import preprocessing.fap as pfap
+faps_np_df = pfap.get_faps_np_df(pickle_file='data_88_fix_distance.pkl')
+# add label
+label = ['surprise','calm1','smile1','laugh','sad1','disgust',
+         'fear','angry','eye_widen','open_mouth1','very_sad',
+         'move_eyebrow','calm2','move_forward','look_down',
+         'nothing','turn_right','sad2', 'open_mouth2','smile2']
+
+faps_np_df['label'] = label
+#pfap.faps_slide_plot(faps_np_df,'all',peak_plot=False,label=True)
+#pfap.faps_slide_subplot(faps_np_df,'all',label=True)
+#%% preprocess
+faps_tmp_df = pfap.faps_preprocessing_samples(faps_np_df,
+                                              smooth=True,
+                                              fix_scaler='standard',
+                                              fix_scaler_mode='sbj',
+                                              aoi=[0,100],
+                                              sm_wid_len=21,
+                                              sbj_num=88)
+faps_tmp_df['label'] = label
+#pfap.faps_slide_plot(faps_tmp_df,'all',peak_plot=False,label=True)
+#pfap.faps_slide_subplot(faps_tmp_df,'all',label=True)
+# add label
+label = ['surprise','calm1','smile1','laugh','sad1','disgust',
+         'fear','angry','eye_widen','open_mouth1','very_sad',
+         'move_eyebrow','calm2','move_forward','look_down',
+         'nothing','turn_right','sad2', 'open_mouth2','smile2']
+
+faps_tmp_df['label'] = label
+
+
+
+ #%% get features
+faps_tmp_df = pfap.get_peak(faps_tmp_df,mode='peak')
+faps_tmp_df = pfap.get_feature(faps_tmp_df)
+pfap.faps_slide_plot(faps_tmp_df,'all',label=True)
+pfap.dir_vector_slide_plot(faps_tmp_df,'all',label=True)
+#%%  
+# save template to pickle
+utils.save_object(faps_tmp_df,'fap_template.pkl')
+
+#%%
+# Standard plotly imports
+import plotly
+import plotly.plotly as py
+import plotly.graph_objs as go
+from plotly.offline import iplot, init_notebook_mode
+import plotly.figure_factory as ff
+# Using plotly + cufflinks in offline mode
+import cufflinks
+cufflinks.go_offline(connected=True)
+init_notebook_mode(connected=True)
+import pandas as pd
+
+#%% check by visualize
+title = 'angry'
+plot_df = pd.DataFrame(faps_tmp_df[faps_tmp_df['label']==title]['faps'].values.tolist()[0])
+fig = plot_df.reset_index(drop=True).iplot(kind='scatter',mode='lines',
+                                 title=title,
+                                 xTitle='frame', yTitle= 'FAP changes',
+                                 asFigure=True)
+plotly.offline.plot(fig)
 
 #%% arousal pickle
 import preprocessing.arousal as paro

@@ -23,7 +23,8 @@ faps_filtered = pfap.faps_preprocessing(faps_np_df,
 
 #%% get peak
 faps_peak_df = pfap.get_peak(faps_filtered,
-                             mode='peak')
+                             mode='peak',
+                             min_dist=5)
 
 #%% get feature
 faps_peak_sel_df = pfap.get_feature(faps_peak_df)
@@ -73,7 +74,7 @@ def faps_slide_plot(faps_feat_df,sbj,label=False):
         plt.close()
     return
 
-faps_slide_plot(faps_peak_df,31)  
+faps_slide_plot(faps_peak_sel_df,42)  
 
 #%% visualize sandbox
 # generate picture id

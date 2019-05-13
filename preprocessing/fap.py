@@ -9,29 +9,73 @@ import peakutils
 import pandas as pd
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
-def faps_slide_plot(faps_feat_df,sbj,label=False):
+def faps_slide_subplot(faps_feat_df,sbj,label=False):
     if sbj != 'all':
         faps_feat_df = faps_feat_df[faps_feat_df['sbj_idx']==sbj] 
     
     # prepare faps that will be plotted
     faps = faps_feat_df['faps'].tolist()
-    peaks = faps_feat_df['peak_pos'].tolist()
+    if label:
+        labels = faps_feat_df['label'].tolist()
+    FAP_index = [i for i in range(19)]
+    # slide show
+    
+    for i in range(len(faps)):
+        fig, axes = plt.subplots(nrows=10,ncols=2,sharex=True,figsize=(18,16))
+        for j, ax in enumerate(axes.flatten()):
+            if j == 19:
+                break
+            ax.plot(faps[i][:,j])
+            ax.set_ylabel(FAP_index[j])
+
+        if label:
+            fig.suptitle(str(labels[i]))
+        plt.show()
+        plt.waitforbuttonpress()
+        plt.close()
+    return
+
+def faps_slide_plot(faps_feat_df,sbj,label=False,peak_plot=True):
+    if sbj != 'all':
+        faps_feat_df = faps_feat_df[faps_feat_df['sbj_idx']==sbj] 
+    
+    # prepare faps that will be plotted
+    faps = faps_feat_df['faps'].tolist()
+    if peak_plot:
+        peaks = faps_feat_df['peak_pos'].tolist()
+        try:
+            p_selects = faps_feat_df['p_sel'].tolist()
+            p_lbs = faps_feat_df['p_lb'].tolist()
+            p_rbs = faps_feat_df['p_rb'].tolist()
+        except:
+            pass
     if label:
         labels = faps_feat_df['label'].tolist()
     # slide show
-    i = 0
-    for fap, p in zip(faps,peaks):
-        plt.figure()
+    for i in range(len(faps)):
+        plt.figure(figsize=(10,8))
         try:
-            for col in range(fap.shape[1]):
-                plt.plot(fap[:,col])
+            for col in range(faps[i].shape[1]):
+                plt.plot(faps[i][:,col])
         except:
-            plt.plot(fap)
-        for p in peaks:
-            plt.axvline(p,color='red',lw=1)
+            plt.plot(faps[i])
+        if peak_plot:
+            try:
+                for p in peaks[i]:
+                    plt.axvline(p,color='black',lw=1)
+                plt.axvline(p_selects[i],color='black',lw=3)
+                plt.axvline(p_lbs[i],color='black',lw=3)
+                plt.axvline(p_rbs[i],color='black',lw=3)
+            except:
+                plt.axvline(peaks[i],color='black',lw=3)           
         if label:
             plt.title(str(labels[i]))
-        i += 1
+        FAP_index = ['l_i_eyebrow_y','r_i_eyebrow_y','l_o_eyebrow_y','r_o_eyebrow_y',
+             'l_i_eyebrow_x','r_i_eyebrow_x','t_l_eyelid_y','t_r_eyelid_y',
+             'l_cheeck_y','r_cheeck_y','l_nose_x','r_nose_x',
+             'l_o_cornerlip_y','r_o_cornerlip_y','l_o_cornerlip_x','r_o_cornerlip_x',
+             'l_b_midlip_y','l_t_midlip_y','open_jaw']
+        plt.legend(FAP_index)
         plt.show()
         plt.waitforbuttonpress()
         plt.close()
@@ -58,7 +102,7 @@ def dir_vector_slide_plot(faps_df,sbj,label=False):
         plt.close()
     return
 
-def get_peak(faps_df,mode='peak',window_width=10,sliding_step=3):
+def get_peak(faps_df,mode='peak',window_width=10,sliding_step=3,min_dist=10):
     
     def find_peak_cov(x,w):
         # change shape to (19,100) from (100,19)
@@ -98,7 +142,7 @@ def get_peak(faps_df,mode='peak',window_width=10,sliding_step=3):
     if mode == 'cov':
         faps_df['peak_pos'] = faps_df['faps'].apply(find_peak_cov,w=window_width)
     elif mode == 'peak':
-        faps_df['peak_pos'] = faps_df['faps'].apply(find_peak_peakutils,min_dist=10,thres=0)
+        faps_df['peak_pos'] = faps_df['faps'].apply(find_peak_peakutils,min_dist=min_dist,thres=0)
     
     return faps_df
 
@@ -111,7 +155,7 @@ def get_feature(faps_df):
         fap_sum = np.sum(fap,axis=1)
         
         # return value [width,height,left_ips,right_ips]
-        p_width, p_height, p_lb, p_rb = peak_widths(fap_sum,peak,rel_height=1)
+        p_width, p_height, p_lb, p_rb = peak_widths(fap_sum,peak,rel_height=0.75)
         
         # peak selection
         # criteria: width > 7
@@ -127,7 +171,7 @@ def get_feature(faps_df):
 #        
         # criteria: big width, big height
 #        criteria = np.add(p_width,p_height)
-        criteria = np.divide(p_height,p_width)
+        criteria = np.divide(p_width,p_height)
         crit_idx = np.argmax(criteria)
         row['p_sel'] = peak[crit_idx]
         row['p_width'] = p_width[crit_idx]
@@ -155,17 +199,12 @@ def get_feature(faps_df):
     return faps_df
 
 
-def faps_preprocessing_samples(faps_df,smooth=True,filter_miss=None,fix_scaler='standard',aoi=None):
+def faps_preprocessing_samples(faps_df,smooth=True,fix_scaler='standard',aoi=None,sbj_num=88,fix_scaler_mode='sbj',sm_wid_len=10):
     
     # reserve test subject idx
-    total_sbj = int((faps_df.index.max()+1)/70)
-    sbj_idx = [j for j in range(1,total_sbj+1) for i in range(70) ]
-    faps_df['sbj_idx'] = sbj_idx
     
-    if filter_miss is not None:
-        faps_df['miss_ratio'] = filter_miss
-        faps_df = faps_df[faps_df['miss_ratio'] <= 25]
-        faps_df = faps_df.drop('miss_ratio',axis=1)
+    sbj_idx = [sbj_num for i in range(faps_df.shape[0])]
+    faps_df['sbj_idx'] = sbj_idx
         
     if aoi is not None:
         faps_df['faps'] = faps_df['faps'].apply(lambda x:x[aoi[0]:aoi[1]])
@@ -176,7 +215,7 @@ def faps_preprocessing_samples(faps_df,smooth=True,filter_miss=None,fix_scaler='
             faps = np.array(faps_df.iloc[i]['faps'])
 #            faps = scipy.signal.savgol_filter(faps,window_length=15,polyorder=2,axis=1)   
             for col in range(faps.shape[1]):
-                faps[:,col] = scipy.signal.savgol_filter(faps[:,col],window_length=21,polyorder=5)   
+                faps[:,col] = scipy.signal.savgol_filter(faps[:,col],window_length=sm_wid_len,polyorder=2)   
             smoothed.append(faps)
         faps_df['tmp'] = smoothed
         faps_df = faps_df.drop('faps',axis=1)
@@ -184,27 +223,30 @@ def faps_preprocessing_samples(faps_df,smooth=True,filter_miss=None,fix_scaler='
         faps_df.columns = ['faps','ori_idx','sbj_idx']
     
     if fix_scaler is not None:
-        output_df = pd.DataFrame()
-        for subject_idx in range(1,52):
-            faps_per_sbj = faps_df[faps_df['sbj_idx']==subject_idx]
-            faps_block = faps_per_sbj['faps'].values
-            a_to_fit = faps_block[0]
-            for i in range(1,faps_per_sbj.shape[0]):
-                a_to_fit = np.concatenate([a_to_fit,faps_block[i]])
-            if fix_scaler == 'minmax':
-                sc = MinMaxScaler()
-            else:
-                sc = StandardScaler()
+        
+        faps_block = faps_df['faps'].values
+        a_to_fit = faps_block[0]
+        for i in range(1,faps_df.shape[0]):
+            a_to_fit = np.concatenate([a_to_fit,faps_block[i]])
+        if fix_scaler == 'minmax':
+            sc = MinMaxScaler()
+        else:
+            sc = StandardScaler()        
+        if fix_scaler_mode == 'sbj':
             sc.fit(a_to_fit)
-            tmp_df = faps_per_sbj.copy()
-            tmp_df['faps'] = faps_per_sbj['faps'].apply(lambda x:sc.transform(x))
-            output_df = output_df.append(tmp_df)
-        faps_df = output_df
+            faps_df['faps'] = faps_df['faps'].apply(lambda x:sc.transform(x))
+        elif fix_scaler_mode == 'each':
+            faps_df['faps'] = faps_df['faps'].apply(lambda x:sc.fit_transform(x))
+#        # shift mean if use min max
+#        if fix_scaler == 'minmax':
+#            def shift_means(fap):
+#                for col in range(fap.shape[1]):
+#                    fap[:,col] = fap[:,col] - np.mean(fap[:,col])
+#                return fap
+#            faps_df['faps'] = faps_df['faps'].apply(shift_means)
         # set type of array
         faps_df['faps'] = faps_df['faps'].apply(lambda x:x.astype(np.float64))
     return faps_df
-
-
 
 def faps_preprocessing(faps_df,smooth=True,filter_miss=None,fix_scaler='standard',aoi=None):
     
