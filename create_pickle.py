@@ -22,6 +22,12 @@ import cufflinks
 cufflinks.go_offline(connected=True)
 init_notebook_mode(connected=True)
 
+#%% get AU_df
+import pandas as pd
+AU_df = pd.read_csv(r'C:\Users\DSPLab\Research\affective-monitor-model\preprocessing\AU_FAP.csv')
+AU_df = AU_df.fillna(method='ffill')
+AU_df = AU_df.set_index('AU')
+
 #%% face_dataset pickle
 n = 51
 subjects = [i for i in range(1,n+1)]
