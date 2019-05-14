@@ -208,6 +208,9 @@ def faps_preprocessing_samples(faps_df,smooth=True,fix_scaler='standard',aoi=Non
         
     if aoi is not None:
         faps_df['faps'] = faps_df['faps'].apply(lambda x:x[aoi[0]:aoi[1]])
+    
+    # absolute all the signal
+    faps_df['faps'] = faps_df['faps'].apply(lambda x:np.absolute(x))
 
     if smooth:
         smoothed = []

@@ -51,7 +51,7 @@ utils.save_object(face_dataset, "data_88.pkl")
 
 #%% create fap template for pickle
 import preprocessing.fap as pfap
-faps_np_df = pfap.get_faps_np_df(pickle_file='data_88_fix_distance.pkl')
+faps_np_df = pfap.get_faps_np_df(pickle_file='data_88.pkl')
 # add label
 label = ['surprise','calm1','smile1','laugh','sad1','disgust',
          'fear','angry','eye_widen','open_mouth1','very_sad',
@@ -105,7 +105,7 @@ init_notebook_mode(connected=True)
 import pandas as pd
 
 #%% check by visualize
-title = 'angry'
+title = 'laugh'
 plot_df = pd.DataFrame(faps_tmp_df[faps_tmp_df['label']==title]['faps'].values.tolist()[0])
 fig = plot_df.reset_index(drop=True).iplot(kind='scatter',mode='lines',
                                  title=title,
