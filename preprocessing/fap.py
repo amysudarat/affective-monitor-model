@@ -102,6 +102,41 @@ def dir_vector_slide_plot(faps_df,sbj,label=False):
         plt.close()
     return
 
+def calm_detector(faps_df,thres=1,remove=True):
+    
+    def mask_gen(row,thres):
+        fap = row['faps']
+        col = [i for i in range(19)]
+        # remove fap 6 and 7
+        col.remove(6)
+        col.remove(7)
+        fap = fap[:,col]
+        # absolute value
+        fap = np.absolute(fap)
+        # find peak for each traces
+        p_collect = []
+        for i in range(fap.shape[1]):
+            p = peakutils.indexes(fap[:,i],min_dist=10,thres=0)
+            if len(p) > 0:
+                p_mag = [fap[p_pos,i] for p_pos in p]
+                p_collect.append(np.max(p_mag))
+        if len(p_collect) > 0:
+            max_peak_avg = np.average(p_collect)
+            if max_peak_avg < thres :
+                row['calm_mask'] = True
+            else:
+                row['calm_mask'] = False
+        else:
+            row['calm_mask'] = True
+        return row
+    
+    faps_df = faps_df.apply(mask_gen,thres=thres,axis=1)
+    if remove:
+        faps_df = faps_df[~faps_df['calm_mask']] 
+    else:
+        faps_df = faps_df[faps_df['calm_mask']]
+    return faps_df.drop('calm_mask',axis=1)
+
 def get_peak(faps_df,mode='peak',window_width=10,sliding_step=3,min_dist=10):
     
     def find_peak_cov(x,w):
@@ -131,18 +166,28 @@ def get_peak(faps_df,mode='peak',window_width=10,sliding_step=3,min_dist=10):
         peak_position = w + np.argmax(diff_cov)
         return [peak_position]
     
-    def find_peak_peakutils(x,min_dist,thres):
+    def find_peak_peakutils(x,min_dist,thres,col=None):
         # use peak detection and find the maximum peak
         x = np.abs(x)
         x = np.sum(x,axis=1)
-        p = peakutils.indexes(x,min_dist=min_dist,thres=thres)               
+        if col is not None:
+            p = peakutils.indexes(x[:,col],min_dist=min_dist,thres=thres)  
+        else:
+            p = peakutils.indexes(x,min_dist=min_dist,thres=thres)               
         return p
     
     # apply faps_df['faps'] with find peak function 
     if mode == 'cov':
         faps_df['peak_pos'] = faps_df['faps'].apply(find_peak_cov,w=window_width)
     elif mode == 'peak':
-        faps_df['peak_pos'] = faps_df['faps'].apply(find_peak_peakutils,min_dist=min_dist,thres=0)
+        # eye
+        faps_df['p_eye'] = faps_df['faps'].apply(find_peak_peakutils,col=[0,1,2,3,4,5],min_dist=min_dist,thres=0)
+        # eyelid
+        faps_df['p_eyelid'] = faps_df['faps'].apply(find_peak_peakutils,col=[6,7],min_dist=min_dist,thres=0)
+        # cheeck
+        faps_df['p_cheeck'] = faps_df['faps'].apply(find_peak_peakutils,col=[8,9,10,11],min_dist=min_dist,thres=0)
+        # mouth
+        faps_df['p_mouth'] = faps_df['faps'].apply(find_peak_peakutils,col=[12,13,14,15,16,17,18],min_dist=min_dist,thres=0)
     
     return faps_df
 

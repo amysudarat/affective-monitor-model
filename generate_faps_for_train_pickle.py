@@ -5,8 +5,8 @@ from preprocessing.iaps import iaps
 import preprocessing.fap as pfap
 
 #%% get data
-#path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
-path = "E:\\Research\\ExperimentData"
+path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
+#path = "E:\\Research\\ExperimentData"
 n = 51
 subjects = [i for i in range(1,n+1)]
 
@@ -21,8 +21,12 @@ faps_filtered = pfap.faps_preprocessing(faps_np_df,
                                         filter_miss=missing_percentage_list,
                                         fix_scaler='standard')
 
+#%% remove calm
+faps_remove_calm = pfap.calm_detector(faps_filtered,thres=1.0,remove=False)
+pfap.faps_slide_plot(faps_remove_calm,1,label=False,peak_plot=False)
+
 #%% get peak
-faps_peak_df = pfap.get_peak(faps_filtered,
+faps_peak_df = pfap.get_peak(faps_remove_calm,
                              mode='peak',
                              min_dist=5)
 
