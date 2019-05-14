@@ -87,7 +87,7 @@ label = ['surprise','calm1','smile1','laugh','sad1','disgust',
 faps_tmp_df['label'] = label
 
 #%% remove calm
-faps_calm_remove_df = pfap.calm_detector(faps_tmp_df,thres=0.8,remove=False)
+faps_calm_remove_df = pfap.calm_detector(faps_tmp_df,thres=0.9,remove=False)
 pfap.faps_slide_plot(faps_tmp_df,'all',peak_plot=False,label=True)
 #%% get features
 faps_tmp_df = pfap.get_peak(faps_tmp_df,mode='peak')
@@ -112,7 +112,7 @@ init_notebook_mode(connected=True)
 import pandas as pd
 
 #%% check by visualize
-title = 'move_eyebrow'
+title = 'laugh'
 plot_df = pd.DataFrame(faps_tmp_df[faps_tmp_df['label']==title]['faps'].values.tolist()[0])
 fig = plot_df.reset_index(drop=True).iplot(kind='scatter',mode='lines',
                                  title=title,

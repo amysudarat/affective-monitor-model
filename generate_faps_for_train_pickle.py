@@ -22,8 +22,8 @@ faps_filtered = pfap.faps_preprocessing(faps_np_df,
                                         fix_scaler='standard')
 
 #%% remove calm
-faps_remove_calm = pfap.calm_detector(faps_filtered,thres=1.0,remove=False)
-pfap.faps_slide_plot(faps_remove_calm,1,label=False,peak_plot=False)
+faps_remove_calm = pfap.calm_detector(faps_filtered,thres=1.2,remove=False)
+pfap.faps_slide_plot(faps_remove_calm,51,label=False,peak_plot=False)
 
 #%% get peak
 faps_peak_df = pfap.get_peak(faps_remove_calm,

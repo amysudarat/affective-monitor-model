@@ -35,14 +35,16 @@ def faps_slide_subplot(faps_feat_df,sbj,label=False):
         plt.close()
     return
 
-def faps_slide_plot(faps_feat_df,sbj,label=False,peak_plot=True):
+def faps_slide_plot(faps_feat_df,sbj,label=False,peak_plot=None,plot_sig=None):
     if sbj != 'all':
         faps_feat_df = faps_feat_df[faps_feat_df['sbj_idx']==sbj] 
+    if plot_sig is not None:
+        faps_feat_df['faps'] = faps_feat_df['faps'].apply(lambda x:x[:,plot_sig])
     
     # prepare faps that will be plotted
     faps = faps_feat_df['faps'].tolist()
-    if peak_plot:
-        peaks = faps_feat_df['peak_pos'].tolist()
+    if peak_plot is not None:
+        peaks = faps_feat_df[peak_plot].tolist()
         try:
             p_selects = faps_feat_df['p_sel'].tolist()
             p_lbs = faps_feat_df['p_lb'].tolist()
@@ -310,6 +312,9 @@ def faps_preprocessing(faps_df,smooth=True,filter_miss=None,fix_scaler='standard
         
     if aoi is not None:
         faps_df['faps'] = faps_df['faps'].apply(lambda x:x[aoi[0]:aoi[1]])
+        
+    # absolute all the signal
+    faps_df['faps'] = faps_df['faps'].apply(lambda x:np.absolute(x))
 
     if smooth:
         smoothed = []
