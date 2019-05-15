@@ -55,28 +55,34 @@ def faps_slide_plot(faps_feat_df,sbj,label=False,peak_plot=None,plot_sig=None):
         labels = faps_feat_df['label'].tolist()
     # slide show
     for i in range(len(faps)):
-        plt.figure(figsize=(10,8))
+        plt.figure(figsize=(12,8))
         try:
             for col in range(faps[i].shape[1]):
                 plt.plot(faps[i][:,col])
         except:
             plt.plot(faps[i])
-        if peak_plot:
-            try:
+        if peak_plot is not None:
+            if len(peaks[i]>=1):
                 for p in peaks[i]:
                     plt.axvline(p,color='black',lw=1)
+            try:                
                 plt.axvline(p_selects[i],color='black',lw=3)
                 plt.axvline(p_lbs[i],color='black',lw=3)
                 plt.axvline(p_rbs[i],color='black',lw=3)
             except:
-                plt.axvline(peaks[i],color='black',lw=3)           
+                pass
+            
         if label:
             plt.title(str(labels[i]))
-        FAP_index = ['l_i_eyebrow_y','r_i_eyebrow_y','l_o_eyebrow_y','r_o_eyebrow_y',
-             'l_i_eyebrow_x','r_i_eyebrow_x','t_l_eyelid_y','t_r_eyelid_y',
-             'l_cheeck_y','r_cheeck_y','l_nose_x','r_nose_x',
-             'l_o_cornerlip_y','r_o_cornerlip_y','l_o_cornerlip_x','r_o_cornerlip_x',
-             'l_b_midlip_y','l_t_midlip_y','open_jaw']
+#        FAP_index = ['l_i_eyebrow_y','r_i_eyebrow_y','l_o_eyebrow_y','r_o_eyebrow_y',
+#             'l_i_eyebrow_x','r_i_eyebrow_x','t_l_eyelid_y','t_r_eyelid_y',
+#             'l_cheeck_y','r_cheeck_y','l_nose_x','r_nose_x',
+#             'l_o_cornerlip_y','r_o_cornerlip_y','l_o_cornerlip_x','r_o_cornerlip_x',
+#             'l_b_midlip_y','l_t_midlip_y','open_jaw']
+        if peak_plot is not None:
+            FAP_index = plot_sig
+        else:
+            FAP_index = [i for i in range(19)]
         plt.legend(FAP_index)
         plt.show()
         plt.waitforbuttonpress()
@@ -139,7 +145,7 @@ def calm_detector(faps_df,thres=1,remove=True):
         faps_df = faps_df[faps_df['calm_mask']]
     return faps_df.drop('calm_mask',axis=1)
 
-def get_peak(faps_df,mode='peak',window_width=10,sliding_step=3,min_dist=10):
+def get_peak(faps_df,mode='peak',window_width=10,sliding_step=3,min_dist=10,thres=0):
     
     def find_peak_cov(x,w):
         # change shape to (19,100) from (100,19)
@@ -171,11 +177,11 @@ def get_peak(faps_df,mode='peak',window_width=10,sliding_step=3,min_dist=10):
     def find_peak_peakutils(x,min_dist,thres,col=None):
         # use peak detection and find the maximum peak
         x = np.abs(x)
-        x = np.sum(x,axis=1)
         if col is not None:
-            p = peakutils.indexes(x[:,col],min_dist=min_dist,thres=thres)  
-        else:
-            p = peakutils.indexes(x,min_dist=min_dist,thres=thres)               
+            x = x[:,col]
+        x = np.sum(x,axis=1)        
+        p = peakutils.indexes(x,min_dist=min_dist,thres=thres)  
+    
         return p
     
     # apply faps_df['faps'] with find peak function 
@@ -183,13 +189,13 @@ def get_peak(faps_df,mode='peak',window_width=10,sliding_step=3,min_dist=10):
         faps_df['peak_pos'] = faps_df['faps'].apply(find_peak_cov,w=window_width)
     elif mode == 'peak':
         # eye
-        faps_df['p_eye'] = faps_df['faps'].apply(find_peak_peakutils,col=[0,1,2,3,4,5],min_dist=min_dist,thres=0)
+        faps_df['p_eye'] = faps_df['faps'].apply(find_peak_peakutils,col=[0,1,2,3,4,5],min_dist=min_dist,thres=thres)
         # eyelid
-        faps_df['p_eyelid'] = faps_df['faps'].apply(find_peak_peakutils,col=[6,7],min_dist=min_dist,thres=0)
+        faps_df['p_eyelid'] = faps_df['faps'].apply(find_peak_peakutils,col=[6,7],min_dist=min_dist,thres=thres)
         # cheeck
-        faps_df['p_cheeck'] = faps_df['faps'].apply(find_peak_peakutils,col=[8,9,10,11],min_dist=min_dist,thres=0)
+        faps_df['p_cheeck'] = faps_df['faps'].apply(find_peak_peakutils,col=[8,9,10,11],min_dist=min_dist,thres=thres)
         # mouth
-        faps_df['p_mouth'] = faps_df['faps'].apply(find_peak_peakutils,col=[12,13,14,15,16,17,18],min_dist=min_dist,thres=0)
+        faps_df['p_mouth'] = faps_df['faps'].apply(find_peak_peakutils,col=[12,13,14,15,16,17,18],min_dist=min_dist,thres=thres)
     
     return faps_df
 
@@ -246,7 +252,7 @@ def get_feature(faps_df):
     return faps_df
 
 
-def faps_preprocessing_samples(faps_df,smooth=True,fix_scaler='standard',aoi=None,sbj_num=88,fix_scaler_mode='sbj',sm_wid_len=10):
+def faps_preprocessing_samples(faps_df,smooth=True,fix_scaler='standard',aoi=None,sbj_num=88,fix_scaler_mode='sbj',sm_wid_len=10,center_mean=False):
     
     # reserve test subject idx
     
@@ -287,18 +293,14 @@ def faps_preprocessing_samples(faps_df,smooth=True,fix_scaler='standard',aoi=Non
             faps_df['faps'] = faps_df['faps'].apply(lambda x:sc.transform(x))
         elif fix_scaler_mode == 'each':
             faps_df['faps'] = faps_df['faps'].apply(lambda x:sc.fit_transform(x))
-#        # shift mean if use min max
-#        if fix_scaler == 'minmax':
-#            def shift_means(fap):
-#                for col in range(fap.shape[1]):
-#                    fap[:,col] = fap[:,col] - np.mean(fap[:,col])
-#                return fap
-#            faps_df['faps'] = faps_df['faps'].apply(shift_means)
-        # set type of array
+        
+        if center_mean:
+            faps_df['faps'] = faps_df['faps'].apply(lambda x:x-np.average(x))
+#         set type of array
         faps_df['faps'] = faps_df['faps'].apply(lambda x:x.astype(np.float64))
     return faps_df
 
-def faps_preprocessing(faps_df,smooth=True,filter_miss=None,fix_scaler='standard',aoi=None):
+def faps_preprocessing(faps_df,smooth=True,filter_miss=None,fix_scaler='standard',aoi=None,sm_wid_len=10,center_mean=False):
     
     # reserve test subject idx
     total_sbj = int((faps_df.index.max()+1)/70)
@@ -322,7 +324,7 @@ def faps_preprocessing(faps_df,smooth=True,filter_miss=None,fix_scaler='standard
             faps = np.array(faps_df.iloc[i]['faps'])
 #            faps = scipy.signal.savgol_filter(faps,window_length=15,polyorder=2,axis=1)   
             for col in range(faps.shape[1]):
-                faps[:,col] = scipy.signal.savgol_filter(faps[:,col],window_length=21,polyorder=5)   
+                faps[:,col] = scipy.signal.savgol_filter(faps[:,col],window_length=sm_wid_len,polyorder=2)   
             smoothed.append(faps)
         faps_df['tmp'] = smoothed
         faps_df = faps_df.drop('faps',axis=1)
@@ -346,6 +348,10 @@ def faps_preprocessing(faps_df,smooth=True,filter_miss=None,fix_scaler='standard
             tmp_df['faps'] = faps_per_sbj['faps'].apply(lambda x:sc.transform(x))
             output_df = output_df.append(tmp_df)
         faps_df = output_df
+        
+        if center_mean:
+            faps_df['faps'] = faps_df['faps'].apply(lambda x:x-np.average(x))
+        
         # set type of array
         faps_df['faps'] = faps_df['faps'].apply(lambda x:x.astype(np.float64))
     return faps_df

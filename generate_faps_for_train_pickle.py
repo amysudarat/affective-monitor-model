@@ -16,20 +16,24 @@ faps_np_df = pfap.get_faps_np_df(pickle_file='data_1_51.pkl')
 #%% find missing percentage
 missing_percentage_list = pfap.get_missing_percentage(faps_np_df)
 faps_filtered = pfap.faps_preprocessing(faps_np_df,
-                                        aoi=[0,60],
+                                        aoi=[5,65],
                                         smooth=True,
                                         filter_miss=missing_percentage_list,
-                                        fix_scaler='standard')
+                                        fix_scaler='standard',
+                                        sm_wid_len=21,
+                                        center_mean=True)
 
 #%% remove calm
-faps_remove_calm = pfap.calm_detector(faps_filtered,thres=1.2,remove=False)
-pfap.faps_slide_plot(faps_remove_calm,51,label=False,peak_plot=False)
+#faps_remove_calm = pfap.calm_detector(faps_filtered,thres=1,remove=True)
+#pfap.faps_slide_plot(faps_remove_calm,51,label=False,peak_plot=False)
 
 #%% get peak
-faps_peak_df = pfap.get_peak(faps_remove_calm,
+faps_peak_df = pfap.get_peak(faps_filtered,
                              mode='peak',
-                             min_dist=5)
-
+                             min_dist=10,
+                             thres=0.8)
+pfap.faps_slide_plot(faps_peak_df,51,label=False,peak_plot='p_eye',plot_sig=[0,1,2,3,4,5])
+   
 #%% get feature
 faps_peak_sel_df = pfap.get_feature(faps_peak_df)
 

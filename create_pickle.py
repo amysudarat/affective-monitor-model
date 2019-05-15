@@ -38,8 +38,8 @@ subjects = [i for i in range(1,n+1)]
 #                                           transform=ToTensor())
     
 face_dataset = AffectiveMonitorDataset("C:\\Users\\DSPLab\\Research\\ExperimentData",
-                                       subjects=[88],
-                                       fix_distance=True,
+                                       subjects=[99],
+                                       fix_distance=False,
                                        fix_PD=False,
                                        convert_label=False)
 #
@@ -53,18 +53,22 @@ face_dataset = AffectiveMonitorDataset("C:\\Users\\DSPLab\\Research\\ExperimentD
 #face_df = face_dataset.face_df
 
 # save to pickle file
-utils.save_object(face_dataset, "data_88.pkl")
+utils.save_object(face_dataset, "data_99.pkl")
 
 #%% create fap template for pickle
 import preprocessing.fap as pfap
-faps_np_df = pfap.get_faps_np_df(pickle_file='data_88.pkl')
+faps_np_df = pfap.get_faps_np_df(pickle_file='data_99.pkl')
 # add label
-label = ['surprise','calm1','smile1','laugh','sad1','disgust',
-         'fear','angry','eye_widen','open_mouth1','very_sad',
-         'move_eyebrow','calm2','move_forward','look_down',
-         'nothing','turn_right','sad2', 'open_mouth2','smile2']
+#label_88 = ['surprise','calm1','smile1','laugh','sad1','disgust',
+#         'fear','angry','eye_widen','open_mouth1','very_sad',
+#         'move_eyebrow','calm2','move_forward','look_down',
+#         'nothing','turn_right','sad2', 'open_mouth2','smile2']
 
-faps_np_df['label'] = label
+label_99 = ['smile','calm','disgust','fear','sad','anger','laugh','surprise','move_forward',
+            'move_backward','tilt_right','tilt_left','look_down','squeeze_eyebrow',
+            'move_eyebrow_up','shrink_nose','sad_mouth','backward+hold_tilt_right']
+
+faps_np_df['label'] = label_99
 #pfap.faps_slide_plot(faps_np_df,'all',peak_plot=False,label=True)
 #pfap.faps_slide_subplot(faps_np_df,'all',label=True)
 #%% preprocess
@@ -75,16 +79,19 @@ faps_tmp_df = pfap.faps_preprocessing_samples(faps_np_df,
                                               aoi=[0,100],
                                               sm_wid_len=21,
                                               sbj_num=88)
-faps_tmp_df['label'] = label
+faps_tmp_df['label'] = label_99
 #pfap.faps_slide_plot(faps_tmp_df,'all',peak_plot=False,label=True)
 #pfap.faps_slide_subplot(faps_tmp_df,'all',label=True)
 # add label
-label = ['surprise','calm1','smile1','laugh','sad1','disgust',
-         'fear','angry','eye_widen','open_mouth1','very_sad',
-         'move_eyebrow','calm2','move_forward','look_down',
-         'nothing','turn_right','sad2', 'open_mouth2','smile2']
+#label = ['surprise','calm1','smile1','laugh','sad1','disgust',
+#         'fear','angry','eye_widen','open_mouth1','very_sad',
+#         'move_eyebrow','calm2','move_forward','look_down',
+#         'nothing','turn_right','sad2', 'open_mouth2','smile2']
 
-faps_tmp_df['label'] = label
+label_99 = ['smile','calm','disgust','fear','sad','anger','laugh','surprise','move_forward',
+            'move_backward','tilt_right','tilt_left','look_down','squeeze_eyebrow',
+            'move_eyebrow_up','shrink_nose','sad_mouth','backward+hold_tilt_right']
+faps_tmp_df['label'] = label_99
 
 #%% remove calm
 faps_calm_remove_df = pfap.calm_detector(faps_tmp_df,thres=0.9,remove=False)
@@ -112,12 +119,14 @@ init_notebook_mode(connected=True)
 import pandas as pd
 
 #%% check by visualize
-title = 'laugh'
+#for t in label_99:
+title = 'smile'
 plot_df = pd.DataFrame(faps_tmp_df[faps_tmp_df['label']==title]['faps'].values.tolist()[0])
 fig = plot_df.reset_index(drop=True).iplot(kind='scatter',mode='lines',
                                  title=title,
                                  xTitle='frame', yTitle= 'FAP changes',
                                  asFigure=True)
+file_name = 'html/'+title+'.html'
 plotly.offline.plot(fig)
 
 #%% arousal pickle
