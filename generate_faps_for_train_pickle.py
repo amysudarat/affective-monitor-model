@@ -32,8 +32,8 @@ faps_peak_df = pfap.get_peak(faps_filtered,
                              mode='peak',
                              min_dist=10,
                              thres=0.8)
-#pfap.faps_slide_plot(faps_peak_df,51,label=False,peak_plot='p_mouth',plot_sig=[12,13,14,15,16,17,18])
-   
+#pfap.faps_slide_plot(faps_peak_df,51,label=False,peak_plot='p_eye',plot_sig=[0,1,2,3,4,5])
+    
 #%% get feature
 faps_peak_sel_df = pfap.get_feature(faps_peak_df)
 

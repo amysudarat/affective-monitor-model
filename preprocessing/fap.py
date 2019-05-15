@@ -145,7 +145,7 @@ def calm_detector(faps_df,thres=1,remove=True):
         faps_df = faps_df[faps_df['calm_mask']]
     return faps_df.drop('calm_mask',axis=1)
 
-def get_peak(faps_df,mode='peak',window_width=10,sliding_step=3,min_dist=10,thres=0):
+def get_peak(faps_df,mode='peak',window_width=10,sliding_step=3,min_dist=10,thres=0.6):
     
     def find_peak_cov(x,w):
         # change shape to (19,100) from (100,19)
@@ -174,39 +174,19 @@ def get_peak(faps_df,mode='peak',window_width=10,sliding_step=3,min_dist=10,thre
         peak_position = w + np.argmax(diff_cov)
         return [peak_position]
     
-    def find_peak_peakutils(x,min_dist,thres,col=None):
+    def find_peak_peakutils(row,min_dist,thres):
+        x = row['faps']
+        col_eye = [0,1,2,3,4,5]
+        col_cheeck =[8,9,10,11]
+        col_mouth =[12,13,14,15,16,17,18]
         # use peak detection and find the maximum peak
-        x = np.abs(x)
-        if col is not None:
-            x = x[:,col]
-        x = np.sum(x,axis=1)        
-        p = peakutils.indexes(x,min_dist=min_dist,thres=thres)  
-    
-        return p
-    
-    # apply faps_df['faps'] with find peak function 
-    if mode == 'cov':
-        faps_df['peak_pos'] = faps_df['faps'].apply(find_peak_cov,w=window_width)
-    elif mode == 'peak':
-        # eye
-        faps_df['p_eye'] = faps_df['faps'].apply(find_peak_peakutils,col=[0,1,2,3,4,5],min_dist=min_dist,thres=thres)
-        # eyelid
-        faps_df['p_eyelid'] = faps_df['faps'].apply(find_peak_peakutils,col=[6,7],min_dist=min_dist,thres=thres)
-        # cheeck
-        faps_df['p_cheeck'] = faps_df['faps'].apply(find_peak_peakutils,col=[8,9,10,11],min_dist=min_dist,thres=thres)
-        # mouth
-        faps_df['p_mouth'] = faps_df['faps'].apply(find_peak_peakutils,col=[12,13,14,15,16,17,18],min_dist=min_dist,thres=thres)
-    
-    return faps_df
-
-def get_feature(faps_df):
-    
-    def get_peak_prop(row,peak_name):
-        fap = row['faps']
-        peak = row[peak_name]        
-        fap = np.abs(fap)
-        fap_sum = np.sum(fap,axis=1)
-        
+        for col,p_group in zip([col_eye,col_cheeck,col_mouth],['p_eye','p_cheeck','p_mouth']):
+            x = np.abs(x)            
+            x_tmp = np.copy(x[:,col])
+            x_tmp = np.sum(x_tmp,axis=1)        
+            p = peakutils.indexes(x_tmp,min_dist=min_dist,thres=thres)  
+            row[p_group] = p
+            
         # return value [width,height,left_ips,right_ips]
         p_width, p_height, p_lb, p_rb = peak_widths(fap_sum,peak,rel_height=1)
         
@@ -222,24 +202,39 @@ def get_feature(faps_df):
             p_prop_np = np.delete(p_prop_np,p_prop_np[:,c],1)
         
         # calculate p_width/p_height
-        try:
-            if len(p_prop_np.tolist()[0]) > 0:
-                criteria = np.divide(p_prop_np[0],p_prop_np[1])
-                crit_idx = np.argmax(criteria)
-                p_sel = [p_prop_np[0,crit_idx]]
-                
-            else:
-                p_sel = []
-        except:
-            print('here')
-        row[peak_name] = p_sel
+        if len(p_prop_np.tolist()[0]) > 0:
+            criteria = np.divide(p_prop_np[0],p_prop_np[1])
+            crit_idx = np.argmax(criteria)
+            p_sel = [p_prop_np[0,crit_idx]]
+            
+        else:
+            p_sel = []
+      
+        
+        return row
+    
+    # apply faps_df['faps'] with find peak function 
+    if mode == 'cov':
+        faps_df['peak_pos'] = faps_df['faps'].apply(find_peak_cov,w=window_width)
+    elif mode == 'peak':
+        # eye
+        faps_df = faps_df.apply(find_peak_peakutils,min_dist=min_dist,thres=thres,axis=1)
+    return faps_df
+
+def get_feature(faps_df):
+    
+    def select_peak(row):
+        fap = row['faps']
+        peak = row['p_sel']    
+        fap = np.abs(fap)
+        fap_sum = np.sum(fap,axis=1)
+        
+        
 
         return row
     
     # select peak
-    faps_df = faps_df.apply(get_peak_prop,peak_name='p_eye',axis=1)
-    faps_df = faps_df.apply(get_peak_prop,peak_name='p_cheeck',axis=1)
-    faps_df = faps_df.apply(get_peak_prop,peak_name='p_mouth',axis=1)
+    faps_df = faps_df.apply(select_peak,peak_name='p_eye',axis=1)
 
     return faps_df
 
