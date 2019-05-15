@@ -201,54 +201,46 @@ def get_peak(faps_df,mode='peak',window_width=10,sliding_step=3,min_dist=10,thre
 
 def get_feature(faps_df):
     
-    def get_peak_prop(row):
+    def get_peak_prop(row,peak_name):
         fap = row['faps']
-        peak = row['peak_pos']        
+        peak = row[peak_name]        
         fap = np.abs(fap)
         fap_sum = np.sum(fap,axis=1)
         
         # return value [width,height,left_ips,right_ips]
-        p_width, p_height, p_lb, p_rb = peak_widths(fap_sum,peak,rel_height=0.75)
+        p_width, p_height, p_lb, p_rb = peak_widths(fap_sum,peak,rel_height=1)
         
-        # peak selection
-        # criteria: width > 7
-#        pop_idx = []
-#        for i,w in enumerate(p_width):
-#            if (w < 7 or w > 30) and len(p_width) > 2:
-#                pop_idx.append(i)
-#        pop_idx = sorted(pop_idx,reverse=True)
-#        p_width = np.delete(p_width,pop_idx)
-#        p_height = np.delete(p_height,pop_idx)
-#        p_lb = np.delete(p_lb,pop_idx)
-#        p_rb = np.delete(p_rb,pop_idx)
-#        
-        # criteria: big width, big height
-#        criteria = np.add(p_width,p_height)
-        criteria = np.divide(p_width,p_height)
-        crit_idx = np.argmax(criteria)
-        row['p_sel'] = peak[crit_idx]
-        row['p_width'] = p_width[crit_idx]
-        row['p_height'] = p_height[crit_idx]
-        row['p_lb'] = p_lb[crit_idx]
-        row['p_rb'] = p_rb[crit_idx]
+        # create array of peak properties
+        # each column is one peak, delete column that p_width is less than 7
+        p_prop_np = np.array([p_width,p_height,p_lb,p_rb])
+        col_del = []
+        for col in range(p_prop_np.shape[1]):
+            if p_prop_np[0,col] < 7:
+                col_del.append(col)
+        col_del.sort(reverse=True)
+        for c in col_del:
+            p_prop_np = np.delete(p_prop_np,p_prop_np[:,c],1)
+        
+        # calculate p_width/p_height
+        try:
+            if len(p_prop_np.tolist()[0]) > 0:
+                criteria = np.divide(p_prop_np[0],p_prop_np[1])
+                crit_idx = np.argmax(criteria)
+                p_sel = [p_prop_np[0,crit_idx]]
+                
+            else:
+                p_sel = []
+        except:
+            print('here')
+        row[peak_name] = p_sel
+
         return row
     
-    def get_dir_vector(row):
-        fap = row['faps']
-        p = row['p_sel']
-        # find dir of each fap
-        for col in range(fap.shape[1]):
-            median = np.median(fap[:,col])
-            if fap[p,col] > median:
-                dir_val = 1
-            else:
-                dir_val = 0
-            # create new column with name of index contain direction
-            row[str(col)] = dir_val     
-        return row
-            
-    faps_df = faps_df.apply(get_peak_prop,axis=1)
-    faps_df = faps_df.apply(get_dir_vector,axis=1)
+    # select peak
+    faps_df = faps_df.apply(get_peak_prop,peak_name='p_eye',axis=1)
+    faps_df = faps_df.apply(get_peak_prop,peak_name='p_cheeck',axis=1)
+    faps_df = faps_df.apply(get_peak_prop,peak_name='p_mouth',axis=1)
+
     return faps_df
 
 
