@@ -5,10 +5,10 @@ from preprocessing.iaps import iaps
 import preprocessing.fap as pfap
 
 #%% get data
-path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
-#path = "E:\\Research\\ExperimentData"
-n = 51
-subjects = [i for i in range(1,n+1)]
+#path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
+##path = "E:\\Research\\ExperimentData"
+#n = 51
+#subjects = [i for i in range(1,n+1)]
 
 #faps_df = pfap.get_faps_df(pickle_file='data_1_51.pkl')
 faps_np_df = pfap.get_faps_np_df(pickle_file='data_1_51.pkl')
@@ -31,9 +31,9 @@ faps_filtered = pfap.faps_preprocessing(faps_np_df,
 faps_peak_df = pfap.get_peak(faps_filtered,
                              mode='peak',
                              min_dist=10,
-                             thres=0.8)
-#pfap.faps_slide_plot(faps_peak_df,51,label=False,peak_plot='p_eye',plot_sig=[0,1,2,3,4,5])
-    
+                             thres=0.6)
+pfap.faps_slide_plot(faps_peak_df,51,label=False,peak_plot='peak_sel',plot_sig=None)
+
 #%% get feature
 faps_peak_sel_df = pfap.get_feature(faps_peak_df)
 

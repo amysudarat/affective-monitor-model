@@ -62,7 +62,7 @@ def faps_slide_plot(faps_feat_df,sbj,label=False,peak_plot=None,plot_sig=None):
         except:
             plt.plot(faps[i])
         if peak_plot is not None:
-            if len(peaks[i]>=1):
+            if len(peaks[i])>0:
                 for p in peaks[i]:
                     plt.axvline(p,color='black',lw=1)
             try:                
@@ -79,7 +79,7 @@ def faps_slide_plot(faps_feat_df,sbj,label=False,peak_plot=None,plot_sig=None):
 #             'l_cheeck_y','r_cheeck_y','l_nose_x','r_nose_x',
 #             'l_o_cornerlip_y','r_o_cornerlip_y','l_o_cornerlip_x','r_o_cornerlip_x',
 #             'l_b_midlip_y','l_t_midlip_y','open_jaw']
-        if peak_plot is not None:
+        if plot_sig is not None:
             FAP_index = plot_sig
         else:
             FAP_index = [i for i in range(19)]
@@ -175,24 +175,25 @@ def get_peak(faps_df,mode='peak',window_width=10,sliding_step=3,min_dist=10,thre
         return [peak_position]
     
     def find_peak_peakutils(row,min_dist,thres):
+        # detect peak based on min_dist and threshold
         x = row['faps']
-        col_eye = [0,1,2,3,4,5]
-        col_cheeck =[8,9,10,11]
-        col_mouth =[12,13,14,15,16,17,18]
-        # use peak detection and find the maximum peak
-        for col,p_group in zip([col_eye,col_cheeck,col_mouth],['p_eye','p_cheeck','p_mouth']):
-            x = np.abs(x)            
-            x_tmp = np.copy(x[:,col])
-            x_tmp = np.sum(x_tmp,axis=1)        
-            p = peakutils.indexes(x_tmp,min_dist=min_dist,thres=thres)  
-            row[p_group] = p
-            
-        # return value [width,height,left_ips,right_ips]
-        p_width, p_height, p_lb, p_rb = peak_widths(fap_sum,peak,rel_height=1)
+        col_sel = [i for i in range(19)]
+        col_sel.remove(6)
+        col_sel.remove(7)
+        col_sel.remove(14)
+        col_sel.remove(15)
+        x = x[:,col_sel]
+        x = np.abs(x)            
+        x = np.sum(x,axis=1)        
+        p = peakutils.indexes(x,min_dist=min_dist,thres=thres)  
+        row['peak_pos'] = p
+        
+        # select peak
+        p_width, p_height, p_lb, p_rb = peak_widths(x,p,rel_height=1)
         
         # create array of peak properties
         # each column is one peak, delete column that p_width is less than 7
-        p_prop_np = np.array([p_width,p_height,p_lb,p_rb])
+        p_prop_np = np.array([p_width,p_height,p_lb,p_rb,p])
         col_del = []
         for col in range(p_prop_np.shape[1]):
             if p_prop_np[0,col] < 7:
@@ -205,11 +206,11 @@ def get_peak(faps_df,mode='peak',window_width=10,sliding_step=3,min_dist=10,thre
         if len(p_prop_np.tolist()[0]) > 0:
             criteria = np.divide(p_prop_np[0],p_prop_np[1])
             crit_idx = np.argmax(criteria)
-            p_sel = [p_prop_np[0,crit_idx]]
-            
+            p_sel = [p_prop_np[4,crit_idx]]            
         else:
             p_sel = []
-      
+        
+        row['peak_sel'] = p_sel
         
         return row
     
@@ -217,7 +218,7 @@ def get_peak(faps_df,mode='peak',window_width=10,sliding_step=3,min_dist=10,thre
     if mode == 'cov':
         faps_df['peak_pos'] = faps_df['faps'].apply(find_peak_cov,w=window_width)
     elif mode == 'peak':
-        # eye
+        # find peak
         faps_df = faps_df.apply(find_peak_peakutils,min_dist=min_dist,thres=thres,axis=1)
     return faps_df
 
