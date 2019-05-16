@@ -31,14 +31,12 @@ faps_filtered = pfap.faps_preprocessing(faps_np_df,
 faps_peak_df = pfap.get_peak(faps_filtered,
                              mode='peak',
                              min_dist=10,
-                             thres=0.6)
-pfap.faps_slide_plot(faps_peak_df,51,label=False,peak_plot='peak_sel',plot_sig=None)
-
-#%% get feature
-faps_peak_sel_df = pfap.get_feature(faps_peak_df)
+                             thres=0.7)
+#pfap.faps_slide_plot(faps_peak_df,49,label=False,peak_plot='peak_sel',plot_sig=None)
+pfap.dir_vector_slide_plot(faps_peak_df,51,label=False)
 
 #%% save to pickle
-samples = faps_peak_sel_df
+samples = faps_peak_df
 utils.save_object(samples,'faps_for_train.pkl')
 
 #%% slide plot

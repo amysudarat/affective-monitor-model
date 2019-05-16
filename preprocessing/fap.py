@@ -93,15 +93,15 @@ def dir_vector_slide_plot(faps_df,sbj,label=False):
     if sbj != 'all':
         faps_df = faps_df[faps_df['sbj_idx']==sbj]     
     # prepare faps that will be plotted
-    sel_col = [str(i) for i in range(19)]
-    faps = faps_df[sel_col].values
+    au = faps_df['AU'].tolist()
     if label:
         labels = faps_df['label'].tolist()
     # slide show
     i = 0
-    for row in range(faps.shape[0]):
+    for row in range(len(au)):
         plt.figure()
-        plt.stem(faps[row])
+        x = [i for i in range(19)]
+        plt.stem(x,au[row])
         if label:
             plt.title(str(labels[i]))
         i += 1
@@ -212,6 +212,64 @@ def get_peak(faps_df,mode='peak',window_width=10,sliding_step=3,min_dist=10,thre
         
         row['peak_sel'] = p_sel
         
+        # get AU
+        if len(p_sel)>0:
+            # get window length of p_width
+            x = row['faps']
+            c = p_sel[0]
+            L = 20
+            L = int(round(L/2,0))
+            pl = int(max(0,c-L))
+            pr = int(min(x.shape[0],c+L))            
+            x_win = x[pl:pr,:]
+         
+            AU = []
+            for col in range(x_win.shape[1]):
+                trace = x_win[:,col]
+                trace_abs = np.absolute(trace)
+                p_trace = peakutils.indexes(trace_abs,thres=0.3,min_dist=10)
+                if len(p_trace) == 0:
+                    AU.append(0)
+                    continue
+                else:
+                    pp = p_trace[np.argmax([trace[i] for i in p_trace])]
+#                    try:
+                    slope_l = (trace[pp]-trace[0])/(pp)
+                    slope_r = (trace[len(trace)-1]-trace[pp])/(19-pp)
+#                    except:
+#                        print('here')
+                    if slope_l > 0 and slope_r < 0:
+                        AU.append(1)
+                    elif slope_l < 0 and slope_r > 0:
+                        AU.append(-1)
+                    else:
+                        AU.append(0)
+               
+#            for col in range(x.shape[1]):
+#                try:
+#                    p_trace = peakutils.indexes(x_win[:,col],min_dist=L,thres=0.6)
+#                except:
+#                    p_trace = []
+#                if len(p_trace) == 0:
+#                    AU.append(0)
+#                    continue
+#                p_trace_mag = [x_win[i,col] for i in p_trace]
+#                p_trace = p_trace[np.argmax(p_trace_mag)]
+#                # detect upward and downward peak
+#                p_width, p_height, p_lb, p_rb = peak_widths(x_win[:,col],[p_trace],rel_height=1)
+#                # get baseline
+#                p_lb = int(p_lb[0])
+#                p_rb = int(p_rb[0])
+#                baseline = (x_win[p_lb,col] + x_win[p_rb,col])/2
+#                if x_win[p_trace,col] > baseline:
+#                    AU.append(1)
+#                else:
+#                    AU.append(-1)
+        else:
+            AU = [0 for i in range(19)]
+                
+        # create column AU
+        row['AU'] = AU
         return row
     
     # apply faps_df['faps'] with find peak function 
@@ -220,23 +278,6 @@ def get_peak(faps_df,mode='peak',window_width=10,sliding_step=3,min_dist=10,thre
     elif mode == 'peak':
         # find peak
         faps_df = faps_df.apply(find_peak_peakutils,min_dist=min_dist,thres=thres,axis=1)
-    return faps_df
-
-def get_feature(faps_df):
-    
-    def select_peak(row):
-        fap = row['faps']
-        peak = row['p_sel']    
-        fap = np.abs(fap)
-        fap_sum = np.sum(fap,axis=1)
-        
-        
-
-        return row
-    
-    # select peak
-    faps_df = faps_df.apply(select_peak,peak_name='p_eye',axis=1)
-
     return faps_df
 
 

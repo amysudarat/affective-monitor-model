@@ -76,7 +76,7 @@ faps_tmp_df = pfap.faps_preprocessing_samples(faps_np_df,
                                               smooth=True,
                                               fix_scaler='standard',
                                               fix_scaler_mode='sbj',
-                                              aoi=[0,100],
+                                              aoi=[5,65],
                                               sm_wid_len=21,
                                               sbj_num=88)
 faps_tmp_df['label'] = label_99
@@ -93,14 +93,16 @@ label_99 = ['smile','calm','disgust','fear','sad','anger','laugh','surprise','mo
             'move_eyebrow_up','shrink_nose','sad_mouth','backward+hold_tilt_right']
 faps_tmp_df['label'] = label_99
 
-#%% remove calm
-faps_calm_remove_df = pfap.calm_detector(faps_tmp_df,thres=0.9,remove=False)
-pfap.faps_slide_plot(faps_tmp_df,'all',peak_plot=False,label=True)
 #%% get features
-faps_tmp_df = pfap.get_peak(faps_tmp_df,mode='peak')
-faps_tmp_df = pfap.get_feature(faps_tmp_df)
-pfap.faps_slide_plot(faps_tmp_df,'all',label=True)
-pfap.dir_vector_slide_plot(faps_tmp_df,'all',label=True)
+faps_peak_df = pfap.get_peak(faps_tmp_df,
+                             mode='peak',
+                             min_dist=10,
+                             thres=0.5)
+#%%
+pfap.faps_slide_plot(faps_peak_df,'all',label=True,peak_plot='peak_sel',plot_sig=None)
+#%%
+pfap.dir_vector_slide_plot(faps_peak_df,'all',label=True)
+
 #%%  
 # save template to pickle
 utils.save_object(faps_tmp_df,'fap_template.pkl')
@@ -119,15 +121,15 @@ init_notebook_mode(connected=True)
 import pandas as pd
 
 #%% check by visualize
-#for t in label_99:
-title = 'smile'
-plot_df = pd.DataFrame(faps_tmp_df[faps_tmp_df['label']==title]['faps'].values.tolist()[0])
-fig = plot_df.reset_index(drop=True).iplot(kind='scatter',mode='lines',
-                                 title=title,
-                                 xTitle='frame', yTitle= 'FAP changes',
-                                 asFigure=True)
-file_name = 'html/'+title+'.html'
-plotly.offline.plot(fig)
+for t in label_99:
+    title = t
+    plot_df = pd.DataFrame(faps_tmp_df[faps_tmp_df['label']==title]['faps'].values.tolist()[0])
+    fig = plot_df.reset_index(drop=True).iplot(kind='scatter',mode='lines',
+                                     title=title,
+                                     xTitle='frame', yTitle= 'FAP changes',
+                                     asFigure=True)
+    file_name = 'html/'+title+'.html'
+    plotly.offline.plot(fig)
 
 #%% arousal pickle
 import preprocessing.arousal as paro
