@@ -1,34 +1,16 @@
-# -*- coding: utf-8 -*-
-
-from model.dataset_class import AffectiveMonitorDataset
-import pandas as pd
-import preprocessing.pd as ppd
-import preprocessing.depth as pdep
-
-import preprocessing.illum as pill
-import preprocessing.pre_utils as pu
-from preprocessing.iaps import iaps
-import utils
-
-#%%
-# Standard plotly imports
-import plotly
-import plotly.plotly as py
-import plotly.graph_objs as go
-from plotly.offline import iplot, init_notebook_mode
-import plotly.figure_factory as ff
-# Using plotly + cufflinks in offline mode
-import cufflinks
-cufflinks.go_offline(connected=True)
-init_notebook_mode(connected=True)
-
 #%% get AU_df
 import pandas as pd
-AU_df = pd.read_csv(r'C:\Users\DSPLab\Research\affective-monitor-model\preprocessing\AU_FAP.csv')
+import utils
+#AU_df = pd.read_csv(r'C:\Users\DSPLab\Research\affective-monitor-model\preprocessing\AU_FAP.csv')
+AU_df = pd.read_csv(r'E:\Research\affective-monitor-model\preprocessing\AU_FAP.csv')
 AU_df = AU_df.fillna(method='ffill')
 AU_df = AU_df.set_index('AU')
 
+utils.save_object(AU_df,'au_reference.pkl')
+
 #%% face_dataset pickle
+from model.dataset_class import AffectiveMonitorDataset
+import utils
 n = 51
 subjects = [i for i in range(1,n+1)]
 
@@ -129,7 +111,7 @@ for t in label_99:
                                      xTitle='frame', yTitle= 'FAP changes',
                                      asFigure=True)
     file_name = 'html/'+title+'.html'
-    plotly.offline.plot(fig)
+    plotly.offline.plot(fig,filename=file_name)
 
 #%% arousal pickle
 import preprocessing.arousal as paro
@@ -144,6 +126,7 @@ utils.save_object(arousals, "arousal.pkl")
 
 #%% generate list of selected samples arousal
 from sklearn.preprocessing import StandardScaler
+from preprocessing.iaps import iaps
 path = "E:\\Research\\ExperimentData"
 #path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
 n = 51

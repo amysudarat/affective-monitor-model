@@ -1,10 +1,6 @@
-# -*- coding: utf-8 -*-
-import utils
-import pandas as pd
-from preprocessing.iaps import iaps
-import preprocessing.fap as pfap
-
 #%% get data
+import utils
+import preprocessing.fap as pfap
 #path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
 ##path = "E:\\Research\\ExperimentData"
 #n = 51
@@ -33,10 +29,44 @@ faps_peak_df = pfap.get_peak(faps_filtered,
                              min_dist=10,
                              thres=0.7)
 #pfap.faps_slide_plot(faps_peak_df,49,label=False,peak_plot='peak_sel',plot_sig=None)
-pfap.dir_vector_slide_plot(faps_peak_df,51,label=False)
+#pfap.dir_vector_slide_plot(faps_peak_df,51,label=False)
 
+#%% prepare df for training
+#import numpy as np
+#import pandas as pd
+#AU_list = faps_peak_df['AU'].tolist()
+#AU_np = np.array(AU_list)
+#AU_df = pd.DataFrame(AU_np)
+#AU_df['ori_idx'] = faps_peak_df['ori_idx'].reset_index(drop=True)
+
+#%% faps_au_df
+import preprocessing.pre_utils as pu
+faps_au_df = faps_peak_df[['AU1','AU2','AU4','AU5','AU6','AU9','AU10','AU12','AU15','AU16','AU20','AU23','AU26','ori_idx']]
+valence = utils.load_object('valence.pkl')
+valence_list = valence['valence'].tolist()
+faps_au_df = pu.match_label_with_sample(faps_au_df,valence_list)
+f = faps_au_df.copy()
+f = f.reset_index(drop=True)
+#%% 1 is pleasure 2 displeasure
+import pandas as pd
+# feeling observation
+f1 = f[(f['AU1']==1) & (f['label']==1)]
+f2 = f[(f['AU2']==1) & (f['label']==1)]
+f4 = f[(f['AU4']==1) & (f['label']==2)]
+f5 = f[(f['AU5']==1) & (f['label']==1)]
+f6 = f[(f['AU6']==1) & (f['label']==1)]
+f9 = f[(f['AU9']==1) & (f['label']==2)]
+f12 = f[(f['AU12']==1) & (f['label']==2)]
+f15 = f[(f['AU15']==1) & (f['label']==2)]
+f16 = f[(f['AU16']==1) & (f['label']==2)]
+f20 = f[(f['AU20']==1) & (f['label']==2)]
+
+samples = pd.concat([f1,f2,f4,f5,f6,f9,f12,f15,f16,f20],ignore_index=True)
+samples = samples.sample(frac=1)
+samples = samples.drop('label',axis=1)
+import matplotlib.pyplot as plt
+plt.hist(f['label'])
 #%% save to pickle
-samples = faps_peak_df
 utils.save_object(samples,'faps_for_train.pkl')
 
 #%% slide plot

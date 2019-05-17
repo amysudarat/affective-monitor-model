@@ -1,5 +1,4 @@
 #%%
-import utils
 import glob
 import os
 import pandas as pd
@@ -30,28 +29,16 @@ import utils
 import preprocessing.pre_utils as pu
 data_df = utils.load_object('faps_for_train.pkl')
 valence = utils.load_object('valence.pkl')
-arousals = utils.load_object('arousal.pkl')
+#arousals = utils.load_object('arousal.pkl')
 valence_list = valence['valence'].tolist()
-arousal_list = arousals['arousal'].tolist()
+#arousal_list = arousals['arousal'].tolist()
 
 data_df = pu.match_label_with_sample(data_df,valence_list)
-data_df = pu.match_label_with_sample(data_df,arousal_list,col_name='arousal')
-           
-
-#%% plot faps with peak
-import preprocessing.fap as pfap
-
-pfap.faps_slide_plot(data_df,30,label=True)
-
- #%% plot dir vector with stem
-import preprocessing.fap as pfap
-
-pfap.dir_vector_slide_plot(data_df,30,label=True)                                   
+#data_df = pu.match_label_with_sample(data_df,arousal_list,col_name='arousal')                                 
 
 #%% plot scatter matrix  
-
 fig = ff.create_scatterplotmatrix(
-    data_df[['p_width','p_height','label']],
+    data_df[[0,1,12,13,'label']],
     diag='histogram',
     index='label',
     height=1000, width=1000)

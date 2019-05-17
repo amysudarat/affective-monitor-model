@@ -223,53 +223,97 @@ def get_peak(faps_df,mode='peak',window_width=10,sliding_step=3,min_dist=10,thre
             pr = int(min(x.shape[0],c+L))            
             x_win = x[pl:pr,:]
          
-            AU = []
+            FAP = []
             for col in range(x_win.shape[1]):
                 trace = x_win[:,col]
                 trace_abs = np.absolute(trace)
-                p_trace = peakutils.indexes(trace_abs,thres=0.3,min_dist=10)
+                p_trace = peakutils.indexes(trace_abs,thres=0.4,min_dist=10)
                 if len(p_trace) == 0:
-                    AU.append(0)
+                    FAP.append(0)
                     continue
                 else:
                     pp = p_trace[np.argmax([trace[i] for i in p_trace])]
-#                    try:
                     slope_l = (trace[pp]-trace[0])/(pp)
                     slope_r = (trace[len(trace)-1]-trace[pp])/(19-pp)
-#                    except:
-#                        print('here')
                     if slope_l > 0 and slope_r < 0:
-                        AU.append(1)
+                        FAP.append(1)
                     elif slope_l < 0 and slope_r > 0:
-                        AU.append(-1)
+                        FAP.append(-1)
                     else:
-                        AU.append(0)
-               
-#            for col in range(x.shape[1]):
-#                try:
-#                    p_trace = peakutils.indexes(x_win[:,col],min_dist=L,thres=0.6)
-#                except:
-#                    p_trace = []
-#                if len(p_trace) == 0:
-#                    AU.append(0)
-#                    continue
-#                p_trace_mag = [x_win[i,col] for i in p_trace]
-#                p_trace = p_trace[np.argmax(p_trace_mag)]
-#                # detect upward and downward peak
-#                p_width, p_height, p_lb, p_rb = peak_widths(x_win[:,col],[p_trace],rel_height=1)
-#                # get baseline
-#                p_lb = int(p_lb[0])
-#                p_rb = int(p_rb[0])
-#                baseline = (x_win[p_lb,col] + x_win[p_rb,col])/2
-#                if x_win[p_trace,col] > baseline:
-#                    AU.append(1)
-#                else:
-#                    AU.append(-1)
+                        FAP.append(0)
         else:
-            AU = [0 for i in range(19)]
+            FAP = [0 for i in range(19)]
                 
         # create column AU
-        row['AU'] = AU
+        row['FAP'] = FAP
+        
+        # convert it to AU
+        # AU1
+        if FAP[0] == 1 and FAP[1] == 1:
+            row['AU1'] = 1
+        else:
+            row['AU1'] = 0
+        # AU2
+        if FAP[2] == 1 and FAP[3] == 1:
+            row['AU2'] = 1
+        else:
+            row['AU2'] = 0
+        # AU4
+        if FAP[0] == -1 and FAP[1] == -1 and FAP[4] == -1 and FAP[5] == -1:
+            row['AU4'] = 1
+        else:
+            row['AU4'] = 0
+        # AU5
+        if FAP[6] == 1 and FAP[7] == 1 :
+            row['AU5'] = 1
+        else:
+            row['AU5'] = 0
+        # AU6
+        if FAP[6] == -1 and FAP[7] == -1 and FAP[8] == -1 and FAP[9] == -1:
+            row['AU6'] = 1
+        else:
+            row['AU6'] = 0
+        # AU9
+        if FAP[10] == -1 and FAP[11] == -1:
+            row['AU9'] = 1
+        else:
+            row['AU9'] = 0
+        # AU10
+        if FAP[12] == -1 and FAP[13] == -1:
+            row['AU10'] = 1
+        else:
+            row['AU10'] = 0
+        # AU12
+        if FAP[12] == -1 and FAP[13] == -1 and FAP[14] == 1 and FAP[15] == 1:
+            row['AU12'] = 1
+        else:
+            row['AU12'] = 0
+        # AU15
+        if FAP[12] == 1 and FAP[13] == 1:
+            row['AU15'] = 1
+        else:
+            row['AU15'] = 0
+        # AU16
+        if FAP[16] == -1 and FAP[18] == -1:
+            row['AU16'] = 1
+        else:
+            row['AU16'] = 0
+        # AU20
+        if FAP[14] == 1 and FAP[15] == 1 and FAP[16] == -1:
+            row['AU20'] = 1
+        else:
+            row['AU20'] = 0
+        # AU23
+        if FAP[14] == -1 and FAP[15] == -1:
+            row['AU23'] = 1
+        else:
+            row['AU23'] = 0
+        # AU26
+        if FAP[18] == 1 and FAP[16] == 1:
+            row['AU26'] = 1
+        else:
+            row['AU26'] = 0
+                
         return row
     
     # apply faps_df['faps'] with find peak function 
