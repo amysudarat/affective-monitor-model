@@ -22,7 +22,7 @@ data_df = pu.match_label_with_sample(data_df,valence_list)
 data_df = pu.match_label_with_sample(data_df,arousal_list,col_name='arousal')
            
 label = data_df['label'].values.astype(np.int64)
-data = data_df.drop(columns=['ori_idx','label']).values.astype(np.float32)
+data = data_df.drop(columns=['ori_idx','label','arousal']).values.astype(np.float32)
 
 #test_df = utils.load_object('valence_for_train.pkl')
 #test_df = pu.match_label_with_sample(test_df,valence_list)

@@ -28,7 +28,7 @@ faps_peak_df = pfap.get_peak(faps_filtered,
                              mode='peak',
                              min_dist=10,
                              thres=0.7)
-#pfap.faps_slide_plot(faps_peak_df,49,label=False,peak_plot='peak_sel',plot_sig=None)
+pfap.faps_slide_plot(faps_peak_df,49,label=False,peak_plot='peak_sel',plot_sig=None)
 #pfap.dir_vector_slide_plot(faps_peak_df,51,label=False)
 
 #%% prepare df for training
