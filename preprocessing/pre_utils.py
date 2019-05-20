@@ -18,6 +18,9 @@ def match_label_with_sample(data_df,label_list,col_name='label'):
     
     return data_df
 
+def match_arousal_valence(valence_df,arousal_df):
+    pass
+
 def match_illum_with_sample(original_df,illum_list):
     
 #    idx_col = original_df.index

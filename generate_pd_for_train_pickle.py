@@ -22,7 +22,7 @@ pd_filt_df = ppd.preprocessing_pd(pd_df,
                              diff_threshold=0.1,
                              n_mad=2,
                              interpolate=True,
-                             miss_threshold=0.2,
+                             miss_threshold=0.25,
                              norm=True)
 
 #%% plot slide show
@@ -40,8 +40,8 @@ ill_list = pu.match_illum_with_sample(pd_filt_df,ill_list)
 #%% get PQR
 pd_pqr_df = ppd.get_pqr_feature(pd_filt_df,
                                 smooth=True,
-                                filt_corrupt=True,
-                                illum_comp=None)
+                                filt_corrupt=False,
+                                illum_comp=ill_list)
 
 #%% get stat features
 pd_pqr_df = ppd.generate_features_df(pd_pqr_df)
@@ -63,8 +63,8 @@ arousals_list = arousals['arousal'].tolist()
 pd_sel_df = pd_pqr_df.copy()
 pd_sel_df = pu.match_label_with_sample(pd_sel_df,arousals_list)
 
-pd_ar_df = pd_sel_df[((pd_sel_df['label']==1) & (pd_sel_df['area_ql']>5))]
-pd_nar_df = pd_sel_df[((pd_sel_df['label']==2) & (pd_sel_df['area_ql']<=5))]
+pd_ar_df = pd_sel_df[((pd_sel_df['label']==1) & (pd_sel_df['area_ql']>20))]
+pd_nar_df = pd_sel_df[((pd_sel_df['label']==2) & (pd_sel_df['area_ql']<=20))]
 pd_nar_df = pd_nar_df.sample(pd_ar_df.shape[0])
 
 samples = pd.concat([pd_ar_df,pd_nar_df],ignore_index=True)
@@ -78,7 +78,7 @@ samples = samples.drop('label',axis=1)
 
 # save pickle
 utils.save_object(samples,'pd_for_train.pkl')
-utils.save_object(pd_pqr_df,'pd_for_test.pkl')
+#utils.save_object(pd_pqr_df,'pd_for_test.pkl')
 
 #%%
 utils.save_object(pd_pqr_df,'pd_for_train.pkl')
