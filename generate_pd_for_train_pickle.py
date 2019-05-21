@@ -31,8 +31,8 @@ pd_filt_df = ppd.preprocessing_pd(pd_df,
 #%% illum compensation
 import preprocessing.illum as pill
 import preprocessing.pre_utils as pu
-#filepath = r"E:\Research\affective-monitor-model\preprocessing\lux_record_manual.csv"
-filepath = r"C:\Users\DSPLab\Research\affective-monitor-model\preprocessing\lux_record_manual.csv"
+filepath = r"E:\Research\affective-monitor-model\preprocessing\lux_record_manual.csv"
+#filepath = r"C:\Users\DSPLab\Research\affective-monitor-model\preprocessing\lux_record_manual.csv"
 ill_list = pill.get_illum_lux_manual(filepath)
 ill_list = ill_list['illum_gimp'].tolist()
 ill_list = pu.match_illum_with_sample(pd_filt_df,ill_list)
