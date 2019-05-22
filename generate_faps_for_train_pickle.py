@@ -21,15 +21,15 @@ faps_filtered = pfap.faps_preprocessing(faps_np_df,
 
 #%% remove calm
 #faps_remove_calm = pfap.calm_detector(faps_filtered,thres=1,remove=True)
-#pfap.faps_slide_plot(faps_remove_calm,51,label=False,peak_plot=False)
+#pfap.faps_slide_plot(faps_filtered,51,label=False,peak_plot=False)
 
 #%% get peak
 faps_peak_df = pfap.get_peak(faps_filtered,
                              mode='peak',
                              min_dist=10,
                              thres=0.7)
-#pfap.faps_slide_plot(faps_peak_df,49,label=False,peak_plot='peak_sel',plot_sig=None)
-#pfap.dir_vector_slide_plot(faps_peak_df,51,label=False)
+#pfap.faps_slide_plot(faps_peak_df,51,label=False,peak_plot='peak_pos',plot_sig=None)
+pfap.dir_vector_slide_plot(faps_peak_df,51,label=False)
 
 #%% prepare df for training
 #import numpy as np

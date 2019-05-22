@@ -58,7 +58,7 @@ faps_tmp_df = pfap.faps_preprocessing_samples(faps_np_df,
                                               smooth=True,
                                               fix_scaler='standard',
                                               fix_scaler_mode='sbj',
-                                              aoi=[5,65],
+                                              aoi=[0,100],
                                               sm_wid_len=21,
                                               sbj_num=88)
 faps_tmp_df['label'] = label_99
@@ -115,8 +115,8 @@ for t in label_99:
 
 #%% arousal pickle
 import preprocessing.arousal as paro
-path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
-#path = "E:\\Research\\ExperimentData"
+#path = "C:\\Users\\DSPLab\\Research\\ExperimentData"
+path = "E:\\Research\\ExperimentData"
 n = 51
 subjects = [i for i in range(1,n+1)]
 arousals = paro.get_arousal_df(path,subjects,source='subject_avg',fix=True,class_mode='two')

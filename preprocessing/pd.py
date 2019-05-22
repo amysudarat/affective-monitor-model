@@ -207,7 +207,7 @@ def preprocessing_pd(pd_df,aoi=40,loc_artf='diff',n_mad=16,diff_threshold=0.2,in
             pd_df = tmp_df
             del tmp_df
         elif loc_artf == 'mad_filter':
-            pd_df = identify_artifact(pd_df,n=n_mad,interpolate=True)
+            pd_df = identify_artifact(pd_df,n=n_mad,interpolate=interpolate)
             
     if miss_threshold is not None:
         pd_np = pd_df.drop('ori_idx',axis=1).values

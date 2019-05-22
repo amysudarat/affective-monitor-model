@@ -78,6 +78,7 @@ faps_df = utils.load_object('fap.pkl')
 valence_df = utils.load_object('valence.pkl')
 
 #%% smooth curve
+import preprocessing.fap as pfap
 faps_smoothed_df = pd.DataFrame()
 for smp in range(1,faps_df.index.max()+1):
     tmp_np = faps_df.loc[smp].values   
@@ -138,7 +139,7 @@ for sbj in subjects:
     
 
 #%%
-
+import utils
 # load object if pickle file already exists
 face_dataset = utils.load_object("data_1_50_fixPD_Label_False.pkl")
 

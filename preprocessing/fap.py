@@ -93,7 +93,7 @@ def dir_vector_slide_plot(faps_df,sbj,label=False):
     if sbj != 'all':
         faps_df = faps_df[faps_df['sbj_idx']==sbj]     
     # prepare faps that will be plotted
-    au = faps_df['AU'].tolist()
+    au = faps_df['FAP'].tolist()
     if label:
         labels = faps_df['label'].tolist()
     # slide show

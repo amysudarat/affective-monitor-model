@@ -26,7 +26,7 @@ pd_filt_df = ppd.preprocessing_pd(pd_df,
                              norm=True)
 
 #%% plot slide show
-#ppd.pd_plot_pause(pd_filt_df,51,ylim=[-1,2])
+ppd.pd_plot_pause(pd_filt_df,51,r=40,ylim=[-1,2])
       
 #%% illum compensation
 import preprocessing.illum as pill
@@ -48,7 +48,7 @@ pd_pqr_df = ppd.generate_features_df(pd_pqr_df)
 import matplotlib.pyplot as plt
 plt.hist(pd_pqr_df['area_ql'])
 #%% visualize pqr
-#ppd.plot_pqr_slideshow(pd_pqr_df,42,smooth=True)
+#ppd.plot_pqr_slideshow(pd_pqr_df,51,smooth=True)
 
 #%% data selection
 #sel_pic_list = utils.load_object('selected_idx_list.pkl')
