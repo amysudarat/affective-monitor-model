@@ -29,7 +29,7 @@ faps_peak_df = pfap.get_peak(faps_filtered,
                              min_dist=10,
                              thres=0.7)
 #pfap.faps_slide_plot(faps_peak_df,51,label=False,peak_plot='peak_pos',plot_sig=None)
-pfap.dir_vector_slide_plot(faps_peak_df,51,label=False)
+#pfap.dir_vector_slide_plot(faps_peak_df,51,label=False)
 
 #%% prepare df for training
 #import numpy as np
@@ -50,22 +50,27 @@ f = f.reset_index(drop=True)
 #%% 1 is pleasure 2 displeasure
 import pandas as pd
 # feeling observation
-f1 = f[(f['AU1']==1) & (f['label']==1)]
-f2 = f[(f['AU2']==1) & (f['label']==1)]
+f1 = f[(f['AU1']==1) & (f['label']==2)]
+f2 = f[(f['AU2']==1) & (f['label']==2)]
 f4 = f[(f['AU4']==1) & (f['label']==2)]
 f5 = f[(f['AU5']==1) & (f['label']==1)]
 f6 = f[(f['AU6']==1) & (f['label']==1)]
 f9 = f[(f['AU9']==1) & (f['label']==2)]
-f12 = f[(f['AU12']==1) & (f['label']==2)]
+f12 = f[(f['AU12']==1) & (f['label']==1)]
 f15 = f[(f['AU15']==1) & (f['label']==2)]
 f16 = f[(f['AU16']==1) & (f['label']==2)]
 f20 = f[(f['AU20']==1) & (f['label']==2)]
+f88 = f[(f['AU1']==1) & (f['AU2']==1) & (f['label']==1)]
 
-samples = pd.concat([f1,f2,f4,f5,f6,f9,f12,f15,f16,f20],ignore_index=True)
+samples = pd.concat([f2,f4,f6,f9,f12,f88],ignore_index=True)
+#samples = pd.concat([f1,f2,f4,f5,f6,f9,f12,f15,f16,f20],ignore_index=True)
 samples = samples.sample(frac=1)
-samples = samples.drop('label',axis=1)
+
 import matplotlib.pyplot as plt
-plt.hist(f['label'])
+plt.hist(samples['label'])
+plt.title("Histogram plot of sample's label")
+samples = samples.drop('label',axis=1)
+
 #%% save to pickle
 utils.save_object(samples,'faps_for_train.pkl')
 

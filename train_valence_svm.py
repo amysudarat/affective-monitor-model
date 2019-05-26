@@ -105,10 +105,10 @@ plt.show()
 #plt.legend(loc="lower right")
 #plt.show()
 #%% model persistence
-#from sklearn.externals import joblib
-#filename = 'save_model/valence_svm.pkl'
-#joblib.dump(gs.best_estimator_, filename , compress = 1)
-## load the model from disk
-#loaded_model = joblib.load(filename)
-#acc = loaded_model.score(X_test, y_test)
-#print(acc)
+from sklearn.externals import joblib
+filename = 'save_model/valence_svm.pkl'
+joblib.dump(gs.best_estimator_, filename , compress = 1)
+# load the model from disk
+loaded_model = joblib.load(filename)
+acc = loaded_model.score(X_test, y_test)
+print(acc)

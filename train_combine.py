@@ -28,6 +28,27 @@ print('accuracy: {:.2f}'.format(accuracy_score(label, valence_predicted)))
 val_np = np.array([valence_predicted,ori_idx]).transpose()
 pred_val_df = pd.DataFrame(val_np,columns=['valence','ori_idx'])
 
+#%% metrics
+import matplotlib.pyplot as plt
+from sklearn.metrics import roc_curve, auc
+# ROC curve
+fpr, tpr, thresholds = roc_curve(label, valence_predicted, pos_label=2) 
+
+roc_auc = auc(fpr, tpr)
+plt.figure()
+lw = 2
+plt.plot(fpr, tpr, color='darkorange',
+         lw=lw, label='ROC curve (area = %0.2f)' % roc_auc)
+plt.plot([0, 1], [0, 1], color='navy', lw=lw, linestyle='--')
+plt.xlim([0.0, 1.0])
+plt.ylim([0.0, 1.05])
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title('Receiver operating characteristic (ROC) of Valence Classifier')
+plt.legend(loc="lower right")
+plt.show()
+
+
 #%% merge arousal and valence data
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
@@ -42,6 +63,10 @@ pred_val_df = pred_val_df.set_index('ori_idx')
 
 arousal_data_df['valence'] = pred_val_df['valence']
 arousal_data_df = arousal_data_df.dropna()
+
+valence_predicted = loaded_model.predict(data).tolist()
+print(confusion_matrix(label, valence_predicted))
+print('accuracy: {:.2f}'.format(accuracy_score(label, valence_predicted)))
 
            
 label = arousal_data_df['label'].values.astype(np.int64)
@@ -73,7 +98,7 @@ plt.xlim([0.0, 1.0])
 plt.ylim([0.0, 1.05])
 plt.xlabel('False Positive Rate')
 plt.ylabel('True Positive Rate')
-plt.title('Receiver operating characteristic example')
+plt.title('Receiver operating characteristic (ROC) of Arousal Classifier')
 plt.legend(loc="lower right")
 plt.show()
 
