@@ -26,7 +26,7 @@ pd_filt_df = ppd.preprocessing_pd(pd_df,
                              norm=True)
 
 #%% plot slide show
-ppd.pd_plot_pause(pd_filt_df,51,r=40,ylim=[-1,2])
+#ppd.pd_plot_pause(pd_filt_df,51,r=40,ylim=[-1,2])
       
 #%% illum compensation
 import preprocessing.illum as pill
@@ -81,7 +81,7 @@ utils.save_object(samples,'pd_for_train.pkl')
 #utils.save_object(pd_pqr_df,'pd_for_test.pkl')
 
 #%%
-utils.save_object(pd_pqr_df,'pd_for_train.pkl')
+utils.save_object(samples,'pd_for_train.pkl')
 
 #%%
 # Standard plotly imports
